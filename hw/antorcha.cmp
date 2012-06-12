@@ -1,10 +1,10 @@
-Cmp-Mod V01 Created by CvPcb (2012-04-11 BZR 3505)-testing date = Mon Jun 11 20:54:19 2012
+Cmp-Mod V01 Created by CvPcb (2012-04-11 BZR 3505)-testing date = Tue Jun 12 06:18:48 2012
 
 BeginCmp
 TimeStamp = /4FD2B1EE/4FD2B245;
 Reference = ANT701;
 ValeurCmp = 50R;
-IdModule  = MEANDER;
+IdModule  = MEANDER-2450MHz-left-1.0mm;
 EndCmp
 
 BeginCmp

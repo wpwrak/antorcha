@@ -58,6 +58,6 @@ LibName4=bat-clip-aa-th
 LibName5=qfn
 LibName6=xtal-4
 LibName7=0805-6
-LibName8=meander
+LibName8=meander-2450MHz
 LibName9=qfp
 LibName10=pads

@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Mon Jun 11 21:55:50 2012
+EESchema Schematic File Version 2  date Tue Jun 12 12:05:17 2012
 LIBS:c
 LIBS:r
 LIBS:led
@@ -14,6 +14,7 @@ LIBS:gencon
 LIBS:pwr
 LIBS:powered
 LIBS:testpoint
+LIBS:antorcha-cache
 EELAYER 25  0
 EELAYER END
 $Descr A4 11693 8268
@@ -588,4 +589,6 @@ Connection ~ 5400 4400
 Connection ~ 5400 4400
 Wire Wire Line
 	5400 5500 5400 5300
+Text Label 2400 3700 0    60   ~ 0
+FEED
 $EndSCHEMATC
