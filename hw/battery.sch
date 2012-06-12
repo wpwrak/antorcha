@@ -1,0 +1,160 @@
+EESchema Schematic File Version 2  date Mon Jun 11 21:55:50 2012
+LIBS:c
+LIBS:r
+LIBS:led
+LIBS:Atmega8
+LIBS:at86rf231
+LIBS:balun-smt6
+LIBS:antenna
+LIBS:sw4
+LIBS:device_sot
+LIBS:xtal-4
+LIBS:adxl32x
+LIBS:gencon
+LIBS:pwr
+LIBS:powered
+LIBS:testpoint
+EELAYER 25  0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 5 7
+Title ""
+Date "12 jun 2012"
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L CONN_4 CON501
+U 1 1 4FD299E9
+P 5200 4450
+F 0 "CON501" H 5200 4850 60  0000 C CNN
+F 1 "CONN_4" H 5250 4200 60  0000 C CNN
+	1    5200 4450
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_4 CON503
+U 1 1 4FD299F8
+P 5200 5450
+F 0 "CON503" H 5200 5850 60  0000 C CNN
+F 1 "CONN_4" H 5250 5200 60  0000 C CNN
+	1    5200 5450
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_4 CON502
+U 1 1 4FD29A07
+P 6750 4450
+F 0 "CON502" H 6750 4850 60  0000 C CNN
+F 1 "CONN_4" H 6800 4200 60  0000 C CNN
+	1    6750 4450
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_4 CON504
+U 1 1 4FD29A16
+P 6750 5450
+F 0 "CON504" H 6750 5850 60  0000 C CNN
+F 1 "CONN_4" H 6800 5200 60  0000 C CNN
+	1    6750 5450
+	1    0    0    -1  
+$EndComp
+Text Label 4400 3400 1    60   ~ 0
+BAT_GND
+Text Label 4600 3400 1    60   ~ 0
+BAT_3V
+Text Label 6000 3400 1    60   ~ 0
+BAT_4V5
+Text Label 6200 3400 1    60   ~ 0
+BAT_6V
+Text Label 4600 5050 1    60   ~ 0
+BAT_1V5
+$Comp
+L CONN_4 CON505
+U 1 1 4FD433CD
+P 5250 1800
+F 0 "CON505" H 5250 2050 60  0000 C CNN
+F 1 "CONN_4" H 5250 1550 60  0000 C CNN
+	1    5250 1800
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	6200 4300 6350 4300
+Wire Wire Line
+	6200 2600 6200 4400
+Wire Wire Line
+	6000 2800 6000 5400
+Connection ~ 6000 4600
+Wire Wire Line
+	4800 4300 4600 4300
+Wire Wire Line
+	4600 2800 4600 4400
+Wire Wire Line
+	4600 5300 4800 5300
+Wire Wire Line
+	4800 4600 4600 4600
+Connection ~ 4600 4600
+Wire Wire Line
+	4400 5600 4800 5600
+Wire Wire Line
+	4400 2600 4400 5600
+Wire Wire Line
+	4600 3800 5650 3800
+Wire Wire Line
+	5650 3800 5650 5600
+Wire Wire Line
+	5650 5600 6350 5600
+Connection ~ 4600 3800
+Connection ~ 6200 5600
+Wire Wire Line
+	4600 2800 5200 2800
+Wire Wire Line
+	5200 2800 5200 2200
+Wire Wire Line
+	6000 2800 5300 2800
+Wire Wire Line
+	5300 2800 5300 2200
+Wire Wire Line
+	4400 2600 5100 2600
+Wire Wire Line
+	5100 2600 5100 2200
+Wire Wire Line
+	6200 2600 5400 2600
+Wire Wire Line
+	5400 2600 5400 2200
+Wire Wire Line
+	4800 5500 4400 5500
+Connection ~ 4400 5500
+Wire Wire Line
+	6350 4600 6000 4600
+Wire Wire Line
+	6200 4400 6350 4400
+Connection ~ 6200 4300
+Wire Wire Line
+	6350 4500 6000 4500
+Connection ~ 6000 4500
+Wire Wire Line
+	4600 4500 4600 5400
+Wire Wire Line
+	4800 4500 4600 4500
+Wire Wire Line
+	4600 4400 4800 4400
+Connection ~ 4600 4300
+Wire Wire Line
+	4600 5400 4800 5400
+Connection ~ 4600 5300
+Wire Wire Line
+	6350 5300 6000 5300
+Wire Wire Line
+	6350 5500 6200 5500
+Wire Wire Line
+	6200 5500 6200 5600
+Wire Wire Line
+	6000 5400 6350 5400
+Connection ~ 6000 5300
+$EndSCHEMATC

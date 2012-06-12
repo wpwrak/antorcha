@@ -1,0 +1,95 @@
+design specs:
+- text readable at up to 50 m
+- automatic centering of image
+- non-aggressive design
+- suitable for dim ambient light, such as an illuminated street
+  at night
+- powered by off-the shelf batteries
+- content programmable via wireless interface
+- use medium-strength authentication for wireless communication
+
+opportunistic component selection:
+- reuse ben-wpan (IEEE 802.15.4) circuit, and ben+atben or
+  laptop+atusb for (remote) editing
+- use ATmega 48/88/168 series controller
+- use ADXL321 series acceleration sensor
+- use APTD1608SEC LEDs
+- use unregulated battery power
+
+visible field:
+- height: ~25 cm, with 16 pairs of LEDs, at 8 mm spacing
+- horizontal movement (arm waving) is about 120 cm
+- this yields up to 80 horizontal square "pixels"
+- text capacity
+  height width gap  character (per line)
+  16 px  10 px 2 px  6.8
+   7 px   5 px 2 px 11.7
+   7 px   5 px 1 px 13.5
+- text height
+  pixels cm
+   16    24
+    7    11.2
+
+physical structure:
+- mount LEDs on stick
+- batteries and main circuit in handle or extension (see below)
+- make stick strong enough to resist excessive bending/breaking
+  under wind load
+- make stick as weak as possible to avoid perception or use as
+  weapon
+
+stick length:
+- LEDs occupy (16*2-1)*8 mm plus component width, in total
+  roughly 249 mm
+- add 2 cm for termination at top
+- add extension for increased visibility
+
+extension:
+- assume small spectators are 10 cm smaller than nearby
+  obstacles (e.g., shoulders of tall people)
+- assume distance between spectators is 80 cm
+- to be visible at 50 m, the bottom edge must therefore be
+  50 m / 80 cm * (10 cm / 80 cm) * 10 cm = 78 cm
+  above eye level of small spectators
+- assume waver to be about 20 cm taller than small spectator
+- hand above head position yields distance of about 30 cm
+  above eye level
+- therefore, extension should be 78 cm - 50 cm = 28 cm
+
+handle design:
+- about 10-12 cm in length
+- include button for control functions. button can be located
+  on extension
+- acceleration sensor should be at a high position, possibly
+  on extension
+
+overall length:
+- 25 cm for LEDs
+-  2 cm for termination (head)
+- 28 cm for extension
+- 12 cm for handle
+- 67 cm total length
+
+electrical, LEDs:
+- no multiplexing
+- max. 30 mA per LED pair (series)
+  -> max. 16 * 30 mA = 480 mA for LEDs
+- series resistor is 56 Ohm. Allow up to additional 10% voltage drop
+  in trace.
+  -> Rmax per LED pair is ~ 5 Ohm
+- assume 30 cm trace
+- variant A: switching transistors at LED
+  - average length is 15 cm
+  - Rmax is 5 Ohm / 16 = 300 mOhm
+  - http://circuitcalculator.com/wordpress/2006/01/31/pcb-trace-width-calculator/
+    yields for 500 mA at 2 oz/ft2:
+    - minimum width 2.3 mil / 0.06 mm
+    - 111 mOhm
+  => 8 mil traces are more than sufficient, even for power rails
+- variant B: switching transistors in handle
+  even less demanding
+
+authentication:
+- shared secret (128 bit, MD5-hashed text with 128 bit salt)
+- salt (128 bit)
+- MD5
