@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Tue Jun 12 12:05:17 2012
+EESchema Schematic File Version 2  date Sat Jun 16 10:25:00 2012
 LIBS:c
 LIBS:r
 LIBS:led
@@ -21,7 +21,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 6 7
 Title ""
-Date "12 jun 2012"
+Date "16 jun 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -327,17 +327,6 @@ F 1 "POWERED" H 4000 3350 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R601
-U 1 1 4FD67D79
-P 6450 6100
-F 0 "R601" V 6550 6100 60  0000 C CNN
-F 1 "10k" V 6450 6100 60  0000 C CNN
-	1    6450 6100
-	0    -1   -1   0   
-$EndComp
-Text GLabel 5900 6100 0    60   Input ~ 0
-CTRL_3V
-$Comp
 L R R602
 U 1 1 4FD6959A
 P 9700 4850
@@ -389,6 +378,26 @@ P 5400 5500
 F 0 "#PWR030" H 5400 5500 30  0001 C CNN
 F 1 "GND" H 5400 5430 30  0001 C CNN
 	1    5400 5500
+	1    0    0    -1  
+$EndComp
+Text Label 2400 3700 0    60   ~ 0
+FEED
+$Comp
+L R R601
+U 1 1 4FDC8D53
+P 6900 6350
+F 0 "R601" H 7100 6400 60  0000 C CNN
+F 1 "10k" H 7050 6300 60  0000 C CNN
+	1    6900 6350
+	-1   0    0    -1  
+$EndComp
+$Comp
+L GND #PWR031
+U 1 1 4FDC8D6F
+P 6900 6800
+F 0 "#PWR031" H 6900 6800 30  0001 C CNN
+F 1 "GND" H 6900 6730 30  0001 C CNN
+	1    6900 6800
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -561,10 +570,6 @@ Wire Wire Line
 Wire Wire Line
 	8800 3300 10650 3300
 Wire Wire Line
-	5900 6100 6200 6100
-Wire Wire Line
-	6900 6100 6700 6100
-Wire Wire Line
 	9700 4600 9700 3500
 Connection ~ 9700 3500
 Wire Wire Line
@@ -589,6 +594,6 @@ Connection ~ 5400 4400
 Connection ~ 5400 4400
 Wire Wire Line
 	5400 5500 5400 5300
-Text Label 2400 3700 0    60   ~ 0
-FEED
+Wire Wire Line
+	6900 6600 6900 6800
 $EndSCHEMATC
