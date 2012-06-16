@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Tue Jun 12 12:05:17 2012
+EESchema Schematic File Version 2  date Thu Jun 14 14:45:51 2012
 LIBS:c
 LIBS:r
 LIBS:led
@@ -21,7 +21,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 7 7
 Title ""
-Date "12 jun 2012"
+Date "14 jun 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -34,7 +34,7 @@ L C C803
 U 1 1 4FD2B1FA
 P 7200 4700
 F 0 "C803" H 7250 4800 60  0000 L CNN
-F 1 "C" H 7250 4600 60  0000 L CNN
+F 1 "100n" H 7250 4600 60  0000 L CNN
 	1    7200 4700
 	1    0    0    -1  
 $EndComp
@@ -43,7 +43,7 @@ L C C802
 U 1 1 4FD2B209
 P 6700 4700
 F 0 "C802" H 6750 4800 60  0000 L CNN
-F 1 "C" H 6750 4600 60  0000 L CNN
+F 1 "100n" H 6750 4600 60  0000 L CNN
 	1    6700 4700
 	1    0    0    -1  
 $EndComp
@@ -52,7 +52,7 @@ L C C801
 U 1 1 4FD2B218
 P 4800 3400
 F 0 "C801" H 4850 3500 60  0000 L CNN
-F 1 "C" H 4850 3300 60  0000 L CNN
+F 1 "100n" H 4850 3300 60  0000 L CNN
 	1    4800 3400
 	1    0    0    -1  
 $EndComp

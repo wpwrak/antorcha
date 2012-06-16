@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Tue Jun 12 12:05:17 2012
+EESchema Schematic File Version 2  date Thu Jun 14 19:38:22 2012
 LIBS:c
 LIBS:r
 LIBS:led
@@ -21,7 +21,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 2 7
 Title ""
-Date "12 jun 2012"
+Date "14 jun 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -398,6 +398,26 @@ F 1 "4k7" V 8700 5600 60  0000 C CNN
 	1    8700 5600
 	0    -1   -1   0   
 $EndComp
+Text Label 9700 5900 0    60   ~ 0
+LEDA_1
+Text Label 9700 6000 0    60   ~ 0
+LEDA_2
+Text Label 9700 6100 0    60   ~ 0
+LEDA_3
+Text Label 9700 6200 0    60   ~ 0
+LEDA_4
+Text Label 9700 6300 0    60   ~ 0
+LEDA_5
+Text Label 9700 6400 0    60   ~ 0
+LEDA_6
+Text Label 9700 6500 0    60   ~ 0
+LEDA_7
+Text Label 9700 6600 0    60   ~ 0
+LEDA_8
+Text Label 9700 6700 0    60   ~ 0
+LEDA_GND
+Text Label 9700 6800 0    60   ~ 0
+LEDA_6V
 Wire Wire Line
 	2250 1700 2500 1700
 Wire Wire Line
@@ -468,11 +488,6 @@ Wire Wire Line
 	3100 4700 950  4700
 Connection ~ 950  4700
 Wire Wire Line
-	3100 3400 950  3400
-Wire Wire Line
-	950  3400 950  3350
-Connection ~ 950  3350
-Wire Wire Line
 	6900 1700 7150 1700
 Wire Wire Line
 	7550 1700 7750 1700
@@ -540,11 +555,6 @@ Wire Wire Line
 	7750 4700 5600 4700
 Connection ~ 5600 4700
 Wire Wire Line
-	7750 3400 5600 3400
-Wire Wire Line
-	5600 3400 5600 3350
-Connection ~ 5600 3350
-Wire Wire Line
 	700  6800 10300 6800
 Connection ~ 700  5200
 Connection ~ 950  6000
@@ -600,24 +610,14 @@ Wire Wire Line
 	9500 2100 9500 5900
 Wire Wire Line
 	9500 5900 10300 5900
-Text Label 9700 5900 0    60   ~ 0
-LEDA_1
-Text Label 9700 6000 0    60   ~ 0
-LEDA_2
-Text Label 9700 6100 0    60   ~ 0
-LEDA_3
-Text Label 9700 6200 0    60   ~ 0
-LEDA_4
-Text Label 9700 6300 0    60   ~ 0
-LEDA_5
-Text Label 9700 6400 0    60   ~ 0
-LEDA_6
-Text Label 9700 6500 0    60   ~ 0
-LEDA_7
-Text Label 9700 6600 0    60   ~ 0
-LEDA_8
-Text Label 9700 6700 0    60   ~ 0
-LEDA_GND
-Text Label 9700 6800 0    60   ~ 0
-LEDA_6V
+Wire Wire Line
+	7750 3400 7750 3600
+Wire Wire Line
+	7750 3600 5600 3600
+Connection ~ 5600 3600
+Wire Wire Line
+	3100 3400 3100 3600
+Wire Wire Line
+	3100 3600 950  3600
+Connection ~ 950  3600
 $EndSCHEMATC

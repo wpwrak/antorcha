@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Tue Jun 12 12:05:17 2012
+EESchema Schematic File Version 2  date Sat Jun 16 09:42:20 2012
 LIBS:c
 LIBS:r
 LIBS:led
@@ -21,7 +21,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 4 7
 Title ""
-Date "12 jun 2012"
+Date "16 jun 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -530,7 +530,6 @@ Wire Wire Line
 	7500 5000 10500 5000
 Connection ~ 7500 5000
 Connection ~ 7500 5000
-Connection ~ 12150 5700
 Wire Wire Line
 	6500 4100 8900 4100
 Wire Wire Line
