@@ -57,7 +57,7 @@ endif
 # ----- Rules -----------------------------------------------------------------
 
 .PHONY:		all clean nosecrets upload prog version.c
-.PHONY:		prog-app prog-read on off reset
+.PHONY:		prog-app prog-read
 
 all:		$(NAME).bin boot.bin
 
@@ -87,7 +87,7 @@ clean:
 		rm -f version.c version.d version.o
 
 nosecrets:
-		rm -f unlock-secret.inc reset-secret.inc image-secret.inc
+		rm -f unlock-secret.inc image-secret.inc
 
 # ----- Build version ---------------------------------------------------------
 
@@ -127,9 +127,6 @@ SECRET = { dd if=$(RANDOM) iflag=fullblock bs=$(1) count=1 status=noxfer | \
 	[ "$${PIPESTATUS[*]}" = "0 0" ]; }
 
 unlock-secret.inc:
-		$(BUILD) $(call SECRET,64) >$@ || { rm -f $@; exit 1; }
-
-reset-secret.inc:
 		$(BUILD) $(call SECRET,64) >$@ || { rm -f $@; exit 1; }
 
 image-secret.inc:
@@ -184,13 +181,3 @@ prog:
 prog-read:
 		ssh $(HOST) avrdude -F -p $(CHIP) -c nanonote_antorcha \
 		  -U flash:r:mcu.bin:r
-
-on:
-		ssh $(HOST) poke 0x10010318 4
-
-off:
-		ssh $(HOST) poke 0x10010314 4
-
-reset:
-		ssh $(HOST) poke 0x10010318 2048
-		ssh $(HOST) poke 0x10010314 2048
