@@ -17,7 +17,8 @@
 #define F_CPU	8000000UL
 #include <util/delay.h>
 
-#include "at86rf230.h"
+#include <at86rf230.h>
+
 #include "io.h"
 #include "spi.h"
 #include "rf.h"

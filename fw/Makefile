@@ -17,7 +17,8 @@ NAME = antorcha
 CFLAGS = -g -mmcu=$(CHIP) \
 	 -DBOOT_ADDR=$(BOOT_ADDR) \
 	 -Wall -Wextra -Wshadow -Werror -Wno-unused-parameter \
-	 -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes
+	 -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes \
+	 -I../../ben-wpan/atusb/fw/include/
 
 CHIP = atmega168
 HOST = jlime

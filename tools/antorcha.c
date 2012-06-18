@@ -18,13 +18,12 @@
 #include <string.h>
 #include <assert.h>
 
+#include <at86rf230.h>
 #include <atrf.h>
 #include <misctxrx.h>
 
 #include <hash.h>
 #include <proto.h>
-
-#include "../fw/at86rf230.h"
 
 
 static int verbose = 1;
