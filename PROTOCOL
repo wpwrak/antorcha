@@ -1,0 +1,44 @@
+Protocol
+========
+
+<Type>	<Seq>	<MaxSeq>
+
+   0	0	X	Ping (no further payload)
+
+   1	0	0	Pong (maybe return version string in the future)
+
+   2	0	3	Unlock salt A (64 bytes payload)
+   2	1	3	Unlock salt B
+   2	2	3	Unlock hash A
+   2	3	3	Unlock hash B
+
+   3	n	0	Unlock ACK
+
+   4	0..N-1	N	Firmware binary (64 bytes payload)
+   4	N	N	First half of hash
+
+   5	n	N	Firmware ACK
+
+   6	0..N-1	N+3	Image binary (64 bytes payload)
+   6	N	N+3	Salt A
+   6	N+1	N+3	Salt B
+   6	N+2	N+3	Hash A
+   6	N+3	N+3	Hash B
+
+   7	n	0	Image ACK
+
+   8	0	4	Parameter block (64 bytes payload)
+   8	1	4	Salt A
+   8	2	4	Salt B
+   8	3	4	Hash A
+   8	4	4	Hash B
+
+   9	n	0	Parameter ACK
+
+Unlock, firmware, image, and parameter packets all have a fixed-size
+64 bytes payload. Pings and acknowledgements have no payload. Pongs
+may have a variable-size payload.
+
+Even numbered packet types correspond to packets sent from the remote
+controller to the device. Odd numbered packet types correspond to
+responses. The device never initiates communication.
