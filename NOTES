@@ -90,6 +90,6 @@ electrical, LEDs:
   even less demanding
 
 authentication:
-- shared secret (128 bit, MD5-hashed text with 128 bit salt)
+- shared secret (128 bit, SHA1-hashed text with 128 bit salt)
 - salt (128 bit)
-- MD5
+- SHA1 from avrcryptolib

@@ -1,8 +1,8 @@
 #
-# Makefile - Makefile of the ATUSB firmware 
+# Makefile - Makefile of the Antorcha firmware 
 #
-# Written 2010-2011 by Werner Almesberger
-# Copyright 2010-2011 by Werner Almesberger
+# Written 2012 by Werner Almesberger
+# Copyright 2012 by Werner Almesberger
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,13 +14,16 @@ SHELL = /bin/bash
 
 NAME = antorcha
 
-CFLAGS = -g -mmcu=$(CHIP) -DBOOT_ADDR=$(BOOT_ADDR) \
+CFLAGS = -g -mmcu=$(CHIP) \
+	 -DBOOT_ADDR=$(BOOT_ADDR) -DAPP_ADDR=$(APP_ADDR) -DAPP_END=$(APP_END) \
 	 -Wall -Wextra -Wshadow -Werror -Wno-unused-parameter \
 	 -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes
 
-CHIP=atmega168
-HOST=jlime
-BOOT_ADDR=0x7000
+CHIP = atmega168
+HOST = jlime
+BOOT_ADDR = 0
+APP_ADDR = 0x1000
+APP_END = 0x4000
 
 AVR_PREFIX = $(BIN_PATH) avr-
 CC = $(AVR_PREFIX)gcc
@@ -28,11 +31,9 @@ OBJCOPY = $(AVR_PREFIX)objcopy
 #OBJDUMP = $(AVR_PREFIX)objdump
 SIZE = $(AVR_PREFIX)size
 
-USB_ID = 20b7:1540
-
-OBJS = $(NAME).o rf.o spi.o
-
-CFLAGS += -Iinclude
+OBJS = $(NAME).o $(COMMON_OBJS)
+BOOT_OBJS = boot.o flash.o fw.o $(COMMON_OBJS)
+COMMON_OBJS = dispatch.o hash.o rf.o spi.o
 
 # ----- Verbosity control -----------------------------------------------------
 
@@ -56,18 +57,19 @@ endif
 
 # ----- Rules -----------------------------------------------------------------
 
-.PHONY:		all clean upload prog update version.c bindist
+.PHONY:		all clean upload prog update version.c
 .PHONY:		prog-app prog-read on off reset
 
-all:		$(NAME).bin
+all:		$(NAME).bin boot.bin
 
 $(NAME).elf:	$(OBJS)
 		$(MAKE) version.o
-		$(CC) $(CFLAGS) -o $@ $(OBJS) version.o
+		$(CC) $(CFLAGS) -o $@ $(OBJS) version.o \
+		  -Wl,--section-start=.text=$(APP_ADDR)
 
-#boot.elf:	$(BOOT_OBJS)
-#		$(CC) $(CFLAGS) -o $@ $(BOOT_OBJS) \
-#		  -Wl,--section-start=.text=$(BOOT_ADDR)
+boot.elf:	$(BOOT_OBJS)
+		$(CC) $(CFLAGS) -o $@ $(BOOT_OBJS) \
+		  -Wl,--section-start=.text=$(BOOT_ADDR)
 
 %.bin:		%.elf
 		$(BUILD) $(OBJCOPY) -j .text -j .data -O binary $< $@
@@ -120,25 +122,10 @@ MKDEP =									\
 
 -include $(OBJS:.o=.d)
 
-# ----- Distribution ----------------------------------------------------------
-
-BINDIST_BASE=http://downloads.qi-hardware.com/people/werner/wpan/bindist
-ATUSB_BIN_NAME=atusb-`git rev-parse HEAD | cut -c 1-7`.bin
-
-bindist:
-		qippl atusb.bin wpan/bindist/$(ATUSB_BIN_NAME)
-		@echo $(BINDIST_BASE)/$(ATUSB_BIN_NAME)
-		@echo md5sum: `md5sum atusb.bin | sed 's/ .*//'`
-		@echo atrf-id: \
-		  `sed '/.*number = \(.*\);/s//#\1/p;d' version.c` \
-		  `sed '/.*date = "\(.*\)";/s//\1/p;d' version.c`
-
 # ----- Programming and device control ----------------------------------------
 
-#upload:		$(NAME).bin boot.hex
-#		scp $(NAME).bin boot.hex $(HOST):
-upload:		$(NAME).bin
-		scp $(NAME).bin $(HOST):
+upload:		$(NAME).bin boot.hex
+		scp $(NAME).bin boot.hex $(HOST):
 
 # lfuse: external clock, slow start-up
 # hfuse: 4 kB boot loader, reset into boot loader
@@ -146,20 +133,20 @@ upload:		$(NAME).bin
 #       Note: when trying to program 0xef, we get back 0x2f, failing
 #	      verification. So we just program 0x2f.
 
-prog:
+prog-app:
 		ssh $(HOST) avrdude -F -p $(CHIP) -c nanonote_antorcha -e \
 		  -U flash:w:antorcha.bin:r
 #		  -U lfuse:w:0x60:m
 
-#prog:
-#		ssh $(HOST) avrdude -F -p $(CHIP) -c nanonote_atusb -e \
-#		  -U flash:w:boot.hex:i \
+prog:
+		ssh $(HOST) avrdude -F -p $(CHIP) -c nanonote_antorcha -e \
+		  -U flash:w:boot.hex:i
 #		  -U lfuse:w:0x60:m \
 #		  -U hfuse:w:0xd8:m \
 #		  -U lock:w:0x2f:m
 
 prog-read:
-		ssh $(HOST) avrdude -F -p $(CHIP) -c nanonote_atusb \
+		ssh $(HOST) avrdude -F -p $(CHIP) -c nanonote_antorcha \
 		  -U flash:r:mcu.bin:r
 
 on:

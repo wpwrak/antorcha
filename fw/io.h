@@ -13,6 +13,11 @@
 #ifndef IO_H
 #define	IO_H
 
+#include <avr/io.h>
+
+
+#define	LED_B6	D, 5
+#define	LED_B7	D, 6
 #define	LED_B8	D, 7
 
 #define	RF_SCLK	B, 5

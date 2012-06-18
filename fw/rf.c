@@ -44,8 +44,8 @@ static uint8_t reg_read(uint8_t reg)
 	uint8_t value;
 
 	spi_begin();
-	spi_io(AT86RF230_REG_READ | reg);
-	value = spi_io(0);
+	spi_send(AT86RF230_REG_READ | reg);
+	value = spi_recv();
 	spi_end();
 
 	return value;
@@ -55,10 +55,11 @@ static uint8_t reg_read(uint8_t reg)
 static void reg_write(uint8_t reg, uint8_t value)
 {
 	spi_begin();
-	spi_io(AT86RF230_REG_WRITE | reg);
-	spi_io(value);
+	spi_send(AT86RF230_REG_WRITE | reg);
+	spi_send(value);
 	spi_end();
 }
+
 
 void rf_init(void)
 {
@@ -89,10 +90,10 @@ void rf_send(const void *buf, uint8_t size)
 	_delay_us(1);	/* tTR9 = 1 us */
 
 	spi_begin();
-	spi_io(AT86RF230_BUF_WRITE);
-	spi_io(size+2); /* CRC */
+	spi_send(AT86RF230_BUF_WRITE);
+	spi_send(size+2); /* CRC */
 	for (i = 0; i != size; i++)
-		spi_io(((const uint8_t *) buf)[i]);
+		spi_send(((const uint8_t *) buf)[i]);
 	spi_end();
 
 	reg_read(REG_IRQ_STATUS);
@@ -122,8 +123,8 @@ uint8_t rf_recv(void *buf, uint8_t size)
 		return 0;
 
 	spi_begin();
-	spi_io(AT86RF230_BUF_READ);
-	len = spi_io(0);
+	spi_send(AT86RF230_BUF_READ);
+	len = spi_recv();
 	if (!len || (len & 0x80)) {
 		spi_end();
 		return 0;
@@ -131,7 +132,7 @@ uint8_t rf_recv(void *buf, uint8_t size)
 	if (size > len)
 		size = len;
 	for (i = 0; i != size; i++)
-		((uint8_t *) buf)[i] = spi_io(0);
+		((uint8_t *) buf)[i] = spi_recv();
 	spi_end();
 	return len;
 }

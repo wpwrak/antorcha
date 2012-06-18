@@ -21,4 +21,26 @@ void spi_begin(void);
 uint8_t spi_io(uint8_t v);
 void spi_end(void);
 
+
+/*
+ * Interestingly, the #defines below produce slightly shorter code (6 bytes)
+ * than the inlines.
+ */
+
+#if 0
+static inline void spi_send(uint8_t v)
+{
+	spi_io(v);
+}
+
+
+static inline uint8_t spi_recv(void)
+{
+	return spi_io(0);
+}
+#endif
+
+#define	spi_send(v)	spi_io(v)
+#define	spi_recv()	spi_io(0)
+
 #endif /* !SPI_H */
