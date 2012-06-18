@@ -56,7 +56,7 @@ endif
 
 # ----- Rules -----------------------------------------------------------------
 
-.PHONY:		all clean upload prog update version.c
+.PHONY:		all clean nosecrets upload prog version.c
 .PHONY:		prog-app prog-read on off reset
 
 all:		$(NAME).bin boot.bin
@@ -86,6 +86,9 @@ clean:
 		rm -f $(BOOT_OBJS) $(BOOT_OBJS:.o=.d)
 		rm -f version.c version.d version.o
 
+nosecrets:
+		rm -f unlock-secret.inc image-secret.inc
+
 # ----- Build version ---------------------------------------------------------
 
 version.c:
@@ -101,6 +104,35 @@ version.c:
 		@echo "const char *build_date = \"`date`\";" >>version.c
 		@echo "const uint16_t build_number = `cat .version`;" \
 		  >>version.c
+
+# ----- Secrets ---------------------------------------------------------------
+
+#
+# Linux has two sources of randomness:
+#
+# /dev/random	delivers bits of high randomness but may take a while to
+#		collect them
+# /dev/urandom	delivers bits of high randomness if available and "stretches"
+#		the pool with pseudo-randomness to deliver the rest of the bits
+#		that are requested
+#
+# Use /dev/random if you're paranoid. /dev/urandom is more than adequate for
+# the level of security we try to achieve here.
+#
+
+RANDOM = /dev/urandom
+
+SECRET = { dd if=$(RANDOM) iflag=fullblock bs=$(1) count=1 status=noxfer | \
+	hexdump -e '"\t" "/* %3_ad */" 8/1 "  0x%02x," "\n"'; \
+	[ "$${PIPESTATUS[*]}" = "0 0" ]; }
+
+unlock-secret.inc:
+		$(BUILD) $(call SECRET,64) >$@ || { rm -f $@; exit 1; }
+
+image-secret.inc:
+		$(BUILD) $(call SECRET,128) >$@ || { rm -f $@; exit 1; }
+
+fw.o:		unlock-secret.inc
 
 # ----- Dependencies ----------------------------------------------------------
 
