@@ -7,6 +7,8 @@ Protocol
 
    1	0	0	Pong (maybe return version string in the future)
 
+   2	0	0	Reset (64 bytes reset secret)
+
    4	0	N	Unlock secret (64 bytes payload)
    4	1..N-1	N	Firmware binary (64 bytes payload)
    4	N	N	First half of hash

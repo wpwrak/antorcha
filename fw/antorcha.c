@@ -23,8 +23,8 @@
 #include "dispatch.h"
 
 
-
 static const struct handler *protos[] = {
+	&reset_handler,
 	NULL
 };
 
@@ -39,12 +39,6 @@ int main(void)
 	 * It has also brought up RF and the underlying SPI.
 	 */
 
-while (1) {
-	SET(LED_B8);
-	_delay_ms(100);
-	CLR(LED_B8);
-	_delay_ms(100);
-}
 	while (1) {
 		got = rf_recv(buf, sizeof(buf));
 		if (got > 2)

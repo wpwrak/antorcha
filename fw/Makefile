@@ -30,7 +30,7 @@ OBJCOPY = $(AVR_PREFIX)objcopy
 #OBJDUMP = $(AVR_PREFIX)objdump
 SIZE = $(AVR_PREFIX)size
 
-OBJS = $(NAME).o dispatch.o hash.o $(COMMON_OBJS)
+OBJS = $(NAME).o dispatch.o hash.o reset.o $(COMMON_OBJS)
 BOOT_OBJS = boot.o flash.o fw.o $(COMMON_OBJS)
 COMMON_OBJS = rf.o spi.o
 
@@ -87,7 +87,7 @@ clean:
 		rm -f version.c version.d version.o
 
 nosecrets:
-		rm -f unlock-secret.inc image-secret.inc
+		rm -f unlock-secret.inc reset-secret.inc image-secret.inc
 
 # ----- Build version ---------------------------------------------------------
 
@@ -129,10 +129,14 @@ SECRET = { dd if=$(RANDOM) iflag=fullblock bs=$(1) count=1 status=noxfer | \
 unlock-secret.inc:
 		$(BUILD) $(call SECRET,64) >$@ || { rm -f $@; exit 1; }
 
+reset-secret.inc:
+		$(BUILD) $(call SECRET,64) >$@ || { rm -f $@; exit 1; }
+
 image-secret.inc:
 		$(BUILD) $(call SECRET,128) >$@ || { rm -f $@; exit 1; }
 
 fw.o:		unlock-secret.inc
+reset.o:	unlock-secret.inc
 
 # ----- Dependencies ----------------------------------------------------------
 

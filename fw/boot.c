@@ -57,8 +57,18 @@ int main(void)
 	PORTD = 0;
 	DDRD = 0xff;
 
-	/* disable pull-ups */
+	/* Disable pull-ups */
 	MCUCR |= 1 << PUD;
+
+	/*
+	 * Disable the watchdog timer, in case the boot loader has been
+	 * entered by a watchdog reset commanded by the application.
+	 */
+
+	MCUSR = 0;		/* Remove override */
+	WDTCSR |= 1 << WDCE;	/* Enable change */
+	WDTCSR = 1 << WDCE;	/* Disable watchdog while still enabling
+				   change */
 
 	rf_init();
 

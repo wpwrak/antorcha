@@ -15,6 +15,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#define F_CPU   8000000UL
+#include <util/delay.h>
+
 #include "io.h"
 #include "flash.h"
 #include "proto.h"
@@ -54,8 +57,9 @@ bool fw_packet(const uint8_t *buf, uint8_t len)
 	static uint8_t limit;
 	uint8_t ack[] = { FIRMWARE+1, buf[1], buf[2] };
 
-	/* short (barely visible) flash to indicate reception */
+	/* short flash to indicate reception */
 	SET(LED_B7);
+	_delay_ms(1);
 	CLR(LED_B7);
 
 	/* Check packet for formal validity */

@@ -26,6 +26,8 @@ struct handler {
 };
 
 
+extern struct handler reset_handler;
+
 bool dispatch(const uint8_t *buf, uint8_t len, const struct handler **protos);
 
 #endif /* !PROTO_H */

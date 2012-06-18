@@ -49,6 +49,7 @@ static void rf_send(struct atrf_dsc *dsc, void *buf, int len)
 	/* Copy the message to append the CRC placeholders */
 	memcpy(tmp, buf, len);
 	atrf_reg_write(dsc, REG_TRX_STATE, TRX_CMD_PLL_ON);
+	flush_interrupts(dsc);
 	atrf_buf_write(dsc, tmp, len+2);
 	atrf_reg_write(dsc, REG_TRX_STATE, TRX_CMD_TX_START);
 	wait_for_interrupt(dsc, IRQ_TRX_END,
@@ -98,17 +99,25 @@ static void ping(struct atrf_dsc *dsc)
 }
 
 
-static void packet(struct atrf_dsc *dsc,
+static void packet_noack(struct atrf_dsc *dsc,
     uint8_t type, uint8_t seq, uint8_t last, const void *payload, int len)
 {
 	uint8_t tx_buf[PAYLOAD+3] = { type, seq, last };
-	uint8_t rx_buf[10];
-	int got;
 
 	assert(len == PAYLOAD);
 	memcpy(tx_buf+3, payload, len);
+	rf_send(dsc, tx_buf, sizeof(tx_buf));
+}
+
+
+static void packet(struct atrf_dsc *dsc,
+    uint8_t type, uint8_t seq, uint8_t last, const void *payload, int len)
+{
+	uint8_t rx_buf[10];
+	int got;
+
 	while (1) {
-		rf_send(dsc, tx_buf, sizeof(tx_buf));
+		packet_noack(dsc, type, seq, last, payload, len);
 		if (verbose)
 			write(2, ">", 1);
 		got = rf_recv(dsc, rx_buf, sizeof(rx_buf));
@@ -146,6 +155,7 @@ static void send_firmware(struct atrf_dsc *dsc, void *buf, int len)
 		write(2, "firmware ", 9);
 	last = (len+63)/64;
 	seq = 0;
+	packet_noack(dsc, RESET, 0, 0, unlock_secret, PAYLOAD);
 	packet(dsc, FIRMWARE, seq++, last, unlock_secret, PAYLOAD);
 	while (len >= PAYLOAD) {
 		packet(dsc, FIRMWARE, seq++, last, buf, PAYLOAD);

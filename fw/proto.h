@@ -18,6 +18,7 @@
 enum pck_type {
 	PING		= 0,	/* version query */
 	PONG		= 1,	/* version response */
+	RESET		= 2,	/* reset to boot loader */
 	FIRMWARE	= 4,	/* firmware upload */
 	FIRMWARE_ACK	= 5,	/* firmware upload acknowledgement */
 	IMAGE		= 6,	/* image upload */
