@@ -15,15 +15,13 @@ SHELL = /bin/bash
 NAME = antorcha
 
 CFLAGS = -g -mmcu=$(CHIP) \
-	 -DBOOT_ADDR=$(BOOT_ADDR) -DAPP_ADDR=$(APP_ADDR) -DAPP_END=$(APP_END) \
+	 -DBOOT_ADDR=$(BOOT_ADDR) \
 	 -Wall -Wextra -Wshadow -Werror -Wno-unused-parameter \
 	 -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes
 
 CHIP = atmega168
 HOST = jlime
-BOOT_ADDR = 0
-APP_ADDR = 0x1000
-APP_END = 0x4000
+BOOT_ADDR = 0x3800
 
 AVR_PREFIX = $(BIN_PATH) avr-
 CC = $(AVR_PREFIX)gcc
@@ -31,9 +29,9 @@ OBJCOPY = $(AVR_PREFIX)objcopy
 #OBJDUMP = $(AVR_PREFIX)objdump
 SIZE = $(AVR_PREFIX)size
 
-OBJS = $(NAME).o $(COMMON_OBJS)
+OBJS = $(NAME).o dispatch.o hash.o $(COMMON_OBJS)
 BOOT_OBJS = boot.o flash.o fw.o $(COMMON_OBJS)
-COMMON_OBJS = dispatch.o hash.o rf.o spi.o
+COMMON_OBJS = rf.o spi.o
 
 # ----- Verbosity control -----------------------------------------------------
 
@@ -64,8 +62,7 @@ all:		$(NAME).bin boot.bin
 
 $(NAME).elf:	$(OBJS)
 		$(MAKE) version.o
-		$(CC) $(CFLAGS) -o $@ $(OBJS) version.o \
-		  -Wl,--section-start=.text=$(APP_ADDR)
+		$(CC) $(CFLAGS) -o $@ $(OBJS) version.o
 
 boot.elf:	$(BOOT_OBJS)
 		$(CC) $(CFLAGS) -o $@ $(BOOT_OBJS) \
@@ -140,7 +137,9 @@ prog-app:
 
 prog:
 		ssh $(HOST) avrdude -F -p $(CHIP) -c nanonote_antorcha -e \
-		  -U flash:w:boot.hex:i
+		  -U flash:w:boot.hex:i \
+		  -U efuse:w:0x00:m \
+		  -U lfuse:w:0xe2:m
 #		  -U lfuse:w:0x60:m \
 #		  -U hfuse:w:0xd8:m \
 #		  -U lock:w:0x2f:m

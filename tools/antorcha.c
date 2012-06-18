@@ -45,13 +45,17 @@ static void rf_init(struct atrf_dsc *dsc, int trim, int channel)
 
 static void rf_send(struct atrf_dsc *dsc, void *buf, int len)
 {
+	uint8_t tmp[MAX_PSDU];
+
+	/* Copy the message to append the CRC placeholders */
+	memcpy(tmp, buf, len);
 	atrf_reg_write(dsc, REG_TRX_STATE, TRX_CMD_PLL_ON);
-	atrf_buf_write(dsc, buf, len);
+	atrf_buf_write(dsc, tmp, len+2);
 	atrf_reg_write(dsc, REG_TRX_STATE, TRX_CMD_TX_START);
 	wait_for_interrupt(dsc, IRQ_TRX_END,
 	    IRQ_TRX_END | IRQ_PLL_LOCK, 10);
 	atrf_reg_write(dsc, REG_TRX_STATE, TRX_CMD_RX_ON);
-#if 1
+#if 0
 int i;
 fprintf(stderr, "\r%d:", len);
 for (i = 0; i != len; i++)
@@ -96,7 +100,7 @@ static void ping(struct atrf_dsc *dsc)
 
 
 static void packet(struct atrf_dsc *dsc,
-    uint8_t type, uint8_t seq, uint8_t last, void *payload, int len)
+    uint8_t type, uint8_t seq, uint8_t last, const void *payload, int len)
 {
 	uint8_t tx_buf[PAYLOAD+3] = { type, seq, last };
 	uint8_t rx_buf[10];
@@ -109,8 +113,11 @@ static void packet(struct atrf_dsc *dsc,
 		if (verbose)
 			write(2, ">", 1);
 		got = rf_recv(dsc, rx_buf, sizeof(rx_buf));
-		if (got <= 0)
+		if (got <= 0) {
+			if (!seq && verbose)
+				write(2, "\b", 1);
 			continue;
+		}
 		if (verbose)
 			write(2, "\b?", 2);
 		if (got < 3)
@@ -126,32 +133,9 @@ static void packet(struct atrf_dsc *dsc,
 }
 
 
-static const uint8_t unlock_secret[] = {
+static const uint8_t unlock_secret[PAYLOAD] = {
 	#include "unlock-secret.inc"
 };
-
-
-static void unlock(struct atrf_dsc *dsc)
-{
-	uint8_t payload[PAYLOAD];
-
-	if (verbose)
-		write(2, "unlock   ", 9);
-	memset(payload, 0, PAYLOAD);
-	hash_init();
-	hash_merge(unlock_secret, sizeof(unlock_secret));
-	hash_merge(payload, PAYLOAD);
-	hash_merge(payload, PAYLOAD);
-	packet(dsc, UNLOCK, 0, 3, payload, PAYLOAD);
-	packet(dsc, UNLOCK, 1, 3, payload, PAYLOAD);
-	hash_end();
-	hash_cp(payload, PAYLOAD, 0);
-	packet(dsc, UNLOCK, 2, 3, payload, PAYLOAD);
-	hash_cp(payload, PAYLOAD, PAYLOAD);
-	packet(dsc, UNLOCK, 3, 3, payload, PAYLOAD);
-	if (verbose)
-		write(2, "\n", 1);
-}
 
 
 static void send_firmware(struct atrf_dsc *dsc, void *buf, int len)
@@ -163,9 +147,9 @@ static void send_firmware(struct atrf_dsc *dsc, void *buf, int len)
 		write(2, "firmware ", 9);
 	last = (len+63)/64;
 	seq = 0;
+	packet(dsc, FIRMWARE, seq++, last, unlock_secret, PAYLOAD);
 	while (len >= PAYLOAD) {
 		packet(dsc, FIRMWARE, seq++, last, buf, PAYLOAD);
-		hash_merge(buf, PAYLOAD);
 		buf += PAYLOAD;
 		len -= PAYLOAD;
 	}
@@ -173,11 +157,7 @@ static void send_firmware(struct atrf_dsc *dsc, void *buf, int len)
 		memcpy(payload, buf, len);
 		memset(payload+len, 0, PAYLOAD-len);
 		packet(dsc, FIRMWARE, seq++, last, payload, PAYLOAD);
-		hash_merge(payload, PAYLOAD);
 	}
-	hash_end();
-	hash_cp(payload, PAYLOAD, 0);
-	packet(dsc, FIRMWARE, seq, last, payload, PAYLOAD);
 	if (verbose)
 		write(2, "\n", 1);
 }
@@ -201,7 +181,6 @@ static void firmware(struct atrf_dsc *dsc, const char *name)
 	}
 	fclose(file);
 
-	unlock(dsc);
 	send_firmware(dsc, fw, len);
 }
 

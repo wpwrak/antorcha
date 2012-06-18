@@ -93,3 +93,5 @@ authentication:
 - shared secret (128 bit, SHA1-hashed text with 128 bit salt)
 - salt (128 bit)
 - SHA1 from avrcryptolib
+- due to chip limitations, the secret key for firmware updates is sent
+  in the clear

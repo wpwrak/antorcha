@@ -1,5 +1,5 @@
 /*
- * fw/fw.h - Firmware upload protocols
+ * fw/fw.h - Firmware upload protocol
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger
@@ -11,123 +11,85 @@
  */
 
 
-#include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
-#include "hash.h"
+#include "io.h"
 #include "flash.h"
 #include "proto.h"
-#include "dispatch.h"
+#include "rf.h"
 #include "fw.h"
 
 
-static const uint8_t unlock_secret[] = {
+static const uint8_t unlock_secret[PAYLOAD] = {
 	#include "unlock-secret.inc"
 };
 
 
-static void panic(void)
+static bool locked = 1;
+
+
+static bool fw_payload(uint8_t seq, uint8_t limit, const uint8_t *payload)
 {
-	/* ??? */
-}
-
-
-/* ----- Unlocking --------------------------------------------------------- */
-
-
-static bool unlocked = 0;
-static bool unlock_failed;
-
-
-static bool unlock_first(const uint8_t *payload)
-{
-	hash_init();
-	hash_merge(unlock_secret, sizeof(unlock_secret));
-	hash_merge(payload, PAYLOAD);
-	unlocked = 0;
-	unlock_failed = 0;
-	return 1;
-}
-
-
-static bool unlock_more(uint8_t seq, uint8_t limit, const uint8_t *payload)
-{
-	switch (seq) {
-	case 1:
-		hash_merge(payload, PAYLOAD);
-		hash_end();
-		break;
-	case 2:
-		if (!hash_eq(payload, PAYLOAD, 0))
-			unlock_failed = 1;
-		break;
-	case 3:
-		if (unlock_failed)
-			return 1;
-		if (hash_eq(payload, PAYLOAD, PAYLOAD))
-			unlocked = 1;
-		else
-			unlock_failed = 1;
-		break;
-	default:
-		return 0;
-	}
-	return 1;
-}
-
-
-static const struct handler unlock_proto = {
-	.type	= UNLOCK,
-	.first	= unlock_first,
-	.more	= unlock_more,
-};
-
-
-/* ----- Firmware upload --------------------------------------------------- */
-
-
-static bool fw_first(const uint8_t *payload)
-{
-//	if (!unlocked)
-//		return 0;
-	hash_init();
-	hash_merge(payload, PAYLOAD);
-	flash_start(APP_ADDR);
-	flash_write(payload, PAYLOAD);
-	return 1;
-}
-
-
-static bool fw_more(uint8_t seq, uint8_t limit, const uint8_t *payload)
-{
-	if (!flash_can_write(PAYLOAD))
-		return 0;
-	if (seq != limit) {
-		hash_merge(payload, PAYLOAD);
-		flash_write(payload, PAYLOAD);
+	if (!seq) {
+		locked = memcmp(unlock_secret, payload, PAYLOAD) != 0;
+		flash_start();
 		return 1;
 	}
-	flash_end_write();
-	hash_end();
-	if (!hash_eq(payload, PAYLOAD, 0))
-		panic();
+	if (locked)
+		return 0;
+	if (!flash_can_write(PAYLOAD))
+		return 0;
+	flash_write(payload, PAYLOAD);
+	if (seq == limit)
+		flash_end_write();
 	return 1;
 }
 
 
-static const struct handler fw_proto = {
-	.type	= FIRMWARE,
-	.first	= fw_first,
-	.more	= fw_more,
-};
+bool fw_packet(const uint8_t *buf, uint8_t len)
+{
+	static uint8_t seq = 0;
+	static uint8_t limit;
+	uint8_t ack[] = { FIRMWARE+1, buf[1], buf[2] };
 
+	/* short (barely visible) flash to indicate reception */
+	SET(LED_B7);
+	CLR(LED_B7);
 
-/* ----- Protocol table ---------------------------------------------------- */
+	/* Check packet for formal validity */
 
+	if (len != 64+3)
+		return 0;
+	if (buf[0] != FIRMWARE)
+		return 0;
+	if (buf[1] > buf[2])
+		return 0;
 
-const struct handler *fw_protos[] = {
-	&unlock_proto,
-	&fw_proto,
-	NULL
-};
+	/* Synchronize sequence numbers */
+
+	if (!buf[1]) {
+		seq = buf[1];
+		limit = buf[2];
+	} else {
+		if (buf[2] != limit)
+			return 0;
+		if (buf[1]+1 == seq)
+			goto ack;
+		if (buf[1] != seq)
+			return 0;
+	}
+
+	/* Process the payload */
+
+	if (!fw_payload(buf[1], limit, buf+3))
+		return 0;
+	seq++;
+ack:
+	/* clearly visible short blink to indicate progress */
+	SET(LED_B6);
+	rf_send(ack, sizeof(ack));
+	CLR(LED_B6);
+	return 1;
+}

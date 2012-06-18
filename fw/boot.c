@@ -21,19 +21,19 @@
 #include "fw.h"
 
 
-#define	MS_TO_LOOP(ms)	((uint32_t) (ms)*335)
+#define	MS_TO_LOOP(ms)	((uint32_t) (ms)*106)
 
 
 static void wait_upload(void)
 {
-	uint8_t buf[PAYLOAD+5];
+	uint8_t buf[PAYLOAD+5]; /* 3 bytes header, 2 bytes CRC */
 	uint32_t i;
 	uint8_t got;
 
 restart:
-	for (i = 0; i != MS_TO_LOOP(2000); i++) {
+	for (i = 0; i != MS_TO_LOOP(5000); i++) {
 		got = rf_recv(buf, sizeof(buf));
-		if (got && dispatch(buf, got, fw_protos))
+		if (got > 2 && fw_packet(buf, got-2))
 			goto restart;
 	}
 
@@ -70,9 +70,7 @@ int main(void)
 		SET(LED_B8);
 		wait_upload();
 		CLR(LED_B8);
-while (1);
-	} while (pgm_read_byte(zero) != 0xff);
-
+	} while (pgm_read_byte(zero) == 0xff);
 
 	((void (*)(void)) 0)();
 

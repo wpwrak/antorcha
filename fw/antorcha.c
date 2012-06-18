@@ -1,5 +1,5 @@
 /*
- * fw/main.c - Initialization of Antorcha firmware
+ * fw/antorcha.c - Initialization of Antorcha application firmware
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger
@@ -11,50 +11,43 @@
  */
 
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <avr/io.h>
+#define F_CPU   8000000UL
+#include <util/delay.h>
 
 #include "io.h"
 #include "rf.h"
+#include "dispatch.h"
+
+
+
+static const struct handler *protos[] = {
+	NULL
+};
 
 
 int main(void)
 {
-	/* Port B has two LEDs and the rest is SPI */
-	PORTB = MASK(B, RF_nSS) | MASK(B, RF_nRST);
-	DDRB = MASK(B, RF_SCLK) | MASK(B, RF_MOSI) | MASK(B, RF_nSS) |
-	    MASK(B, RF_nRST) | 0xc0;
+	uint8_t buf[PAYLOAD+5]; /* 3 bytes header, 2 bytes CRC */
+	uint8_t got;
 
-	/* All port C pins drive LEDs */
-	PORTC = 0;
-	DDRC = 0x3f;
+	/*
+	 * The boot loader has already initialized PORTx,  DDRx, and MCUCR.PUD.
+	 * It has also brought up RF and the underlying SPI.
+	 */
 
-	/* All port D pins drive LEDs */
-	PORTD = 0;
-	DDRD = 0xff;
-
-	/* disable pull-ups */
-	MCUCR |= 1 << PUD;
-
-	rf_init();
-
-	while (0) {
-		PORTC = 2;
-		PORTC = 0;
-		rf_send("HOLA ?", 6);
-	}
-
-	while (1) {
-		uint8_t buf[1], got;
-
-		do {
-PORTC = 1;
-PORTC = 0;
-got = rf_recv(buf, 1);
+while (1) {
+	SET(LED_B8);
+	_delay_ms(100);
+	CLR(LED_B8);
+	_delay_ms(100);
 }
-		while (!got);
-
-PORTC = 2;
-PORTC = 0;
-		PORTD = buf[0];
+	while (1) {
+		got = rf_recv(buf, sizeof(buf));
+		if (got > 2)
+			dispatch(buf, got-2, protos);
 	}
 }

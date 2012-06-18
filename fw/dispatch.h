@@ -16,6 +16,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "proto.h"
+
 
 struct handler {
 	enum pck_type type;

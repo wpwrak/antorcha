@@ -89,6 +89,9 @@ void rf_send(const void *buf, uint8_t size)
 	reg_write(REG_TRX_STATE, TRX_CMD_PLL_ON);
 	_delay_us(1);	/* tTR9 = 1 us */
 
+	/* be nice to senders with long turn-around time, e.g., atusb */
+	_delay_ms(2);
+
 	spi_begin();
 	spi_send(AT86RF230_BUF_WRITE);
 	spi_send(size+2); /* CRC */
@@ -114,6 +117,9 @@ void rf_send(const void *buf, uint8_t size)
 uint8_t rf_recv(void *buf, uint8_t size)
 {
 	uint8_t irq, len, i;
+
+	if (!PIN(RF_IRQ))
+		return 0;
 
 	irq = reg_read(REG_IRQ_STATUS);
 	if (!(irq & IRQ_TRX_END))

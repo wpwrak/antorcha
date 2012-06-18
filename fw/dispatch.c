@@ -15,13 +15,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define F_CPU   8000000UL
-#include <util/delay.h>
-
 #include "rf.h"
 #include "proto.h"
 #include "dispatch.h"
-#include "io.h"
 
 
 static uint8_t seq;	/* last sequence number seen */
@@ -34,10 +30,7 @@ static void send_ack(const uint8_t *buf)
 {
 	uint8_t ack[3] = { buf[0]+1, buf[1], 0 };
 
-SET(LED_B6);
-	_delay_ms(1);
 	rf_send(ack, sizeof(ack));
-CLR(LED_B6);
 }
 
 
@@ -54,8 +47,6 @@ static bool answer_ping(const uint8_t *buf)
 
 bool dispatch(const uint8_t *buf, uint8_t len, const struct handler **protos)
 {
-SET(LED_B7);
-CLR(LED_B7);
 	if (len == 3 && buf[0] == PING)
 		return answer_ping(buf);
 
@@ -78,23 +69,24 @@ CLR(LED_B7);
 		limit = buf[2];
 		send_ack(buf);
 		return 1;
+	} else {
+		if (!curr_proto)
+			return 0;
+		if (buf[0] != type)
+			return 0;
+		if (buf[2] != limit)
+			return 0;
+		if (buf[1] > limit)
+			return 0;
+
+		if (buf[1]+1 == seq) {
+			send_ack(buf);
+			return 0;
+		}
+		if (buf[1] != seq)
+			return 0;
 	}
 
-	if (!curr_proto)
-		return 0;
-	if (buf[0] != type)
-		return 0;
-	if (buf[1] > limit)
-		return 0;
-	if (buf[2] != limit)
-		return 0;
-
-	if (buf[1] == seq) {
-		send_ack(buf);
-		return 0;
-	}
-	if (buf[1] != seq+1)
-		return 0;
 	if (!curr_proto->more(buf[1], limit, buf+3))
 		return 0;
 	seq++;

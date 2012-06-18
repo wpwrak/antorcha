@@ -18,8 +18,6 @@
 enum pck_type {
 	PING		= 0,	/* version query */
 	PONG		= 1,	/* version response */
-	UNLOCK		= 2,	/* unlock firmware upload */
-	UNLOCK_ACK	= 3,	/* unlock acknowledgement */
 	FIRMWARE	= 4,	/* firmware upload */
 	FIRMWARE_ACK	= 5,	/* firmware upload acknowledgement */
 	IMAGE		= 6,	/* image upload */

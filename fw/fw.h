@@ -1,5 +1,5 @@
 /*
- * fw/fw.h - Firmware upload protocols
+ * fw/fw.h - Firmware upload protocol
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger
@@ -13,9 +13,9 @@
 #ifndef FW_H
 #define	FW_H
 
-#include "proto.h"
+#include <stdint.h>
 
 
-extern const struct handler *fw_protos[];
+bool fw_packet(const uint8_t *buf, uint8_t len);
 
 #endif /* !FW_H */

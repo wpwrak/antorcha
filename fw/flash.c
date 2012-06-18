@@ -26,15 +26,15 @@
 static uint32_t payload;
 
 
-void flash_start(uint32_t addr)
+void flash_start(void)
 {
-	payload = addr;
+	payload = 0;
 }
 
 
 int flash_can_write(uint16_t size)
 {
-	return payload <= APP_END-size;
+	return payload <= BOOT_ADDR-size;
 }
 
 
