@@ -1,0 +1,36 @@
+Antorcha - A LED-based signal device
+====================================
+
+...
+
+
+Directory placement
+-------------------
+
+Antorcha makes extensive use of libraries and header of the ben-wpan
+project. For this, the top-level directory of the ben-wpan project must
+be in the same directory as the top-level directory of Antorcha. E.g.,
+
+/home/qi/ben-wpan/
+/home/qi/antorcha/
+
+
+/etc/avrdude.conf entry
+-----------------------
+
+Antorcha uses the atusb programming adapter from the ben-wpan project.
+Since the pin positions of MISO and MOSI are swapped between ATmega32U2
+and the ATmega168, the following entry is needed in avrdude.conf (which
+is the same as the entry for nanonote_atusb except that the pin numbers
+for mosi and miso are swapped):
+
+programmer
+  id	= "nanonote_antorcha";
+  desc	= "NanoNote 8:10 card adapter for ATUSB";
+  type	= nanonote;
+  reset	= 1;
+  sck	= 8;
+  mosi	= 6;
+  miso	= 7;
+  pgmled = 2;
+;
