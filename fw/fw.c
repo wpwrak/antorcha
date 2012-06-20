@@ -74,7 +74,7 @@ bool fw_packet(const uint8_t *buf, uint8_t len)
 	/* Synchronize sequence numbers */
 
 	if (!buf[1]) {
-		seq = buf[1];
+		seq = 0;
 		limit = buf[2];
 	} else {
 		if (buf[2] != limit)
@@ -87,7 +87,7 @@ bool fw_packet(const uint8_t *buf, uint8_t len)
 
 	/* Process the payload */
 
-	if (!fw_payload(buf[1], limit, buf+3))
+	if (!fw_payload(seq, limit, buf+3))
 		return 0;
 	seq++;
 ack:
