@@ -233,7 +233,7 @@ static void send_image(struct atrf_dsc *dsc, void *buf, int len)
 	if (len) {
 		memcpy(payload, buf, len);
 		memset(payload+len, 0, PAYLOAD-len);
-		packet(dsc, FIRMWARE, seq++, last, payload, PAYLOAD);
+		packet(dsc, IMAGE, seq++, last, payload, PAYLOAD);
 		hash_merge(payload, PAYLOAD);
 	}
 
