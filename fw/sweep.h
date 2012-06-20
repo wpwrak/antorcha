@@ -27,7 +27,10 @@ struct sweep {
 };
 
 
-void image_sweep(const struct sweep *sweep);
+extern volatile bool sweeping;
+
+
+void sweep_image(const struct sweep *sweep);
 void sweep_init(void);
 
 #endif /* !SWEEP_H */

@@ -17,6 +17,16 @@
 #include "rf.h"
 #include "dispatch.h"
 #include "sweep.h"
+#include "image.h"
+
+
+static struct sweep sweep = {
+	.wait_ticks	=	100000,	/* 100 ms */
+	.pixel_ticks	=	  5000,	/*   5 ms */
+	.left		=	     0,
+	.right		= MAX_LINES,
+	.forward 	=	     1,
+};
 
 
 static const struct handler *protos[] = {
@@ -42,5 +52,7 @@ int main(void)
 		got = rf_recv(buf, sizeof(buf));
 		if (got > 2)
 			dispatch(buf, got-2, protos);
+		if (!sweeping)
+			sweep_image(&sweep);
 	}
 }

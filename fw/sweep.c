@@ -21,7 +21,10 @@
 #include "sweep.h"
 
 
-static uint32_t t_sw;		/* cumulative number of timer ticks in sweep */
+volatile bool sweeping = 0;
+
+
+static volatile uint32_t t_sw;	/* cumulative number of timer ticks in sweep */
 
 static uint16_t wait_periods;	/* number of periods to wait before image */
 static uint16_t wait_period;	/* ticks in wait period */
@@ -67,14 +70,16 @@ ISR(TIMER1_OVF_vect)
 
 	/* wait until the next pixel (or slow down if we're done) */
 
-	if (curr_line == end_line)
+	if (curr_line == end_line) {
 		OCR1A = 0xffff;
-	else
+		sweeping = 0;
+	} else {
 		OCR1A = pixel_ticks;
+	}
 }
 
 
-void image_sweep(const struct sweep *sweep)
+void sweep_image(const struct sweep *sweep)
 {
 	TCCR1B = 0;	/* stop the timer */
 
@@ -129,6 +134,10 @@ void image_sweep(const struct sweep *sweep)
 	    1 << WGM13 |	/* WG Mode 15, continued */
 	    1 << WGM12 |
 	    1 << CS11;		/* clkIO/8 */
+
+	sweeping = 1;
+
+	sei();
 }
 
 
