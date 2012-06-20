@@ -202,6 +202,77 @@ static void firmware(struct atrf_dsc *dsc, const char *name)
 }
 
 
+/* ----- Image upload ------------------------------------------------------ */
+
+
+static const uint8_t image_secret[PAYLOAD*2] = {
+	#include "image-secret.inc"
+};
+
+
+static void send_image(struct atrf_dsc *dsc, void *buf, int len)
+{
+	uint8_t payload[PAYLOAD];
+	uint8_t last, seq;
+
+	hash_init();
+	hash_merge(image_secret, sizeof(image_secret));
+	if (verbose)
+		write(2, "image ", 6);
+
+	last = (len+63)/64+3;
+	seq = 0;
+	while (len >= PAYLOAD) {
+		packet(dsc, IMAGE, seq++, last, buf, PAYLOAD);
+		hash_merge(buf, PAYLOAD);
+		buf += PAYLOAD;
+		len -= PAYLOAD;
+	}
+	if (len) {
+		memcpy(payload, buf, len);
+		memset(payload+len, 0, PAYLOAD-len);
+		packet(dsc, FIRMWARE, seq++, last, payload, PAYLOAD);
+		hash_merge(payload, PAYLOAD);
+	}
+
+	/* @@@ salt */
+	packet(dsc, IMAGE, seq++, last, payload, PAYLOAD);
+	packet(dsc, IMAGE, seq++, last, payload, PAYLOAD);
+	hash_end();
+
+	/* hash */
+	hash_cp(payload, PAYLOAD, 0);
+	packet(dsc, IMAGE, seq++, last, payload, PAYLOAD);
+	hash_cp(payload, PAYLOAD, PAYLOAD);
+	packet(dsc, IMAGE, seq++, last, payload, PAYLOAD);
+
+	if (verbose)
+		write(2, "\n", 1);
+}
+
+
+static void image(struct atrf_dsc *dsc, const char *name)
+{
+	FILE *file;
+	uint8_t img[200] = { 0 };
+	ssize_t len;
+
+	file = fopen(name, "r");
+	if (!file) {
+		perror(name);
+		exit(1);
+	}
+	len = fread(img, 1, sizeof(img), file);
+	if (len < 0) {
+		perror(name);
+		exit(1);
+	}
+	fclose(file);
+
+	send_image(dsc, img, len);
+}
+
+
 /* ----- Command-line processing ------------------------------------------- */
 
 
@@ -235,10 +306,13 @@ int main(int argc, char **argv)
 
 	if (do_ping && fw)
 		usage(*argv);
-	if (argc != optind)
-		usage(*argv);
-	if (!do_ping && !fw)
-		usage(*argv);
+	if (do_ping || fw) {
+		if (argc != optind)
+			usage(*argv);
+	} else {
+		if (argc != optind+1)
+			usage(*argv);
+	}
 
 	dsc = atrf_open(NULL);
 	if (!dsc)
@@ -247,8 +321,10 @@ int main(int argc, char **argv)
 	rf_init(dsc, 8, 15);
 	if (do_ping)
 		ping(dsc);
-	if (fw)
+	else if (fw)
 		firmware(dsc, fw);
+	else
+		image(dsc, argv[optind]);
 
 	return 0;
 }
