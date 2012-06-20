@@ -84,21 +84,6 @@ static int rf_recv(struct atrf_dsc *dsc, void *buf, int size)
 }
 
 
-static void ping(struct atrf_dsc *dsc)
-{
-	uint8_t ping[] = { 0 /*PING*/, 0, 0 };
-	uint8_t buf[100];
-	int got, i;
-
-	rf_send(dsc, ping, sizeof(ping));
-	got = rf_recv(dsc, buf, sizeof(buf));
-	printf("%d:", got);
-	for (i = 0; i != got; i++)
-		printf(" %02x", buf[i]);
-	printf("\n");
-}
-
-
 static void packet_noack(struct atrf_dsc *dsc,
     uint8_t type, uint8_t seq, uint8_t last, const void *payload, int len)
 {
@@ -139,6 +124,29 @@ static void packet(struct atrf_dsc *dsc,
 		break;
 	}
 }
+
+
+/* ----- Ping -------------------------------------------------------------- */
+
+
+static void ping(struct atrf_dsc *dsc)
+{
+	uint8_t ping[] = { PING, 0, 0 };
+	uint8_t buf[100];
+	int got, i;
+
+	rf_send(dsc, ping, sizeof(ping));
+	got = rf_recv(dsc, buf, sizeof(buf));
+	if (!got)
+		return;
+	printf("%d: ", got);
+	for (i = 3; i != got; i++)
+		printf("%c", buf[i] >= ' ' && buf[i] <= '~' ? buf[i] : '?');
+	printf("\n");
+}
+
+
+/* ----- Firmware upload --------------------------------------------------- */
 
 
 static const uint8_t unlock_secret[PAYLOAD] = {
@@ -194,9 +202,14 @@ static void firmware(struct atrf_dsc *dsc, const char *name)
 }
 
 
+/* ----- Command-line processing ------------------------------------------- */
+
+
 static void usage(const char *name)
 {
-	fprintf(stderr, "usage: %s -F firmware_file\n", name);
+	fprintf(stderr,
+"usage: %s -F firmware_file\n"
+   "%6s %s -P\n", name, "", name);
 	exit(1);
 }
 
@@ -204,21 +217,27 @@ static void usage(const char *name)
 int main(int argc, char **argv)
 {
 	const char *fw = NULL;
+	int do_ping = 0;
 	struct atrf_dsc *dsc;
 	int c;
 
-	while ((c = getopt(argc, argv, "F:")) != EOF)
+	while ((c = getopt(argc, argv, "F:P")) != EOF)
 		switch (c) {
 		case 'F':
 			fw = optarg;
+			break;
+		case 'P':
+			do_ping = 1;
 			break;
 		default:
 			usage(*argv);
 		}
 
+	if (do_ping && fw)
+		usage(*argv);
 	if (argc != optind)
 		usage(*argv);
-	if (!fw)
+	if (!do_ping && !fw)
 		usage(*argv);
 
 	dsc = atrf_open(NULL);
@@ -226,6 +245,8 @@ int main(int argc, char **argv)
 		return 1;
 
 	rf_init(dsc, 8, 15);
+	if (do_ping)
+		ping(dsc);
 	if (fw)
 		firmware(dsc, fw);
 

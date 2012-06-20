@@ -14,7 +14,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
+#include "version.h"
 #include "rf.h"
 #include "proto.h"
 #include "dispatch.h"
@@ -36,11 +38,27 @@ static void send_ack(const uint8_t *buf)
 
 static bool answer_ping(const uint8_t *buf)
 {
-	uint8_t pong[] = { PONG, 0, 0 };
-
+	char num[6]; /* let's hope we won't need more than 9999 versions */
+	char *num_end = num+sizeof(num);
+	int date_len = strlen(build_date);
+	int num_len;
+	uint8_t pong[3] = { PONG, 0, 0 };
+	uint8_t tmp[3+6+date_len+1];
+	char *s;
+	int n;
+	
 	if (buf[1])
 		return 0;
-	rf_send(pong, sizeof(pong));
+	s = num_end-1;
+	*s = ' ';
+	for (n = build_number; n; n /= 10)
+		*--s = '0'+n % 10;
+	*--s = '#';
+	num_len = num_end-s;
+	memcpy(tmp, pong, 3);
+	memcpy(tmp+3, s, num_len);
+	memcpy(tmp+3+num_len, build_date, date_len);
+	rf_send(tmp, 3+num_len+date_len);
 	return 1;
 }
 

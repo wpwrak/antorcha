@@ -14,7 +14,8 @@
 MAIN = antorcha
 
 CFLAGS = -g -I../fw -I../../ben-wpan/tools/include \
-	 -I../../ben-wpan/atusb/fw/include
+	 -I../../ben-wpan/atusb/fw/include \
+	 -Wall
 LDLIBS = -L../../ben-wpan/tools/lib -latrf -lusb
 
 OBJS = antorcha.o hash.o
