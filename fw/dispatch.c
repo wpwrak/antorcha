@@ -83,29 +83,29 @@ bool dispatch(const uint8_t *buf, uint8_t len, const struct handler **protos)
 			return 0;
 		curr_proto = *protos;
 		type = buf[0];
-		seq = 0;
+		seq = 1;
 		limit = buf[2];
 		send_ack(buf);
 		return 1;
-	} else {
-		if (!curr_proto)
-			return 0;
-		if (buf[0] != type)
-			return 0;
-		if (buf[2] != limit)
-			return 0;
-		if (buf[1] > limit)
-			return 0;
-
-		if (buf[1]+1 == seq) {
-			send_ack(buf);
-			return 0;
-		}
-		if (buf[1] != seq)
-			return 0;
 	}
 
-	if (!curr_proto->more(buf[1], limit, buf+3))
+	if (!curr_proto)
+		return 0;
+	if (buf[0] != type)
+		return 0;
+	if (buf[2] != limit)
+		return 0;
+	if (buf[1] > limit)
+		return 0;
+
+	if (buf[1]+1 == seq) {
+		send_ack(buf);
+		return 0;
+	}
+	if (buf[1] != seq)
+		return 0;
+
+	if (!curr_proto->more(seq, limit, buf+3))
 		return 0;
 	seq++;
 	send_ack(buf);
