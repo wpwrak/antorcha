@@ -18,15 +18,6 @@
 #include <stdint.h>
 
 
-#define	MAX_LINES	100
-
-
-struct line {
-	uint8_t d;		/* port D0-D7 */
-	uint8_t cb;		/* port C0-C5, B6-B7 */
-};
-
-
 struct sweep {
 	uint32_t wait_ticks;	/* number of ticks to wait before image */
 	uint16_t pixel_ticks;	/* number of ticks per pixel */
@@ -34,9 +25,6 @@ struct sweep {
 	uint8_t right;		/* rightmost line of image */
 	bool forward;		/* direction of movement */
 };
-
-
-extern struct line image[MAX_LINES];
 
 
 void image_sweep(const struct sweep *sweep);
