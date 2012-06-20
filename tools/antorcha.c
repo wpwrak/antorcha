@@ -279,8 +279,10 @@ static void image(struct atrf_dsc *dsc, const char *name)
 static void usage(const char *name)
 {
 	fprintf(stderr,
-"usage: %s -F firmware_file\n"
-   "%6s %s -P\n", name, "", name);
+"usage: %s image_file\n"
+   "%6s %s -F firmware_file\n"
+   "%6s %s -P\n"
+    , name, "", name, "", name);
 	exit(1);
 }
 
