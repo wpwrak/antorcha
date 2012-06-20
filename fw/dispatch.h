@@ -21,7 +21,7 @@
 
 struct handler {
 	enum pck_type type;
-	bool (*first)(const uint8_t *payload);
+	bool (*first)(uint8_t limit, const uint8_t *payload);
 	bool (*more)(uint8_t seq, uint8_t limit, const uint8_t *payload);
 };
 

@@ -61,7 +61,7 @@ static void add_payload(const uint8_t *payload)
 }
 
 
-static bool image_first(const uint8_t *payload)
+static bool image_first(uint8_t limit, const uint8_t *payload)
 {
 	hash_init();
 	hash_merge(image_secret, sizeof(image_secret));

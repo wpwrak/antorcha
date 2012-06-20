@@ -79,7 +79,7 @@ bool dispatch(const uint8_t *buf, uint8_t len, const struct handler **protos)
 		}
 		if (!*protos)
 			return 0;
-		if (!(*protos)->first(buf+3))
+		if (!(*protos)->first(buf[2], buf+3))
 			return 0;
 		curr_proto = *protos;
 		type = buf[0];
