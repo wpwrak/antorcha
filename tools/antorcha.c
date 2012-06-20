@@ -194,14 +194,40 @@ static void firmware(struct atrf_dsc *dsc, const char *name)
 }
 
 
+static void usage(const char *name)
+{
+	fprintf(stderr, "usage: %s -F firmware_file\n", name);
+	exit(1);
+}
+
+
 int main(int argc, char **argv)
 {
+	const char *fw = NULL;
 	struct atrf_dsc *dsc;
+	int c;
+
+	while ((c = getopt(argc, argv, "F:")) != EOF)
+		switch (c) {
+		case 'F':
+			fw = optarg;
+			break;
+		default:
+			usage(*argv);
+		}
+
+	if (argc != optind)
+		usage(*argv);
+	if (!fw)
+		usage(*argv);
 
 	dsc = atrf_open(NULL);
 	if (!dsc)
 		return 1;
+
 	rf_init(dsc, 8, 15);
-	firmware(dsc, argv[1]);
+	if (fw)
+		firmware(dsc, fw);
+
 	return 0;
 }
