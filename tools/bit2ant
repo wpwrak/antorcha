@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+#
+# tools/bit2ant - Convert X bitmap file to Antorcha image binary
+#
+# Written 2012 by Werner Almesberger
+# Copyright 2012 Werner Almesberger
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+
+sub add
+{
+	local $v = $_[0];
+
+	for (my $i = 0; $i != 8; $i++) {
+		push(@v, ($v >> $i) & 1);
+	}
+}
+
+
+while (<>) {
+	if (/width (\d+)/) {
+		$xm = $1;
+		next;
+	}
+	if (/height (\d+)/) {
+		$ym = $1;
+		die "no more than 16 rows" if $ym > 16;
+		next;
+	}
+	next unless /^\s*(0x.*[0-9abcdef])/;
+	for (split(/,\s*/, $1)) {
+		&add(hex($_));
+	}
+}
+
+$span = ($xm+7) & ~7;
+for ($x = 0; $x != $xm; $x++) {
+	$v = 0;
+	for ($y = 0; $y != 16; $y++) {
+		$v |= 1 << $y if $v[$x+$y*$span];
+	}
+	print pack("v", $v);
+}
