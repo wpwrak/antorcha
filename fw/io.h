@@ -16,6 +16,20 @@
 #include <avr/io.h>
 
 
+#define	LED_A1	C, 0
+#define	LED_A2	C, 1
+#define	LED_A3	C, 2
+#define	LED_A4	C, 3
+#define	LED_A5	C, 4
+#define	LED_A6	C, 5
+#define	LED_A7	D, 0
+#define	LED_A8	D, 1
+
+#define	LED_B1	D, 2
+#define	LED_B2	D, 3
+#define	LED_B3	D, 4
+#define	LED_B4	B, 6
+#define	LED_B5	B, 7
 #define	LED_B6	D, 5
 #define	LED_B7	D, 6
 #define	LED_B8	D, 7

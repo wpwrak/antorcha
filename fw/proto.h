@@ -13,6 +13,9 @@
 #ifndef PROTO_H
 #define	PROTO_H
 
+#include <stdint.h>
+
+
 #define	PAYLOAD		64	/* most messages use a fixed 64 bytes payload */
 
 enum pck_type {
@@ -25,6 +28,37 @@ enum pck_type {
 	IMAGE_ACK	= 7,	/* image upload acknowledgement */
 	PARAM		= 8,	/* parameter upload */
 	PARAM_ACK	= 9,	/* parameter upload acknowledgement */
+};
+
+
+struct params {
+	/* Timer ticks */
+
+	uint16_t clkT_period;		/* Timer period */
+
+	/* Accelerator thresholds */
+
+	uint16_t xa_high;		/* X acceleration high threshold */
+	uint16_t xa_low;		/* X acceleration low threshold */
+
+	/* Pixel offsets (in image) */
+
+	uint8_t	px_fwd_img_first;	/* first column in forward move */
+	uint8_t	px_fwd_img_end;		/* last column in forward move */
+	uint8_t	px_bwd_img_first;	/* first (high) col. in backward move */
+	uint8_t	px_bwd_img_end;		/* last (low) column in backward move */
+
+	/* Timer periods, for imaging */
+
+	uint16_t tp_fwd_start;		/* forward image start */
+	uint16_t tp_bwd_start;		/* backward image start */
+	uint8_t tp_fwd_pix;		/* pixel size in forward move */
+	uint8_t tp_bwd_pix;		/* pixel size in backward move */
+
+	/* Timer periods, for estimation */
+
+	uint16_t tp_fwd;		/* forward half-period */
+	uint16_t tp_bwd;		/* backward half-period */
 };
 
 #endif /* !PROTO_H */

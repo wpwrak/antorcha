@@ -14,13 +14,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <avr/io.h>
-#define F_CPU   8000000UL
-#include <util/delay.h>
-
-#include "io.h"
 #include "rf.h"
 #include "dispatch.h"
+#include "sweep.h"
 
 
 static const struct handler *protos[] = {
@@ -38,6 +34,8 @@ int main(void)
 	 * The boot loader has already initialized PORTx,  DDRx, and MCUCR.PUD.
 	 * It has also brought up RF and the underlying SPI.
 	 */
+
+	sweep_init();
 
 	while (1) {
 		got = rf_recv(buf, sizeof(buf));
