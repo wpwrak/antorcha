@@ -61,24 +61,6 @@ static void add_payload(const uint8_t *payload)
 }
 
 
-static bool image_first(uint8_t limit, const uint8_t *payload)
-{
-	hash_init();
-	hash_merge(image_secret, sizeof(image_secret));
-	if (image == images[0])
-		p = images[1];
-	else
-		p = images[0];
-	next_image = p;
-	end = p+MAX_LINES;
-	memset(p, 0, (char *) end-(char *) p);
-	add_payload(payload);
-	hash_merge(payload, PAYLOAD);
-	failed = 0;
-	return 1;
-}
-
-
 static bool image_more(uint8_t seq, uint8_t limit, const uint8_t *payload)
 {
 	switch (limit-seq) {
@@ -102,6 +84,22 @@ static bool image_more(uint8_t seq, uint8_t limit, const uint8_t *payload)
 		break;
 	}
 	return 1;
+}
+
+
+static bool image_first(uint8_t limit, const uint8_t *payload)
+{
+	hash_init();
+	hash_merge(image_secret, sizeof(image_secret));
+	if (image == images[0])
+		p = images[1];
+	else
+		p = images[0];
+	next_image = p;
+	end = p+MAX_LINES;
+	memset(p, 0, (char *) end-(char *) p);
+	failed = 0;
+	return image_more(0, limit, payload);;
 }
 
 
