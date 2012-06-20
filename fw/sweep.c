@@ -40,7 +40,7 @@ ISR(TIMER1_OVF_vect)
 {
 	/* update the sweep time */
 
-	t_sw += OCR1A;
+	t_sw += ICR1;
 
 	/* if at the end of the image, only update the time */
 
@@ -51,7 +51,7 @@ ISR(TIMER1_OVF_vect)
 
 	if (wait_periods) {
 		if (!--wait_periods)
-			OCR1A = wait_short;
+			ICR1 = wait_short;
 		return;
 	}
 
@@ -71,10 +71,10 @@ ISR(TIMER1_OVF_vect)
 	/* wait until the next pixel (or slow down if we're done) */
 
 	if (curr_line == end_line) {
-		OCR1A = 0xffff;
+		ICR1 = 0xffff;
 		sweeping = 0;
 	} else {
-		OCR1A = pixel_ticks;
+		ICR1 = pixel_ticks;
 	}
 }
 
@@ -104,22 +104,23 @@ void sweep_image(const struct sweep *sweep)
 
 	/* timing parameters */
 
+	pixel_ticks = sweep->pixel_ticks;
 	wait_periods = sweep->wait_ticks >> 16;
 	if (wait_periods) {
 	 	wait_short = sweep->wait_ticks;
 		wait_period = 0xffff;
 
 		/*
-		 * Make sure we have plenty of time to update OCR1A after an
+		 * Make sure we have plenty of time to update ICR1 after an
 		 * interrupt.
 		 */
 		if (wait_short < 256) {
 			wait_period -= 128;
 			wait_short += wait_periods << 7;
 		}
-		OCR1A = wait_period;
+		ICR1 = wait_period;
 	} else {
-	 	OCR1A = sweep->wait_ticks;
+	 	ICR1 = sweep->wait_ticks;
 	}
 
 	/* prepare the hardware timer */
@@ -131,7 +132,7 @@ void sweep_image(const struct sweep *sweep)
 	/* start the timer */
 
 	TCCR1B =
-	    1 << WGM13 |	/* WG Mode 15, continued */
+	    1 << WGM13 |	/* WG Mode 14, continued */
 	    1 << WGM12 |
 	    1 << CS11;		/* clkIO/8 */
 
@@ -144,8 +145,7 @@ void sweep_image(const struct sweep *sweep)
 void sweep_init(void)
 {
 	TCCR1A =
-	    1 << WGM11 |	/* WG Mode 15 (Fast PWM to OCR1A) */
-	    1 << WGM10;
+	    1 << WGM11;		/* WG Mode 14 (Fast PWM to ICR1) */
 
 	TCNT1 = 0;
 
