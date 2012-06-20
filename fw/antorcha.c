@@ -20,6 +20,7 @@
 
 
 static const struct handler *protos[] = {
+	&image_handler,
 	&reset_handler,
 	NULL
 };

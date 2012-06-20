@@ -38,3 +38,10 @@ may have a variable-size payload.
 Even numbered packet types correspond to packets sent from the remote
 controller to the device. Odd numbered packet types correspond to
 responses. The device never initiates communication.
+
+
+Image format
+============
+
+Two bytes per line. LSB of first byte is LED A1, MSB of last byte is B8.
+Unused lines must be set to zero.

@@ -21,8 +21,6 @@
 #include "sweep.h"
 
 
-struct line image[MAX_LINES];
-
 static uint32_t t_sw;		/* cumulative number of timer ticks in sweep */
 
 static uint16_t wait_periods;	/* number of periods to wait before image */

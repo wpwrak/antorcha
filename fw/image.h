@@ -27,6 +27,6 @@ struct line {
 };
 
 
-extern struct line image[MAX_LINES];
+extern const struct line *image;
 
 #endif /* !IMAGE_H */

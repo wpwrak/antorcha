@@ -134,6 +134,7 @@ image-secret.inc:
 
 fw.o:		unlock-secret.inc
 reset.o:	unlock-secret.inc
+image.o:	image-secret.inc
 
 # ----- Dependencies ----------------------------------------------------------
 

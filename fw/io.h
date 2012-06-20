@@ -57,14 +57,12 @@
 #define	__SEL_CC(v)	(v)
 #define	__SEL_DD(v)	(v)
 
-#if 0
 #define	__SEL_BC(v)	(0)
 #define	__SEL_BD(v)	(0)
 #define	__SEL_CB(v)	(0)
 #define	__SEL_CD(v)	(0)
 #define	__SEL_DB(v)	(0)
 #define	__SEL_DC(v)	(0)
-#endif
 
 #define	__MASK(sel, port, bit)	__SEL_##sel##port(1 << (bit))
 #define	MASK(...)	__MASK(__VA_ARGS__)

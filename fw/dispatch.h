@@ -26,7 +26,9 @@ struct handler {
 };
 
 
+extern struct handler image_handler;
 extern struct handler reset_handler;
+
 
 bool dispatch(const uint8_t *buf, uint8_t len, const struct handler **protos);
 
