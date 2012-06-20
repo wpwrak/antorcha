@@ -20,7 +20,15 @@ LDLIBS = -L../../ben-wpan/tools/lib -latrf -lusb
 
 OBJS = antorcha.o hash.o
 
+.PHONY:		all update ping
+
 all:		$(MAIN)
 
 $(MAIN):	$(OBJS)
 		$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+update:
+		./antorcha -F ../fw/antorcha.bin
+
+ping:
+		./antorcha -P
