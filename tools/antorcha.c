@@ -27,6 +27,7 @@
 
 
 static int verbose = 1;
+static int debug = 0;
 
 
 static void rf_init(struct atrf_dsc *dsc, int trim, int channel)
@@ -55,13 +56,14 @@ static void rf_send(struct atrf_dsc *dsc, void *buf, int len)
 	wait_for_interrupt(dsc, IRQ_TRX_END,
 	    IRQ_TRX_END | IRQ_PLL_LOCK, 10);
 	atrf_reg_write(dsc, REG_TRX_STATE, TRX_CMD_RX_ON);
-#if 0
-int i;
-fprintf(stderr, "\r%d:", len);
-for (i = 0; i != len; i++)
-	fprintf(stderr, " %02x", ((uint8_t *) buf)[i]);;
-fprintf(stderr, "\n");
-#endif
+
+	if (debug) {
+		int i;
+		fprintf(stderr, "\r%d:", len);
+		for (i = 0; i != len; i++)
+			fprintf(stderr, " %02x", ((uint8_t *) buf)[i]);;
+		fprintf(stderr, "\n");
+	}
 }
 
 
@@ -279,9 +281,9 @@ static void image(struct atrf_dsc *dsc, const char *name)
 static void usage(const char *name)
 {
 	fprintf(stderr,
-"usage: %s image_file\n"
-   "%6s %s -F firmware_file\n"
-   "%6s %s -P\n"
+"usage: %s [-d] image_file\n"
+   "%6s %s [-d] -F firmware_file\n"
+   "%6s %s [-d] -P\n"
     , name, "", name, "", name);
 	exit(1);
 }
@@ -294,8 +296,11 @@ int main(int argc, char **argv)
 	struct atrf_dsc *dsc;
 	int c;
 
-	while ((c = getopt(argc, argv, "F:P")) != EOF)
+	while ((c = getopt(argc, argv, "dF:P")) != EOF)
 		switch (c) {
+		case 'd':
+			debug = 1;
+			break;
 		case 'F':
 			fw = optarg;
 			break;
