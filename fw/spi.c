@@ -26,8 +26,11 @@
 
 void spi_init(void)
 {
-	/* Enable, SPI mode 0, master, MSB first, fosc/4 */
-	SPCR = (1 << SPE) | (1 << MSTR);
+	/* SPI mode 0, MSB first, fosc/4 */
+	SPCR =
+	    1 << SPE |	/* enable SPI */
+	    1 << MSTR;	/* master */
+//	SPSR = 1 << SPI2X; /* enable for fosc/2 */
 }
 
 
