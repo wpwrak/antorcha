@@ -29,7 +29,9 @@ struct sweep {
 
 extern volatile bool sweeping;
 
+uint32_t uptime_irq(void);
 uint32_t uptime(void);
+
 void sweep_image(const struct sweep *sweep);
 void sweep_init(void);
 
