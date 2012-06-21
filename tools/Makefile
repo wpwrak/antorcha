@@ -15,10 +15,12 @@ MAIN = antorcha
 
 CFLAGS = -g -I../fw -I../../ben-wpan/tools/include \
 	 -I../../ben-wpan/atusb/fw/include \
-	 -Wall
-LDLIBS = -L../../ben-wpan/tools/lib -latrf -lusb
+	 -Wall \
+	 $(shell sdl-config --cflags)
+LDLIBS = -L../../ben-wpan/tools/lib -latrf -lusb \
+	 $(shell sdl-config --libs) -lSDL_gfx
 
-OBJS = antorcha.o hash.o
+OBJS = antorcha.o hash.o plot.o
 
 .PHONY:		all update ping off
 

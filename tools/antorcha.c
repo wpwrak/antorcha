@@ -22,8 +22,10 @@
 #include <atrf.h>
 #include <misctxrx.h>
 
-#include <hash.h>
 #include <proto.h>
+
+#include "hash.h"
+#include "plot.h"
 
 
 static int verbose = 1;
@@ -275,6 +277,52 @@ static void image(struct atrf_dsc *dsc, const char *name)
 }
 
 
+/* ----- Samples ----------------------------------------------------------- */
+
+
+static void samples(struct atrf_dsc *dsc)
+{
+	uint8_t buf[MAX_PSDU] = { 0, };
+	int got;
+	uint8_t *s;
+	int x, y;
+
+	buf[0] = 1;
+	packet(dsc, SAMPLE, 0, 0, buf, PAYLOAD);
+	plot_init();
+	while (1) {
+		got = rf_recv(dsc, buf, sizeof(buf));
+		if (got <= 3)
+			continue;
+		if (buf[0] != SAMPLES)
+			continue;
+		if (debug > 1) {
+			int i;
+
+			for (i = 0; i != got; i++)
+				fprintf(stderr, " %02x", buf[i]);
+			fprintf(stderr, "\n");
+		}
+		if (debug)
+			fprintf(stderr, "%d:", got);
+		s = buf+3+2;
+		while (s < buf+got-2) {
+			s += 2;
+			x = *s++;
+			x |= *s++ << 8;
+			s += 2;
+			y = *s++;
+			y |= *s++ << 8;
+			if (debug)
+				fprintf(stderr, "\t%d %d\n", x, y);
+			plot(x, y);
+		}
+	}
+	buf[0] = 0;
+	packet(dsc, SAMPLE, 0, 0, buf, PAYLOAD);
+}
+
+
 /* ----- Command-line processing ------------------------------------------- */
 
 
@@ -284,7 +332,8 @@ static void usage(const char *name)
 "usage: %s [-d] image_file\n"
    "%6s %s [-d] -F firmware_file\n"
    "%6s %s [-d] -P\n"
-    , name, "", name, "", name);
+   "%6s %s [-d] -S\n"
+    , name, "", name, "", name, "", name);
 	exit(1);
 }
 
@@ -292,14 +341,14 @@ static void usage(const char *name)
 int main(int argc, char **argv)
 {
 	const char *fw = NULL;
-	int do_ping = 0;
+	int do_ping = 0, do_sample = 0;
 	struct atrf_dsc *dsc;
 	int c;
 
-	while ((c = getopt(argc, argv, "dF:P")) != EOF)
+	while ((c = getopt(argc, argv, "dF:PS")) != EOF)
 		switch (c) {
 		case 'd':
-			debug = 1;
+			debug++;
 			break;
 		case 'F':
 			fw = optarg;
@@ -307,13 +356,16 @@ int main(int argc, char **argv)
 		case 'P':
 			do_ping = 1;
 			break;
+		case 'S':
+			do_sample = 1;
+			break;
 		default:
 			usage(*argv);
 		}
 
-	if (do_ping && fw)
+	if (do_ping+do_sample+!!fw > 1)
 		usage(*argv);
-	if (do_ping || fw) {
+	if (do_ping || do_sample || fw) {
 		if (argc != optind)
 			usage(*argv);
 	} else {
@@ -328,6 +380,8 @@ int main(int argc, char **argv)
 	rf_init(dsc, 8, 15);
 	if (do_ping)
 		ping(dsc);
+	else if (do_sample)
+		samples(dsc);
 	else if (fw)
 		firmware(dsc, fw);
 	else
