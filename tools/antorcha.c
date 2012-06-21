@@ -285,6 +285,7 @@ static void samples(struct atrf_dsc *dsc)
 	uint8_t buf[MAX_PSDU] = { 0, };
 	int got;
 	uint8_t *s;
+	uint16_t t_high, t_low, last;
 	int x, y;
 
 	buf[0] = 1;
@@ -305,16 +306,35 @@ static void samples(struct atrf_dsc *dsc)
 		}
 		if (debug)
 			fprintf(stderr, "%d:", got);
-		s = buf+3+2;
+		s = buf+3;
+		t_high = *s++;
+		t_high |= *s++ << 8;
+		last = 0;
 		while (s < buf+got-2) {
-			s += 2;
+			t_low = *s++;
+			t_low |= *s++ << 8;
+			if (t_low < last)
+				t_high++;
+			last = t_low;
 			x = *s++;
 			x |= *s++ << 8;
-			s += 2;
+
+			if (debug)
+				fprintf(stderr, "\t%11.6f %d",
+				    (t_high << 16 | t_low)/1000000.0, x);
+
+			t_low = *s++;
+			t_low |= *s++ << 8;
+			if (t_low < last)
+				t_high++;
+			last = t_low;
 			y = *s++;
 			y |= *s++ << 8;
+
 			if (debug)
-				fprintf(stderr, "\t%d %d\n", x, y);
+				fprintf(stderr, "\t%11.6f %d\n",
+				    (t_high << 16 | t_low)/1000000.0, y);
+
 			if (!plot(x, y))
 				goto quit;
 		}
