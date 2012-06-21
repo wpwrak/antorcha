@@ -24,6 +24,7 @@
 volatile bool sweeping = 0;
 
 
+static volatile uint32_t t_up;	/* uptime, in timer ticks (wraps in 4295 s) */
 static volatile uint32_t t_sw;	/* cumulative number of timer ticks in sweep */
 
 static uint16_t wait_periods;	/* number of periods to wait before image */
@@ -38,9 +39,13 @@ static bool forward;
 
 ISR(TIMER1_OVF_vect)
 {
-	/* update the sweep time */
+	uint16_t t;
 
-	t_sw += ICR1;
+	/* update the time counters */
+
+	t = ICR1;
+	t_sw += t;
+	t_up += t;
 
 	/* if at the end of the image, only update the time */
 
@@ -76,6 +81,23 @@ ISR(TIMER1_OVF_vect)
 	} else {
 		ICR1 = pixel_ticks;
 	}
+}
+
+
+uint32_t uptime(void)
+{
+	uint32_t a, b;
+	uint16_t d;
+
+	do {
+		cli();
+		a = t_up;
+		d = ICR1;
+		b = t_up;
+		sei();
+	}
+	while (a != b);
+	return a+d;
 }
 
 
