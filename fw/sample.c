@@ -40,7 +40,7 @@ static void handler(bool x, uint16_t v)
 
 	if (x != expect_x)
 		return;
-	t = 0; //uptime_irq();
+	t = uptime_irq();
 	if (p == (uint16_t *) (buf+3))
 		*p++ = t >> 16; 
 	*p++ = t;
