@@ -23,33 +23,37 @@
 #include "proto.h"
 #include "dispatch.h"
 
+#include "io.h"
 
 /* @@@ keep it small for now - we're running out of RAM :-( */
 //#define	MAX_PACKET	120	/* <- MAX_PSDU -3 (hdr) -2 (CRC) */
-#define	MAX_PACKET	60	/* <- MAX_PSDU -3 (hdr) -2 (CRC) */
+#define	MAX_PACKET	50	/* <- MAX_PSDU -3 (hdr) -2 (CRC) */
 
 static uint8_t buf[MAX_PACKET+3] = { SAMPLES, 0, 0 };
 static uint16_t *p;
+static bool expect_x;
 
 
 static void handler(bool x, uint16_t v)
 {
-	bool first;
 	uint32_t t;
 
-	first = p == (uint16_t *) (buf+3);
-	if (first && !x)
+	if (x != expect_x)
 		return;
-	t = uptime();
-	if (first)
+	t = 0; //uptime_irq();
+	if (p == (uint16_t *) (buf+3))
 		*p++ = t >> 16; 
 	*p++ = t;
 	*p++ = v;
+	expect_x = !expect_x;
+
 	if (x)
 		return;
 	if ((uint8_t *) (p+4) <= buf+MAX_PACKET)
 		return;
+
 	rf_send(buf, (uint8_t *) p-buf);
+	buf[1]++;
 	p = (uint16_t *) (buf+3);
 }
 
@@ -61,6 +65,7 @@ static bool sample_first(uint8_t limit, const uint8_t *payload)
 		cli();
 		sample = handler;
 		p = (uint16_t *) (buf+3);
+		expect_x = 1;
 		sei();
 	} else {
 		cli();
