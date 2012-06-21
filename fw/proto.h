@@ -28,6 +28,9 @@ enum pck_type {
 	IMAGE_ACK	= 7,	/* image upload acknowledgement */
 	PARAM		= 8,	/* parameter upload */
 	PARAM_ACK	= 9,	/* parameter upload acknowledgement */
+	SAMPLE		= 10,	/* start/stop sampling */
+	SAMPLE_ACK	= 11,	/* start/stop sampling acknowledgement */
+	SAMPLES		= 13,	/* samples */
 };
 
 

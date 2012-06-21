@@ -31,6 +31,12 @@ Protocol
 
    9	n	0	Parameter ACK
 
+   10	0	0	Sample (64 bytes payload)
+
+   11	0	0	Sample ACK
+
+   13	n	0	Samples
+
 Unlock, firmware, image, and parameter packets all have a fixed-size
 64 bytes payload. Pings and acknowledgements have no payload. Pongs
 may have a variable-size payload.
@@ -45,3 +51,23 @@ Image format
 
 Two bytes per line. LSB of first byte is LED A1, MSB of last byte is B8.
 Unused lines must be set to zero.
+
+
+Sample format
+=============
+
+Each sample packet has the following structure:
+
+  Offset Size
+       0    2	Absolute time of X sample, high 16 bits
+       2  8*N	N samples
+
+Where each sample is
+
+  Offset Size
+       0    2	Absolute time of X sample, lower 16 bits
+       2    2	X sample (0-1023)
+       4    2	Absolute time of Y sample, lower 16 bits
+       6    2	Y sample (0-1023)
+
+Byte order TBD. (Defined by avr-gcc)
