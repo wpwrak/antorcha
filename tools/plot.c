@@ -80,6 +80,13 @@ int plot(int x, int y)
 		switch (event.type) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
+			case SDLK_c:
+				SDL_LockSurface(surf);
+				SDL_FillRect(surf, NULL,
+				    SDL_MapRGB(surf->format, 0, 0, 0));
+				SDL_UpdateRect(surf, 0, 0, 0, 0);
+				SDL_UnlockSurface(surf);
+				break;
 			case SDLK_q:
 				return 0;
 			default:
