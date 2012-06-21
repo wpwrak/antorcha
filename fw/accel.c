@@ -54,8 +54,18 @@ ISR(ADC_vect)
 	if (sample)
 		sample(chan_x, v);
 
-	chan_x = !chan_x;
-	admux(chan_x);
+	if (chan_x) {
+		chan_x = 0;
+		admux(0);
+		adcsra(1);
+	}
+}
+
+
+ISR(TIMER0_OVF_vect)
+{
+	chan_x = 1;
+	admux(1);
 	adcsra(1);
 }
 
@@ -63,6 +73,15 @@ ISR(ADC_vect)
 void accel_start(void)
 {
 	adcsra(0);
-	admux(1);
-	chan_x = 1;
+
+	TCNT0 = 0;
+	OCR0A = 125;		/* 8 MHz/64/125 = 1 kHz */
+	TCCR0A =
+	    1 << WGM01 |	/* WG Mode 7 (Fast PWM to OCR0A) */
+	    1 << WGM00;
+	TCCR0B =
+	    1 << WGM02 |	/* WG Mode 7, continued */
+	    1 << CS01 |		/* clkIO/64 */
+	    1 << CS00;
+	TIMSK0 = 1 << TOIE0;	/* interrupt on overflow */
 }
