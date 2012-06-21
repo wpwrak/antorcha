@@ -16,6 +16,8 @@
 #include "SDL.h"
 #include "SDL_gfxPrimitives.h"
 
+#include "plot.h"
+
 
 #define XRES    1024
 #define YRES    1024
@@ -44,8 +46,10 @@ static SDL_Rect front_rect = {
 };
 
 
-void plot(int x, int y)
+int plot(int x, int y)
 {
+	SDL_Event event;
+
 	if (!first) {
 		SDL_BlitSurface(back, &back_rect, surf, &front_rect);
 		SDL_LockSurface(surf);
@@ -71,6 +75,24 @@ void plot(int x, int y)
 	first = 0;
 	last_x = x;
 	last_y = y;
+
+	while (SDL_PollEvent(&event))
+		switch (event.type) {
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym) {
+			case SDLK_q:
+				return 0;
+			default:
+				break;
+			}
+			break;
+		case SDL_QUIT:
+			return 0;
+		default:
+			break;
+		}
+
+	return 1;
 }
 
 

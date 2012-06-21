@@ -315,9 +315,11 @@ static void samples(struct atrf_dsc *dsc)
 			y |= *s++ << 8;
 			if (debug)
 				fprintf(stderr, "\t%d %d\n", x, y);
-			plot(x, y);
+			if (!plot(x, y))
+				goto quit;
 		}
 	}
+quit:
 	buf[0] = 0;
 	packet(dsc, SAMPLE, 0, 0, buf, PAYLOAD);
 }

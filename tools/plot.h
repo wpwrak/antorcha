@@ -14,7 +14,7 @@
 #ifndef PLOT_H
 #define	PLOT_H
 
-void plot(int x, int y);
+int plot(int x, int y);
 void plot_init(void);
 
 #endif /* !PLOT_H */
