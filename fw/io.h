@@ -34,6 +34,9 @@
 #define	LED_B7	D, 6
 #define	LED_B8	D, 7
 
+#define	ADC_X	6
+#define	ADC_Y	7
+
 #define	RF_SCLK	B, 5
 #define	RF_MISO	B, 4
 #define	RF_MOSI	B, 3

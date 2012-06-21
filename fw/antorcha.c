@@ -17,6 +17,7 @@
 #include "rf.h"
 #include "dispatch.h"
 #include "sweep.h"
+#include "accel.h"
 #include "image.h"
 
 
@@ -47,6 +48,7 @@ int main(void)
 	 */
 
 	sweep_init();
+	accel_start();
 
 	while (1) {
 		got = rf_recv(buf, sizeof(buf));
