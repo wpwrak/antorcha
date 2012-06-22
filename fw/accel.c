@@ -38,11 +38,15 @@ static inline void admux(bool x)
 
 static inline void adcsra(bool start)
 {
+	/*
+	 * The ADC needs to run at clkADC <= 200 kHz for full resolution.
+	 * At clkADC = 125 kHz, a conversion takes about 110 us.
+	 */
 	ADCSRA =
 	    1 << ADEN |		/* enable ADC */
 	    (start ? 1 << ADSC : 0) |
 	    1 << ADIE |		/* enable ADC interrupts */
-	    7;			/* clkADC = clk/128 -> 62.5 kHz */
+	    6;			/* clkADC = clk/64 -> 126 kHz */
 }
 
 
