@@ -84,6 +84,17 @@ ISR(TIMER1_OVF_vect)
 }
 
 
+uint32_t uptime_irq(void)
+{
+	uint32_t t;
+
+	t = t_up+TCNT1;
+	if (TIFR1 & TOV1)
+		t += ICR1;
+	return t;
+}
+
+
 uint32_t uptime(void)
 {
 	uint32_t a, b;
@@ -92,7 +103,8 @@ uint32_t uptime(void)
 	do {
 		cli();
 		a = t_up;
-		d = ICR1;
+		d = TCNT1;
+		cli();
 		b = t_up;
 		sei();
 	}

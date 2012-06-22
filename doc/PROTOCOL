@@ -70,4 +70,4 @@ Where each sample is
        4    2	Absolute time of Y sample, lower 16 bits
        6    2	Y sample (0-1023)
 
-Byte order TBD. (Defined by avr-gcc)
+Byte order is little-endian.
