@@ -15,6 +15,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <avr/pgmspace.h>
+
 #include "hash.h"
 
 
@@ -37,6 +39,19 @@ void hash_merge(const uint8_t *buf, uint8_t len)
 	for (i = 0; i != len; i++)
 		hash[i & (HASH_SIZE-1)] ^= buf[i];
 }
+
+
+#ifdef __AVR__
+
+void hash_merge_progmem(const uint8_t *buf, uint8_t len)
+{
+	uint8_t i;
+
+	for (i = 0; i != len; i++)
+		hash[i & (HASH_SIZE-1)] ^= pgm_read_byte(buf+i);
+}
+
+#endif /* __AVR__ */
 
 
 void hash_end(void)

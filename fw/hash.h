@@ -19,6 +19,7 @@
 
 void hash_init(void);
 void hash_merge(const uint8_t *buf, uint8_t len);
+void hash_merge_progmem(const uint8_t *buf, uint8_t len);
 void hash_end(void);
 bool hash_eq(const uint8_t *buf, uint8_t len, uint8_t off);
 void hash_cp(uint8_t *buf, uint8_t len, uint8_t off);
