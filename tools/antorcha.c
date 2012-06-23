@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 #include <assert.h>
 
 #include <at86rf230.h>
@@ -280,6 +281,15 @@ static void image(struct atrf_dsc *dsc, const char *name)
 /* ----- Samples ----------------------------------------------------------- */
 
 
+static volatile int run = 1;
+
+
+static void sigint(int sig)
+{
+	run = 0;
+}
+
+
 static int read_sample(uint8_t **s, uint16_t *t_high, uint16_t *t_low,
     uint16_t *last)
 {
@@ -296,18 +306,22 @@ static int read_sample(uint8_t **s, uint16_t *t_high, uint16_t *t_low,
 }
 
 
-static void samples(struct atrf_dsc *dsc)
+static void samples(struct atrf_dsc *dsc, int gui)
 {
 	uint8_t buf[MAX_PSDU] = { 0, };
 	int got;
 	uint8_t *s;
 	uint16_t t_high, t_low, last;
 	int x, y;
+	double t;
 
 	buf[0] = 1;
 	packet(dsc, SAMPLE, 0, 0, buf, PAYLOAD);
-	plot_init();
-	while (1) {
+	if (gui)
+		plot_init();
+	else
+		signal(SIGINT, sigint);
+	while (run) {
 		got = rf_recv(dsc, buf, sizeof(buf));
 		if (got <= 3)
 			continue;
@@ -328,16 +342,20 @@ static void samples(struct atrf_dsc *dsc)
 		last = 0;
 		while (s < buf+got-2) {
 			x = read_sample(&s, &t_high, &t_low, &last);
+			t = (t_high << 16 | t_low)/1000000.0;
 			if (debug)
-				fprintf(stderr, "\t%11.6f %d",
-				    (t_high << 16 | t_low)/1000000.0, x);
+				fprintf(stderr, "\t%11.6f %d", t, x);
+			if (!gui)
+				printf("%11.6f\t%d\t", t, x);
 
 			y = read_sample(&s, &t_high, &t_low, &last);
+			t = (t_high << 16 | t_low)/1000000.0;
 			if (debug)
-				fprintf(stderr, "\t%11.6f %d\n",
-				    (t_high << 16 | t_low)/1000000.0, y);
+				fprintf(stderr, "\t%11.6f %d\n", t, y);
+			if (!gui)
+				printf("%11.6f\t%d\n", t, y);
 
-			if (!plot(x, y))
+			if (gui && !plot(x, y))
 				goto quit;
 		}
 	}
@@ -356,7 +374,7 @@ static void usage(const char *name)
 "usage: %s [-d] image_file\n"
    "%6s %s [-d] -F firmware_file\n"
    "%6s %s [-d] -P\n"
-   "%6s %s [-d] -S\n"
+   "%6s %s [-d] -S [-S]\n"
     , name, "", name, "", name, "", name);
 	exit(1);
 }
@@ -381,13 +399,13 @@ int main(int argc, char **argv)
 			do_ping = 1;
 			break;
 		case 'S':
-			do_sample = 1;
+			do_sample++;
 			break;
 		default:
 			usage(*argv);
 		}
 
-	if (do_ping+do_sample+!!fw > 1)
+	if (do_ping+!!do_sample+!!fw > 1)
 		usage(*argv);
 	if (do_ping || do_sample || fw) {
 		if (argc != optind)
@@ -405,7 +423,7 @@ int main(int argc, char **argv)
 	if (do_ping)
 		ping(dsc);
 	else if (do_sample)
-		samples(dsc);
+		samples(dsc, do_sample > 1);
 	else if (fw)
 		firmware(dsc, fw);
 	else
