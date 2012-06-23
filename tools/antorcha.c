@@ -280,6 +280,22 @@ static void image(struct atrf_dsc *dsc, const char *name)
 /* ----- Samples ----------------------------------------------------------- */
 
 
+static int read_sample(uint8_t **s, uint16_t *t_high, uint16_t *t_low,
+    uint16_t *last)
+{
+	int v;
+
+	*t_low = *(*s)++;
+	*t_low |= *(*s)++ << 8;
+	if (*t_low < *last)
+		(*t_high)++;
+	*last = *t_low;
+	v = *(*s)++;
+	v |= *(*s)++ << 8;
+	return v;
+}
+
+
 static void samples(struct atrf_dsc *dsc)
 {
 	uint8_t buf[MAX_PSDU] = { 0, };
@@ -311,26 +327,12 @@ static void samples(struct atrf_dsc *dsc)
 		t_high |= *s++ << 8;
 		last = 0;
 		while (s < buf+got-2) {
-			t_low = *s++;
-			t_low |= *s++ << 8;
-			if (t_low < last)
-				t_high++;
-			last = t_low;
-			x = *s++;
-			x |= *s++ << 8;
-
+			x = read_sample(&s, &t_high, &t_low, &last);
 			if (debug)
 				fprintf(stderr, "\t%11.6f %d",
 				    (t_high << 16 | t_low)/1000000.0, x);
 
-			t_low = *s++;
-			t_low |= *s++ << 8;
-			if (t_low < last)
-				t_high++;
-			last = t_low;
-			y = *s++;
-			y |= *s++ << 8;
-
+			y = read_sample(&s, &t_high, &t_low, &last);
 			if (debug)
 				fprintf(stderr, "\t%11.6f %d\n",
 				    (t_high << 16 | t_low)/1000000.0, y);
