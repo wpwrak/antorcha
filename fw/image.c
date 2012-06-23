@@ -15,6 +15,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <avr/pgmspace.h>
+
 #include "io.h"
 #include "hash.h"
 #include "proto.h"
@@ -30,7 +32,7 @@ static bool failed;
 const struct line *image = images[0];
 
 
-static const uint8_t image_secret[2*PAYLOAD] = {
+static const uint8_t image_secret[2*PAYLOAD] PROGMEM = {
 	#include "image-secret.inc"
 };
 
@@ -90,7 +92,7 @@ static bool image_more(uint8_t seq, uint8_t limit, const uint8_t *payload)
 static bool image_first(uint8_t limit, const uint8_t *payload)
 {
 	hash_init();
-	hash_merge(image_secret, sizeof(image_secret));
+	hash_merge_progmem(image_secret, sizeof(image_secret));
 	if (image == images[0])
 		p = images[1];
 	else
