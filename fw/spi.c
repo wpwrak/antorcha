@@ -24,6 +24,16 @@
 #define	SCLK	B, 8
 
 
+/*
+ * According to simulation, signals from MCU to transceiver  should already
+ * suffer severe degradation * at fosc/4 = 2 MHz due to parasitic capacitance
+ * (assumed to be 10 pF) and the series resistors (10 kOhm) of the voltage
+ * dividers.
+ *
+ * fosc/2 = 4 MHz looks horrible in simulation and does not work reliably in
+ * practice either.
+ */
+
 void spi_init(void)
 {
 	/* SPI mode 0, MSB first, fosc/4 */
