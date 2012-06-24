@@ -118,6 +118,15 @@ uint32_t uptime(void)
 
 void sweep_image(const struct sweep *sweep)
 {
+	uint32_t t;
+
+	/* calculate start time */
+
+	t = uptime();
+	if (sweep->start_ticks <= t)
+		return;
+	t = sweep->start_ticks-t;
+
 	TCCR1B = 0;	/* stop the timer */
 
 	cli();
@@ -142,9 +151,9 @@ void sweep_image(const struct sweep *sweep)
 	/* timing parameters */
 
 	pixel_ticks = sweep->pixel_ticks;
-	wait_periods = sweep->wait_ticks >> 16;
+	wait_periods = t >> 16;
 	if (wait_periods) {
-	 	wait_short = sweep->wait_ticks;
+	 	wait_short = t;
 		wait_period = 0xffff;
 
 		/*
@@ -157,7 +166,7 @@ void sweep_image(const struct sweep *sweep)
 		}
 		ICR1 = wait_period;
 	} else {
-	 	ICR1 = sweep->wait_ticks;
+	 	ICR1 = t;
 	}
 
 	/* prepare the hardware timer */

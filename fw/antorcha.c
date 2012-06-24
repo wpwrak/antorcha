@@ -25,7 +25,6 @@
 
 
 static struct sweep sweep = {
-	.wait_ticks	=	 60000,	/*  60 ms */
 	.pixel_ticks	=	  1000,	/*   1 ms */
 	.left		=	     0,
 	.right		=   MAX_LINES-1,
@@ -128,6 +127,7 @@ sei();
 #if 1
 		if (state == FWD_START_SWEEP && !sweeping) {
 			state = FWD_SWEEP;
+			sweep.start_ticks = uptime()+60000; /* 60 ms */
 			sweep_image(&sweep);
 		}
 #endif

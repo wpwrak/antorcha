@@ -19,7 +19,7 @@
 
 
 struct sweep {
-	uint32_t wait_ticks;	/* number of ticks to wait before image */
+	uint32_t start_ticks;	/* absolute start time */
 	uint16_t pixel_ticks;	/* number of ticks per pixel */
 	uint8_t left;		/* leftmost line of image */
 	uint8_t right;		/* rightmost line of image */
