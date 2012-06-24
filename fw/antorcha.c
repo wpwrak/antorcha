@@ -28,7 +28,7 @@ static struct sweep sweep = {
 	.wait_ticks	=	 60000,	/*  60 ms */
 	.pixel_ticks	=	  1000,	/*   1 ms */
 	.left		=	     0,
-	.right		=	    79,
+	.right		=   MAX_LINES-1,
 	.forward 	=	     1,
 };
 

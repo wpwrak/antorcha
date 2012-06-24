@@ -18,7 +18,7 @@
 #include <stdint.h>
 
 
-#define	MAX_LINES	100
+#define	MAX_LINES	80
 
 
 struct line {
