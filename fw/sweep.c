@@ -49,8 +49,14 @@ ISR(TIMER1_OVF_vect)
 
 	/* if at the end of the image, only update the time */
 
-	if (curr_line == end_line)
+	if (curr_line == end_line) {
+		PORTB &= 0x3f;
+		PORTC = 0;
+		PORTD = 0;
+		ICR1 = 0xffff;
+		sweeping = 0;
 		return;
+	}
 
 	/* wait before starting the image */
 
@@ -59,6 +65,8 @@ ISR(TIMER1_OVF_vect)
 			ICR1 = wait_short;
 		return;
 	}
+
+	/* if done, lights out and slow down */
 
 	/* output the next line */
 
@@ -73,14 +81,9 @@ ISR(TIMER1_OVF_vect)
 	else
 		curr_line--;
 
-	/* wait until the next pixel (or slow down if we're done) */
+	/* wait until the next pixel */
 
-	if (curr_line == end_line) {
-		ICR1 = 0xffff;
-		sweeping = 0;
-	} else {
-		ICR1 = pixel_ticks;
-	}
+	ICR1 = pixel_ticks;
 }
 
 
