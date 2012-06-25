@@ -25,7 +25,7 @@
 
 
 static struct sweep sweep = {
-	.pixel_ticks	=	  1000,	/*   1 ms */
+	.pixel_ticks	=	  1100,	/*   1.1 ms */
 	.left		=	     0,
 	.right		=   MAX_LINES-1,
 	.forward 	=	     1,
@@ -33,67 +33,83 @@ static struct sweep sweep = {
 
 
 static volatile enum sync_state {
-	IDLE,
-	LEFT_DECEL,
-	LEFT_ACCEL,
-	FWD_START_SWEEP,
-	FWD_SWEEP,
+	IDLE,	/* undecided */
+	BWD,	/* backward sweep */
+	LEFT,	/* reversing from backward to forward */
+	FWD,	/* forward sweep */
+	RIGHT,	/* reversing from forward to backward */
 } state = IDLE;
 
+static volatile uint32_t tR0, tR1, tL0, tL1;
+static volatile uint32_t tL, tR;
+static volatile bool wake = 0;
 
-#define	LEFT_DECEL_THRESH	850
-#define	LEFT_REVERSE_THRESH	900
-#define	LEFT_ACCEL_THRESH	850
-#define	RIGHT_DECEL_THRESH	200
+
+//#define	THRESH_HIGH		900
+//#define	THRESH_LOW		120
+#define	THRESH_HIGH		850
+#define	THRESH_LOW		170
 
 
 static void sync_sweep(bool x, uint16_t v)
 {
-	static uint32_t t;
+	uint32_t t;
 
 	if (!x)
 		return;
+	t = uptime_irq();
 	switch (state) {
-default:
 	case IDLE:
-		if (v < LEFT_DECEL_THRESH)
-			break;
-		state = LEFT_DECEL;
-		t = uptime_irq();
-		break;
-	case LEFT_DECEL:
-		if (v < LEFT_DECEL_THRESH) {
-			t = uptime_irq();
-			break;
+		if (v < THRESH_LOW) {
+			tR0 = t;
+			state = RIGHT;
+		} else if (v > THRESH_HIGH) {
+			tL0 = t;
+			state = LEFT;
 		}
-#if 0
-		if (v > LEFT_REVERSE_THRESH)
-			state = LEFT_ACCEL;
 		break;
-	case LEFT_ACCEL:
-		if (v > LEFT_ACCEL_THRESH)
+	case RIGHT:
+		if (v < THRESH_LOW)
 			break;
-#else
-		if (v < LEFT_REVERSE_THRESH)
+		tR1 = t;
+		tR = t-tR0;
+		state = BWD;
+		/* fall through */
+	case BWD:
+		if (v < THRESH_HIGH)
 			break;
-#endif
-		if (sweeping) { /* we're confused */
-			state = IDLE;
-			break;
-		}
-		state = FWD_START_SWEEP;
-		/* t = t1-(t1+t0)/2 = (t1-t0)/2 */
-		t = (uptime_irq()-t) >> 1;
-//		sweep.wait_ticks = kkkkkk
-		break;	
-	case FWD_START_SWEEP:
+		tL0 = t;
+		state = LEFT;
+		wake = 1;
 		break;
-	case FWD_SWEEP:
-		if (v > RIGHT_DECEL_THRESH)
+	case LEFT:
+		if (v > THRESH_HIGH)
 			break;
-		state = IDLE;
+		tL1 = t;
+		tL = t-tL0;
+		state = FWD;
+		/* fall through */
+	case FWD:
+		if (v > THRESH_LOW)
+			break;
+		tR0 = t;
+		state = RIGHT;
+//		wake = 1;
 		break;
 	}
+}
+
+
+static void submit_fwd_sweep(void)
+{
+#if 0
+	uint32_t tIMG;
+
+	tIMG = (sweep.right-sweep.left+1)*(sweep.pixel_ticks)/2;
+	sweep.start_ticks = tL0+110000-tIMG/2;
+#endif
+	sweep.start_ticks = uptime()+70000;
+	sweep_image(&sweep);
 }
 
 
@@ -124,12 +140,10 @@ sei();
 		got = rf_recv(buf, sizeof(buf));
 		if (got > 2)
 			dispatch(buf, got-2, protos);
-#if 1
-		if (state == FWD_START_SWEEP && !sweeping) {
-			state = FWD_SWEEP;
-			sweep.start_ticks = uptime()+60000; /* 60 ms */
-			sweep_image(&sweep);
+		if (wake && !sweeping) {
+			wake = 0;
+			if (state == LEFT)
+				submit_fwd_sweep();
 		}
-#endif
 	}
 }
