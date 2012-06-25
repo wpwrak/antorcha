@@ -24,11 +24,19 @@
 #include "io.h"
 
 
-static struct sweep sweep = {
+static struct sweep fwd_sweep = {
 	.pixel_ticks	=	  1100,	/*   1.1 ms */
 	.left		=	     0,
 	.right		=   MAX_LINES-1,
 	.forward 	=	     1,
+};
+
+
+static struct sweep bwd_sweep = {
+	.pixel_ticks	=	  1100,	/*   1.1 ms */
+	.left		=	     0,
+	.right		=   MAX_LINES-1,
+	.forward 	=	     0,
 };
 
 
@@ -94,7 +102,7 @@ static void sync_sweep(bool x, uint16_t v)
 			break;
 		tR0 = t;
 		state = RIGHT;
-//		wake = 1;
+		wake = 1;
 		break;
 	}
 }
@@ -105,11 +113,18 @@ static void submit_fwd_sweep(void)
 #if 0
 	uint32_t tIMG;
 
-	tIMG = (sweep.right-sweep.left+1)*(sweep.pixel_ticks)/2;
-	sweep.start_ticks = tL0+110000-tIMG/2;
+	tIMG = (fwd_sweep.right-fwd_sweep.left+1)*(fwd_sweep.pixel_ticks)/2;
+	fwd_sweep.start_ticks = tL0+110000-tIMG/2;
 #endif
-	sweep.start_ticks = uptime()+70000;
-	sweep_image(&sweep);
+	fwd_sweep.start_ticks = tL0+70000;
+	sweep_image(&fwd_sweep);
+}
+
+
+static void submit_bwd_sweep(void)
+{
+	bwd_sweep.start_ticks = tR0+50000;
+	sweep_image(&bwd_sweep);
 }
 
 
@@ -144,6 +159,8 @@ sei();
 			wake = 0;
 			if (state == LEFT)
 				submit_fwd_sweep();
+			else if (state == RIGHT)
+				submit_bwd_sweep();
 		}
 	}
 }
