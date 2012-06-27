@@ -15,6 +15,7 @@
 #include <stdint.h>
 
 #include "proto.h"
+#include "param.h"
 #include "rf.h"
 #include "dispatch.h"
 #include "sweep.h"
@@ -23,22 +24,6 @@
 
 #include <avr/interrupt.h>
 #include "io.h"
-
-
-static struct sweep fwd_sweep = {
-	.pixel_ticks	= TP_FWD_PIX_DEFAULT,
-	.left		= PX_FWD_LEFT_DEFAULT,
-	.right		= PX_FWD_RIGHT_DEFAULT,
-	.forward 	= 1,
-};
-
-
-static struct sweep bwd_sweep = {
-	.pixel_ticks	= TP_BWD_PIX_DEFAULT,
-	.left		= PX_BWD_LEFT_DEFAULT,
-	.right		= PX_BWD_RIGHT_DEFAULT,
-	.forward 	= 0,
-};
 
 
 static volatile enum sync_state {
@@ -52,11 +37,6 @@ static volatile enum sync_state {
 static volatile uint32_t tR0, tR1, tL0, tL1;
 static volatile uint32_t tL, tR;
 static volatile bool wake = 0;
-
-static uint16_t xa_high = XA_HIGH_DEFAULT;
-static uint16_t xa_low = XA_LOW_DEFAULT;
-static uint32_t fwd_start = TP_FWD_START_DEFAULT;
-static uint32_t bwd_start = TP_BWD_START_DEFAULT;
 
 
 static void sync_sweep(bool x, uint16_t v)
@@ -132,6 +112,7 @@ static const struct handler *protos[] = {
 	&image_handler,
 	&reset_handler,
 	&sample_handler,
+	&param_handler,
 	NULL
 };
 
