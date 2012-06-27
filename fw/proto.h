@@ -34,6 +34,8 @@ enum pck_type {
 };
 
 
+#define	MAX_LINES		80
+
 #define	XA_HIGH_DEFAULT		850
 #define	XA_LOW_DEFAULT		170
 
@@ -47,11 +49,8 @@ enum pck_type {
 #define	TP_FWD_PIX_DEFAULT	1100	/* 1.1 ms */
 #define	TP_BWD_PIX_DEFAULT	1100	/* 1.1 ms */
 
+
 struct params {
-	/* Timer ticks */
-
-	uint16_t clkT_period;		/* Timer period */
-
 	/* Accelerator thresholds */
 
 	uint16_t xa_high;		/* X acceleration high threshold */
@@ -66,10 +65,10 @@ struct params {
 
 	/* Timer periods, for imaging */
 
-	uint16_t tp_fwd_start;		/* forward image start */
-	uint16_t tp_bwd_start;		/* backward image start */
-	uint8_t tp_fwd_pix;		/* pixel size in forward move */
-	uint8_t tp_bwd_pix;		/* pixel size in backward move */
+	uint32_t tp_fwd_start;		/* forward image start */
+	uint32_t tp_bwd_start;		/* backward image start */
+	uint16_t tp_fwd_pix;		/* pixel size in forward move */
+	uint16_t tp_bwd_pix;		/* pixel size in backward move */
 };
 
 #endif /* !PROTO_H */

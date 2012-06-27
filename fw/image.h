@@ -22,9 +22,6 @@
 #include "proto.h"
 
 
-#define	MAX_LINES	80
-
-
 struct line {
 	uint8_t d;		/* port D0-D7 */
 	uint8_t cb;		/* port C0-C5, B6-B7 */
