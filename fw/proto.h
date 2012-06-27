@@ -34,6 +34,19 @@ enum pck_type {
 };
 
 
+#define	XA_HIGH_DEFAULT		850
+#define	XA_LOW_DEFAULT		170
+
+#define	PX_FWD_LEFT_DEFAULT	0
+#define	PX_FWD_RIGHT_DEFAULT	(MAX_LINES-1)
+#define	PX_BWD_LEFT_DEFAULT	0
+#define	PX_BWD_RIGHT_DEFAULT	(MAX_LINES-1)
+
+#define	TP_FWD_START_DEFAULT	70000	/* 70 ms */
+#define	TP_BWD_START_DEFAULT	50000	/* 50 ms */
+#define	TP_FWD_PIX_DEFAULT	1100	/* 1.1 ms */
+#define	TP_BWD_PIX_DEFAULT	1100	/* 1.1 ms */
+
 struct params {
 	/* Timer ticks */
 
@@ -46,10 +59,10 @@ struct params {
 
 	/* Pixel offsets (in image) */
 
-	uint8_t	px_fwd_img_first;	/* first column in forward move */
-	uint8_t	px_fwd_img_end;		/* last column in forward move */
-	uint8_t	px_bwd_img_first;	/* first (high) col. in backward move */
-	uint8_t	px_bwd_img_end;		/* last (low) column in backward move */
+	uint8_t	px_fwd_left;		/* first column in forward move */
+	uint8_t	px_fwd_right;		/* last column in forward move */
+	uint8_t	px_bwd_left;		/* last (low) column in backward move */
+	uint8_t	px_bwd_right;		/* first (high) col. in backward move */
 
 	/* Timer periods, for imaging */
 
@@ -57,11 +70,6 @@ struct params {
 	uint16_t tp_bwd_start;		/* backward image start */
 	uint8_t tp_fwd_pix;		/* pixel size in forward move */
 	uint8_t tp_bwd_pix;		/* pixel size in backward move */
-
-	/* Timer periods, for estimation */
-
-	uint16_t tp_fwd;		/* forward half-period */
-	uint16_t tp_bwd;		/* backward half-period */
 };
 
 #endif /* !PROTO_H */

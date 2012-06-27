@@ -14,6 +14,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "proto.h"
 #include "rf.h"
 #include "dispatch.h"
 #include "sweep.h"
@@ -25,18 +26,18 @@
 
 
 static struct sweep fwd_sweep = {
-	.pixel_ticks	=	  1100,	/*   1.1 ms */
-	.left		=	     0,
-	.right		=   MAX_LINES-1,
-	.forward 	=	     1,
+	.pixel_ticks	= TP_FWD_PIX_DEFAULT,
+	.left		= PX_FWD_LEFT_DEFAULT,
+	.right		= PX_FWD_RIGHT_DEFAULT,
+	.forward 	= 1,
 };
 
 
 static struct sweep bwd_sweep = {
-	.pixel_ticks	=	  1100,	/*   1.1 ms */
-	.left		=	     0,
-	.right		=   MAX_LINES-1,
-	.forward 	=	     0,
+	.pixel_ticks	= TP_BWD_PIX_DEFAULT,
+	.left		= PX_BWD_LEFT_DEFAULT,
+	.right		= PX_BWD_RIGHT_DEFAULT,
+	.forward 	= 0,
 };
 
 
@@ -52,11 +53,10 @@ static volatile uint32_t tR0, tR1, tL0, tL1;
 static volatile uint32_t tL, tR;
 static volatile bool wake = 0;
 
-
-//#define	THRESH_HIGH		900
-//#define	THRESH_LOW		120
-#define	THRESH_HIGH		850
-#define	THRESH_LOW		170
+static uint16_t xa_high = XA_HIGH_DEFAULT;
+static uint16_t xa_low = XA_LOW_DEFAULT;
+static uint32_t fwd_start = TP_FWD_START_DEFAULT;
+static uint32_t bwd_start = TP_BWD_START_DEFAULT;
 
 
 static void sync_sweep(bool x, uint16_t v)
@@ -68,37 +68,37 @@ static void sync_sweep(bool x, uint16_t v)
 	t = uptime_irq();
 	switch (state) {
 	case IDLE:
-		if (v < THRESH_LOW) {
+		if (v < xa_low) {
 			tR0 = t;
 			state = RIGHT;
-		} else if (v > THRESH_HIGH) {
+		} else if (v > xa_high) {
 			tL0 = t;
 			state = LEFT;
 		}
 		break;
 	case RIGHT:
-		if (v < THRESH_LOW)
+		if (v < xa_low)
 			break;
 		tR1 = t;
 		tR = t-tR0;
 		state = BWD;
 		/* fall through */
 	case BWD:
-		if (v < THRESH_HIGH)
+		if (v < xa_high)
 			break;
 		tL0 = t;
 		state = LEFT;
 		wake = 1;
 		break;
 	case LEFT:
-		if (v > THRESH_HIGH)
+		if (v > xa_high)
 			break;
 		tL1 = t;
 		tL = t-tL0;
 		state = FWD;
 		/* fall through */
 	case FWD:
-		if (v > THRESH_LOW)
+		if (v > xa_low)
 			break;
 		tR0 = t;
 		state = RIGHT;
@@ -116,14 +116,14 @@ static void submit_fwd_sweep(void)
 	tIMG = (fwd_sweep.right-fwd_sweep.left+1)*(fwd_sweep.pixel_ticks)/2;
 	fwd_sweep.start_ticks = tL0+110000-tIMG/2;
 #endif
-	fwd_sweep.start_ticks = tL0+70000;
+	fwd_sweep.start_ticks = tL0+fwd_start;
 	sweep_image(&fwd_sweep);
 }
 
 
 static void submit_bwd_sweep(void)
 {
-	bwd_sweep.start_ticks = tR0+50000;
+	bwd_sweep.start_ticks = tR0+bwd_start;
 	sweep_image(&bwd_sweep);
 }
 
@@ -149,7 +149,7 @@ int main(void)
 	sweep_init();
 	sample = sync_sweep;
 	accel_start();
-sei();
+	sei();
 
 	while (1) {
 		got = rf_recv(buf, sizeof(buf));
