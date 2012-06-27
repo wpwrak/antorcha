@@ -17,6 +17,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <avr/pgmspace.h>
+
+#include "proto.h"
+
 
 #define	MAX_LINES	80
 
@@ -28,5 +32,6 @@ struct line {
 
 
 extern const struct line *image;
+extern const uint8_t image_secret[2*PAYLOAD] PROGMEM;
 
 #endif /* !IMAGE_H */

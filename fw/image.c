@@ -32,7 +32,7 @@ static bool failed;
 const struct line *image = images[0];
 
 
-static const uint8_t image_secret[2*PAYLOAD] PROGMEM = {
+const uint8_t image_secret[2*PAYLOAD] PROGMEM = {
 	#include "image-secret.inc"
 };
 
