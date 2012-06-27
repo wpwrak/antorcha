@@ -242,7 +242,9 @@ static void send_image(struct atrf_dsc *dsc, void *buf, int len)
 
 	/* @@@ salt */
 	packet(dsc, IMAGE, seq++, last, payload, PAYLOAD);
+	hash_merge(payload, PAYLOAD);
 	packet(dsc, IMAGE, seq++, last, payload, PAYLOAD);
+	hash_merge(payload, PAYLOAD);
 	hash_end();
 
 	/* hash */
@@ -370,7 +372,9 @@ static void param(struct atrf_dsc *dsc)
 
 	/* @@@ salt */
 	packet(dsc, PARAM, 1, 4, payload, PAYLOAD);
+	hash_merge(payload, PAYLOAD);
 	packet(dsc, PARAM, 2, 4, payload, PAYLOAD);
+	hash_merge(payload, PAYLOAD);
 	hash_end();
 
 	/* hash */
