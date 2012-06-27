@@ -278,6 +278,112 @@ static void image(struct atrf_dsc *dsc, const char *name)
 }
 
 
+/* ----- Parameter upload -------------------------------------------------- */
+
+
+static struct params params = {
+	.xa_high	= XA_HIGH_DEFAULT,
+	.xa_low		= XA_LOW_DEFAULT,
+	.px_fwd_left	= PX_FWD_LEFT_DEFAULT,
+	.px_fwd_right	= PX_FWD_RIGHT_DEFAULT,
+	.px_bwd_left	= PX_BWD_LEFT_DEFAULT,
+	.px_bwd_right	= PX_BWD_RIGHT_DEFAULT,
+	.tp_fwd_start	= TP_FWD_START_DEFAULT,
+	.tp_bwd_start	= TP_BWD_START_DEFAULT,
+	.tp_fwd_pix	= TP_FWD_PIX_DEFAULT,
+	.tp_bwd_pix	= TP_BWD_PIX_DEFAULT,
+};
+
+static int have_params = 0;
+
+
+static void add_param(const char *arg, const char *eq)
+{
+	struct map {
+		const char *name;	/* NULL to mark end */
+		void *p;
+		int bytes;		/* 1, 2, or 4 */
+	} map[] = {
+		{ "xa_high",		&params.xa_high,	2 },
+		{ "xa_low",		&params.xa_low,		2 },
+		{ "px_fwd_left",	&params.px_fwd_left,	1 },
+		{ "px_bwd_left",	&params.px_bwd_left,	1 },
+		{ "px_fwd_right",	&params.px_fwd_right,	1 },
+		{ "px_bwd_right",	&params.px_bwd_right,	1 },
+		{ "tp_fwd_start",	&params.tp_fwd_start,	4 },
+		{ "tp_bwd_start",	&params.tp_bwd_start,	4 },
+		{ "tp_fwd_pix",		&params.tp_fwd_pix,	2 },
+		{ "tp_bwd_pix",		&params.tp_bwd_pix,	2 },
+		{ NULL }
+	};
+	const struct map *m;
+	size_t len;
+	unsigned long v;
+	char *end;
+	uint8_t *p;
+	int i;
+
+	len = eq-arg;
+	for (m = map; m->name; m++) {
+		if (strlen(m->name) != len)
+			continue;
+		if (!strncmp(arg, m->name, len))
+			break;
+	}
+	if (!m->name) {
+		fprintf(stderr, "unknown parameter \"%.*s\"\n",
+		    (int) len, arg);
+		exit(1);
+	}
+	v = strtoul(eq+1, &end, 10);
+	if (*end) {
+		fprintf(stderr, "invalid value \"%s\"\n", eq+1);
+		exit(1);
+	}
+	p = m->p;
+	for (i = 0; i != m->bytes; i++) {
+		*p++ = v;
+		v >>= 8;
+	}
+	if (v) {
+		fprintf(stderr, "value \"%s\" is too large\n", eq+1);
+		exit(1);
+	}
+	have_params = 1;
+}
+
+
+static void param(struct atrf_dsc *dsc)
+{
+	uint8_t payload[PAYLOAD];
+
+	if (!have_params)
+		return;
+	hash_init();
+	hash_merge(image_secret, sizeof(image_secret));
+	if (verbose)
+		write(2, "param ", 6);
+	memset(payload, 0, PAYLOAD);
+	memcpy(payload, &params, sizeof(params));
+	packet(dsc, PARAM, 0, 4, payload, PAYLOAD);
+	hash_merge(payload, PAYLOAD);
+
+	/* @@@ salt */
+	packet(dsc, PARAM, 1, 4, payload, PAYLOAD);
+	packet(dsc, PARAM, 2, 4, payload, PAYLOAD);
+	hash_end();
+
+	/* hash */
+	hash_cp(payload, PAYLOAD, 0);
+	packet(dsc, PARAM, 3, 4, payload, PAYLOAD);
+	hash_cp(payload, PAYLOAD, PAYLOAD);
+	packet(dsc, PARAM, 4, 4, payload, PAYLOAD);
+
+	if (verbose)
+		write(2, "\n", 1);
+}
+
+
 /* ----- Samples ----------------------------------------------------------- */
 
 
@@ -371,7 +477,7 @@ quit:
 static void usage(const char *name)
 {
 	fprintf(stderr,
-"usage: %s [-d] image_file\n"
+"usage: %s [-d] [param=value ...] image_file\n"
    "%6s %s [-d] -F firmware_file\n"
    "%6s %s [-d] -P\n"
    "%6s %s [-d] -S [-S]\n"
@@ -411,7 +517,7 @@ int main(int argc, char **argv)
 		if (argc != optind)
 			usage(*argv);
 	} else {
-		if (argc != optind+1)
+		if (argc == optind)
 			usage(*argv);
 	}
 
@@ -426,8 +532,22 @@ int main(int argc, char **argv)
 		samples(dsc, do_sample > 1);
 	else if (fw)
 		firmware(dsc, fw);
-	else
-		image(dsc, argv[optind]);
+	else {
+		const char *eq;
+
+		while (optind != argc) {
+			eq = strchr(argv[optind], '=');
+			if (!eq)
+				break;
+			add_param(argv[optind], eq);
+			optind++;
+		}
+		if (argc > optind+1)
+			usage(*argv);
+		if (optind != argc)
+			image(dsc, argv[optind]);
+		param(dsc);
+	}
 
 	return 0;
 }
