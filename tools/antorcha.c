@@ -296,28 +296,29 @@ static struct params params = {
 	.tp_bwd_pix	= TP_BWD_PIX_DEFAULT,
 };
 
+static struct map {
+	const char *name;	/* NULL to mark end */
+	void *p;
+	int bytes;		/* 1, 2, or 4 */
+} map[] = {
+	{ "xa_high",		&params.xa_high,	2 },
+	{ "xa_low",		&params.xa_low,		2 },
+	{ "px_fwd_left",	&params.px_fwd_left,	1 },
+	{ "px_bwd_left",	&params.px_bwd_left,	1 },
+	{ "px_fwd_right",	&params.px_fwd_right,	1 },
+	{ "px_bwd_right",	&params.px_bwd_right,	1 },
+	{ "tp_fwd_start",	&params.tp_fwd_start,	4 },
+	{ "tp_bwd_start",	&params.tp_bwd_start,	4 },
+	{ "tp_fwd_pix",		&params.tp_fwd_pix,	2 },
+	{ "tp_bwd_pix",		&params.tp_bwd_pix,	2 },
+	{ NULL }
+};
+
 static int have_params = 0;
 
 
 static void add_param(const char *arg, const char *eq)
 {
-	struct map {
-		const char *name;	/* NULL to mark end */
-		void *p;
-		int bytes;		/* 1, 2, or 4 */
-	} map[] = {
-		{ "xa_high",		&params.xa_high,	2 },
-		{ "xa_low",		&params.xa_low,		2 },
-		{ "px_fwd_left",	&params.px_fwd_left,	1 },
-		{ "px_bwd_left",	&params.px_bwd_left,	1 },
-		{ "px_fwd_right",	&params.px_fwd_right,	1 },
-		{ "px_bwd_right",	&params.px_bwd_right,	1 },
-		{ "tp_fwd_start",	&params.tp_fwd_start,	4 },
-		{ "tp_bwd_start",	&params.tp_bwd_start,	4 },
-		{ "tp_fwd_pix",		&params.tp_fwd_pix,	2 },
-		{ "tp_bwd_pix",		&params.tp_bwd_pix,	2 },
-		{ NULL }
-	};
 	const struct map *m;
 	size_t len;
 	unsigned long v;
@@ -355,7 +356,7 @@ static void add_param(const char *arg, const char *eq)
 }
 
 
-static void param(struct atrf_dsc *dsc)
+static void send_param(struct atrf_dsc *dsc)
 {
 	uint8_t payload[PAYLOAD];
 
@@ -550,7 +551,7 @@ int main(int argc, char **argv)
 			usage(*argv);
 		if (optind != argc)
 			image(dsc, argv[optind]);
-		param(dsc);
+		send_param(dsc);
 	}
 
 	return 0;
