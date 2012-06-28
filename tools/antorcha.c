@@ -488,15 +488,37 @@ quit:
 /* ----- Command-line processing ------------------------------------------- */
 
 
+static unsigned get_int(uint8_t *p, int n)
+{
+	unsigned v = 0;
+	int i;
+
+	for (i = 0; i != n; i++)
+		v |= *p++ << (i*8);
+	return v;
+}
+
+
 static void usage(const char *name)
 {
+	const struct map *m;
+
 	fprintf(stderr,
 "usage: %s [-d] [param=value ...] image_file\n"
    "%6s %s [-d] -F firmware_file\n"
    "%6s %s [-d] -P\n"
    "%6s %s [-d] -R\n"
-   "%6s %s [-d] -S [-S]\n"
+   "%6s %s [-d] -S [-S]\n\n"
+"  -F file  firmware upload\n"
+"  -P       ping (version query)\n"
+"  -R       reset\n"
+"  -S       sample with output on stdout. Exit with ^C.\n"
+"  -S -S    sample with graphical output. Exit with Q.\n\n"
+"Parameters:\n"
     , name, "", name, "", name, "", name, "", name);
+	for (m = map; m->name; m++)
+		fprintf(stderr, "  %s\t(default %u)\n",
+		    m->name, get_int(m->p, m->bytes));
 	exit(1);
 }
 
