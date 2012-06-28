@@ -45,7 +45,7 @@ enum pck_type {
 #define	PX_BWD_RIGHT_DEFAULT	(MAX_LINES-1)
 
 #define	TP_FWD_START_DEFAULT	70000	/* 70 ms */
-#define	TP_BWD_START_DEFAULT	50000	/* 50 ms */
+#define	TP_BWD_START_DEFAULT	70000	/* 70 ms */
 #define	TP_FWD_PIX_DEFAULT	1100	/* 1.1 ms */
 #define	TP_BWD_PIX_DEFAULT	1100	/* 1.1 ms */
 
