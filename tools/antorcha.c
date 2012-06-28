@@ -389,6 +389,15 @@ static void send_param(struct atrf_dsc *dsc)
 }
 
 
+/* ----- Reset ------------------------------------------------------------- */
+
+
+static void reset(struct atrf_dsc *dsc)
+{
+	packet_noack(dsc, RESET, 0, 0, unlock_secret, PAYLOAD);
+}
+
+
 /* ----- Samples ----------------------------------------------------------- */
 
 
@@ -485,8 +494,9 @@ static void usage(const char *name)
 "usage: %s [-d] [param=value ...] image_file\n"
    "%6s %s [-d] -F firmware_file\n"
    "%6s %s [-d] -P\n"
+   "%6s %s [-d] -R\n"
    "%6s %s [-d] -S [-S]\n"
-    , name, "", name, "", name, "", name);
+    , name, "", name, "", name, "", name, "", name);
 	exit(1);
 }
 
@@ -494,11 +504,11 @@ static void usage(const char *name)
 int main(int argc, char **argv)
 {
 	const char *fw = NULL;
-	int do_ping = 0, do_sample = 0;
+	int do_ping = 0, do_reset = 0, do_sample = 0;
 	struct atrf_dsc *dsc;
 	int c;
 
-	while ((c = getopt(argc, argv, "dF:PS")) != EOF)
+	while ((c = getopt(argc, argv, "dF:PRS")) != EOF)
 		switch (c) {
 		case 'd':
 			debug++;
@@ -509,6 +519,9 @@ int main(int argc, char **argv)
 		case 'P':
 			do_ping = 1;
 			break;
+		case 'R':
+			do_reset = 1;
+			break;
 		case 'S':
 			do_sample++;
 			break;
@@ -516,9 +529,9 @@ int main(int argc, char **argv)
 			usage(*argv);
 		}
 
-	if (do_ping+!!do_sample+!!fw > 1)
+	if (do_ping+do_reset+!!do_sample+!!fw > 1)
 		usage(*argv);
-	if (do_ping || do_sample || fw) {
+	if (do_ping || do_reset || do_sample || fw) {
 		if (argc != optind)
 			usage(*argv);
 	} else {
@@ -533,6 +546,8 @@ int main(int argc, char **argv)
 	rf_init(dsc, 8, 15);
 	if (do_ping)
 		ping(dsc);
+	else if (do_reset)
+		reset(dsc);
 	else if (do_sample)
 		samples(dsc, do_sample > 1);
 	else if (fw)
