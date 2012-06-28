@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# tools/bit2ant - Convert X bitmap file to Antorcha image binary
+# tools/xbm2ant - Convert X bitmap file to Antorcha image binary
 #
 # Written 2012 by Werner Almesberger
 # Copyright 2012 Werner Almesberger
