@@ -136,7 +136,7 @@ int main(void)
 		got = rf_recv(buf, sizeof(buf));
 		if (got > 2)
 			dispatch(buf, got-2, protos);
-		if (wake && !sweeping) {
+		if (wake) {
 			wake = 0;
 			if (state == LEFT)
 				submit_fwd_sweep();
