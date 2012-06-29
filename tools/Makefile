@@ -16,15 +16,21 @@ MAIN = antorcha
 CFLAGS = -g -I../fw -I../../ben-wpan/tools/include \
 	 -I../../ben-wpan/atusb/fw/include \
 	 -Wall \
-	 $(shell sdl-config --cflags)
-LDLIBS = -L../../ben-wpan/tools/lib -latrf -lusb \
-	 $(shell sdl-config --libs) -lSDL_gfx
+	 $(if $(NOGFX),, -DGFX $(shell sdl-config --cflags)) \
+	 $(if $(BEN), -static)
 
-OBJS = antorcha.o hash.o plot.o
+LDLIBS = -L../../ben-wpan/tools/lib -latrf  \
+	 $(if $(NOGFX),, $(shell sdl-config --libs) -lSDL_gfx) \
+	 $(if $(BEN),, -usb)
 
-.PHONY:		all update ping off
+OBJS = antorcha.o hash.o $(if $(NOGFX),, plot.o)
+
+.PHONY:		all ben update ping off
 
 all:		$(MAIN)
+
+ben:
+		$(MAKE) NOGFX=y BEN=y CC=mipsel-openwrt-linux-gcc
 
 $(MAIN):	$(OBJS)
 		$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDLIBS)

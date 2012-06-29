@@ -437,9 +437,12 @@ static void samples(struct atrf_dsc *dsc, int gui)
 
 	buf[0] = 1;
 	packet(dsc, SAMPLE, 0, 0, buf, PAYLOAD);
+
+#ifdef GFX
 	if (gui)
 		plot_init();
 	else
+#endif
 		signal(SIGINT, sigint);
 	while (run) {
 		got = rf_recv(dsc, buf, sizeof(buf));
@@ -475,11 +478,15 @@ static void samples(struct atrf_dsc *dsc, int gui)
 			if (!gui)
 				printf("%11.6f\t%d\n", t, y);
 
+#ifdef GFX
 			if (gui && !plot(x, y))
 				goto quit;
+#endif
 		}
 	}
+#ifdef GFX
 quit:
+#endif
 	buf[0] = 0;
 	packet(dsc, SAMPLE, 0, 0, buf, PAYLOAD);
 }
@@ -513,7 +520,9 @@ static void usage(const char *name)
 "  -P       ping (version query)\n"
 "  -R       reset\n"
 "  -S       sample with output on stdout. Exit with ^C.\n"
+#ifdef GFX
 "  -S -S    sample with graphical output. Exit with Q.\n\n"
+#endif
 "Parameters:\n"
     , name, "", name, "", name, "", name, "", name);
 	for (m = map; m->name; m++)
