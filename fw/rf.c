@@ -91,7 +91,7 @@ void rf_send(const void *buf, uint8_t size)
 	_delay_us(1);	/* tTR9 = 1 us */
 
 	/* be nice to senders with long turn-around time, e.g., atusb */
-	_delay_ms(2);
+	_delay_ms(9);
 
 	spi_begin();
 	spi_send(AT86RF230_BUF_WRITE);
