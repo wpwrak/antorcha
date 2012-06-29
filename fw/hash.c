@@ -15,7 +15,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#ifdef __AVR__
 #include <avr/pgmspace.h>
+#endif /* __AVR__ */
 
 #include "hash.h"
 
