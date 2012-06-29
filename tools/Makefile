@@ -25,7 +25,7 @@ LDLIBS = -L../../ben-wpan/tools/lib -latrf  \
 
 OBJS = antorcha.o hash.o $(if $(NOGFX),, plot.o)
 
-.PHONY:		all ben update ping off
+.PHONY:		all ben clean spotless update ping off
 
 all:		$(MAIN)
 
@@ -34,6 +34,12 @@ ben:
 
 $(MAIN):	$(OBJS)
 		$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+clean:
+		rm -f $(OBJS)
+
+spotless:	clean
+		rm -f $(MAIN)
 
 update:
 		./antorcha -F ../fw/antorcha.bin
