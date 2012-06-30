@@ -13,8 +13,13 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 
 #include "libtxt.h"
+
+
+/* ----- Render a list of editing instructions ----------------------------- */
 
 
 static int do_edit(uint8_t *canvas, int width, int height,
@@ -101,4 +106,155 @@ void *apply_edits(int width, int height, const struct edit *e,
 		return canvas;
 	free(canvas);
 	return NULL;
+}
+
+
+/* ----- Compile editing instructions -------------------------------------- */
+
+
+static char *alloc_string_n(const char *s, size_t len)
+{
+	char *t;
+
+	t = malloc(len+1);
+	if (!t)
+		abort();
+	memcpy(t, s, len);
+	t[len] = 0;
+	return t;
+}
+
+
+static void add_string(struct edit ***last, const char *start, size_t len)
+{
+	struct edit *e;
+
+	e = malloc(sizeof(struct edit));
+	if (!e)
+		abort();
+	e->type = edit_string;
+	e->u.s = alloc_string_n(start, len);
+	**last = e;
+	*last = &e->next;
+}
+
+
+static int parse_coord(struct edit *e, const char *s,
+    enum edit_type off, enum edit_type pos)
+{
+	char *end;
+
+	if (!*s)
+		return 0;
+	e->u.n = strtoul(s+1, &end, 0);
+	if (*end != '>')
+		return 0;
+	switch (*s) {
+	case '-':
+		e->u.n = -e->u.n;
+		/* fall through */
+	case '+':
+		e->type = off;
+		break;
+	case '=':
+		e->type = pos;
+		break;
+	default:
+		return 0;
+	}
+	return 1;
+}
+
+
+struct edit *text2edit(const char *s)
+{
+	struct edit *e = NULL;
+	struct edit **last = &e;
+	const char *start;
+	int have_text = 0;
+	char *end;
+
+	start = s;
+	for (start = s; *s; s++) {
+		if (*s != '<' && *s != '\n')
+			continue;
+		if (s != start) {
+			add_string(&last, start, s-start);
+			have_text = 1;
+			start = s+1;
+		}
+
+		if (*s == '\n' && !have_text)
+			continue;
+
+		*last = malloc(sizeof(struct edit));
+		if (!*last)
+			abort();
+		(*last)->type = edit_nl; /* pick something without data */
+		(*last)->next = NULL;
+		last = &(*last)->next;
+
+		if (*s == '\n')
+			continue;
+
+		end = strchr(s, '>');
+		if (!end)
+			goto fail;
+
+		switch (s[1]) {
+		case 'F':
+			if (strncmp(s, "<FONT ", 6))
+				goto fail;
+			e->type = edit_font;
+			e->u.s = alloc_string_n(s+6, end-s-6);
+			break;
+		case 'I':
+			if (strncmp(s, "<IMG ", 5))
+				goto fail;
+			e->type = edit_img;
+			e->u.s = alloc_string_n(s+5, end-s-5);
+			break;
+		case 'S':
+			if (strncmp(s, "<SPC ", 5))
+				goto fail;
+			e->type = edit_spc;
+			e->u.n = strtoul(s+5, &end, 0);
+			if (*end != '>')
+				goto fail;
+			break;
+		case 'X':
+			if (!parse_coord(e, s+2, edit_xoff, edit_xpos))
+				goto fail;
+			break;
+		case 'Y':
+			if (!parse_coord(e, s+2, edit_yoff, edit_ypos))
+				goto fail;
+			break;
+		default:
+			goto fail;
+		}
+		s = end;
+		start = s+1;
+	}
+
+fail:
+	free_edit(e);
+	return NULL;
+}
+
+
+/* ----- Free edit list ---------------------------------------------------- */
+
+
+void free_edit(struct edit *e)
+{
+	struct edit *next;
+
+	while (e) {
+		if (e->type == edit_font || e->type == edit_img)
+			free(e->u.s);
+		next = e->next;
+		free(e);
+		e = next;
+	}
 }

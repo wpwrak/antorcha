@@ -30,7 +30,7 @@ struct edit {
 		edit_nl,
 	} type;
 	union {
-		const char *s;
+		char *s;
 		int n;
 	} u;
 	struct edit *next;
@@ -66,6 +66,7 @@ int char_height(const struct font *font, char c);
 
 struct edit *text2edit(const char *s);
 char *edit2text(const struct edit *e);
+void free_edit(struct edit *e);
 
 void *apply_edits(int width, int height, const struct edit *e,
     const char **error);
