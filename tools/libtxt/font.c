@@ -256,10 +256,10 @@ static void do_draw(uint8_t *canvas, int width, int heigth,
 	int ix, iy, xt;
 
 	for (ix = 0; ix != w; ix++) {
-		if (x+ix >= width)
+		if (x+ix < 0 || x+ix >= width)
 			continue;
 		for (iy = 0; iy != h; iy++) {
-			if (y+iy >= heigth)
+			if (y+iy < 0 || y+iy >= heigth)
 				continue;
 			xt = ox+ix;
 			if (img->data[(oy+iy)*img->span+(xt >> 3)] &
