@@ -33,15 +33,19 @@ struct sym {
 	int w, h;
 };
 
-struct font {
+struct image {
 	int w, h;
 	int span;	/* bytes per row */
-	struct sym sym[CHARS];
 	uint8_t *data;
 };
 
+struct font {
+	const struct image *img;
+	struct sym sym[CHARS];
+};
 
-static struct font font;
+
+/* ----- Helper functions -------------------------------------------------- */
 
 
 static const char *alloc_sprintf(const char *fmt, ...)
@@ -63,23 +67,25 @@ static const char *alloc_sprintf(const char *fmt, ...)
 }
 
 
-static const char *read_font_file(FILE *file)
+/* ----- XBM image --------------------------------------------------------- */
+
+
+static const char *read_xbm_file(FILE *file, struct image *img)
 {
 	int n;
 	unsigned v;
 	char c;
 	int bytes = 0;
 
-	free(font.data);
-	font.data = NULL;
+	img->data = NULL;
 
-	n = fscanf(file, "#define %*[^_]_width %d\n", &font.w);
+	n = fscanf(file, "#define %*[^_]_width %d\n", &img->w);
 	if (n < 0)
 		return alloc_sprintf("reading width: %s", strerror(errno));
 	if (n != 1)
 		return alloc_sprintf("width not found (%d)", n);
 
-	n = fscanf(file, "#define %*[^_]_height %d\n", &font.h);
+	n = fscanf(file, "#define %*[^_]_height %d\n", &img->h);
 	if (n < 0)
 		return alloc_sprintf("reading height: %s", strerror(errno));
 	if (n != 1)
@@ -98,10 +104,10 @@ static const char *read_font_file(FILE *file)
 			return alloc_sprintf("data not found (%d)", n);
 
 		bytes++;
-		font.data = realloc(font.data, bytes);
-		if (!font.data)
+		img->data = realloc(img->data, bytes);
+		if (!img->data)
 			abort();
-		font.data[bytes-1] = v;
+		img->data[bytes-1] = v;
 
 		if (c == ',')
 			continue;
@@ -109,60 +115,100 @@ static const char *read_font_file(FILE *file)
 			break;
 		return alloc_sprintf("invalid data syntax");
 	}
-	font.span = (font.w+7) >> 3;
-	if (bytes != font.h*font.span)
+	img->span = (img->w+7) >> 3;
+	if (bytes != img->h*img->span)
 		return alloc_sprintf("%d bytes for %dx%d bitmap",
-		    bytes, font.h, font.w);
+		    bytes, img->h, img->w);
 	return NULL;
 }
 
 
-static void set_block(int *n, int xlast, int x, int y0, int y1)
+struct image *load_image(const char *name, const char **error)
 {
-	font.sym[*n].x = xlast+1;
-	font.sym[*n].y = y0;
-	font.sym[*n].w = x-xlast-1;
-	font.sym[*n].h = y1-y0+1;
+	FILE *file;
+	struct image *img;
+	const char *err;
+
+	file = fopen(name, "r");
+	if (!file) {
+		if (error)
+			*error = alloc_sprintf("%s: %s", name, strerror(errno));
+		return NULL;
+	}
+
+	img = malloc(sizeof(struct image));
+	if (!img)
+		abort();
+	err = read_xbm_file(file, img);
+	if (err) {
+		if (error)
+			*error = err;
+		free(img);
+		return NULL;
+	}
+	return img;
+}
+
+
+void free_image(struct image *img)
+{
+	free(img->data);
+	free(img);
+}
+
+
+/* ----- Font generation --------------------------------------------------- */
+
+
+static void set_block(struct font *font, int *n,
+    int xlast, int x, int y0, int y1)
+{
+	font->sym[*n].x = xlast+1;
+	font->sym[*n].y = y0;
+	font->sym[*n].w = x-xlast-1;
+	font->sym[*n].h = y1-y0+1;
 	(*n)++;
 }
 
 
-static void analyze_block(int *n, int y0, int y1)
+static void analyze_block(struct font *font, int *n, int y0, int y1)
 {
+	const struct image *img = font->img;
 	int x, y, last = -1;
 
-	for (x = 0; x != font.w; x++) {
+	for (x = 0; x != img->w; x++) {
 		for (y = y0; y <= y1; y++)
-			if (font.data[y*font.span+(x >> 3)] & (1 << (x & 7)))
+			if (img->data[y*img->span+(x >> 3)] & (1 << (x & 7)))
 				break;
 		if (y <= y1)
 			continue;
 		if (x != last+1)
-			set_block(n, last, x, y0, y1);
+			set_block(font, n, last, x, y0, y1);
 		last = x;
 	}
 	if (x != last+1)
-		set_block(n, last, x, y0, y1);
+		set_block(font, n, last, x, y0, y1);
 }
 
 
-static const char *analyze_font(void)
+static const char *analyze_font(struct font *font)
 {
+	const struct image *img = font->img;
 	int x, y, last = -1;
 	int n = 0;
 	
-	for (y = 0; y != font.h; y++) {
-		for (x = 0; x != font.span; x++)
-			if (font.data[y*font.span+x])
+	for (y = 0; y != img->h; y++) {
+		for (x = 0; x != img->span; x++)
+			if (img->data[y*img->span+x])
 				break;
-		if (x != font.span)
+		if (x != img->span)
 			continue;
 		if (y != last+1)
-			analyze_block(&n, last+1, y-1);
+			analyze_block(font, &n, last+1, y-1);
 		last = y;
 	}
 	if (y != last+1)
-		analyze_block(&n, last+1, y-1);
+		analyze_block(font, &n, last+1, y-1);
 	if (n != CHARS)
 		return alloc_sprintf("found %d instead of %d characters",
 		    n, CHARS);
@@ -170,25 +216,39 @@ static const char *analyze_font(void)
 }
 
 
-const char *load_font(const char *name)
+struct font *make_font(const struct image *img, const char **error)
 {
-	FILE *file;
-	const char *error;
+	struct font *font;
+	const char *err;
 
-	file = fopen(name, "r");
-	if (!file)
-		return alloc_sprintf("%s: %s", name, strerror(errno));
-	error = read_font_file(file);
-	fclose(file);
-	if (error)
-		return error;
-
-	return analyze_font();
+	font = calloc(1, sizeof(struct font));
+	if (!font)
+		abort();
+	font->img = img;
+	err = analyze_font(font);
+	if (err) {
+		if (error)
+			*error = err;
+		free(font);
+		return NULL;
+	}
+	return font;
 }
 
 
-int draw_char(void *canvas, int width, int height, char c, int x, int y)
+void free_font(struct font *font)
 {
+	free(font);
+}
+
+
+/* ----- Drawing on a canvas ----------------------------------------------- */
+
+
+int draw_char(void *canvas, int width, int height,
+    const struct font *font, char c, int x, int y)
+{
+	const struct image *img = font->img;
 	uint8_t *p = canvas;
 	const char *cp;
 	const struct sym *sym;
@@ -197,7 +257,7 @@ int draw_char(void *canvas, int width, int height, char c, int x, int y)
 	cp = strchr(charset, c);
 	if (!cp)
 		return 0;
-	sym = font.sym+(cp-charset);
+	sym = font->sym+(cp-charset);
 
 	for (ix = 0; ix != sym->w; ix++) {
 		if (x+ix >= width)
@@ -206,7 +266,7 @@ int draw_char(void *canvas, int width, int height, char c, int x, int y)
 			if (y+iy >= height)
 				continue;
 			xt = sym->x+ix;
-			if (font.data[(sym->y+iy)*font.span+(xt >> 3)] &
+			if (img->data[(sym->y+iy)*img->span+(xt >> 3)] &
 			    (1 << (xt & 7))) {
 				xt = x+ix;
 				p[((y+iy)*width+xt) >> 3] |= 1 << (xt & 7);
@@ -217,25 +277,36 @@ int draw_char(void *canvas, int width, int height, char c, int x, int y)
 }
 
 
+/* ----- Testing ----------------------------------------------------------- */
+
+
 #define	W	64
 #define	H	20
 
 
 int main(int argc, char **argv)
 {
+	struct font *font;
+	const struct image *img;
 	const char *error;
 	uint8_t canvas[W*H/8] = { 0 };
 	char *s;
 	int x, xo, y;
 
-	error = load_font(argv[1]);
-	if (error) {
+	img = load_image(argv[1], &error);
+	if (!img) {
 		fprintf(stderr, "%s\n", error);
 		return 1;
 	}
+	font = make_font(img, &error);
+	if (!font) {
+		fprintf(stderr, "%s\n", error);
+		return 1;
+	}
+
 	x = 0;
 	for (s = argv[2]; *s; s++) {
-		xo = draw_char(canvas, W, H, *s, x, 0);
+		xo = draw_char(canvas, W, H, font, *s, x, 0);
 		if (xo)
 			x += xo+1;
 	}

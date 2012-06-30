@@ -13,6 +13,7 @@
 #ifndef LIBTXT_H
 #define LIBTXT_H
 
+
 struct edit {
 	enum edit_type {
 		edit_string,
@@ -40,11 +41,17 @@ struct edit {
  * Empty lines are ignored. The newline of a line containing only markup is
  * also ignored.
  *
- * Newline leaves one 
+ * Newline leaves one blank row between text lines.
  */
 
-const char *load_font(const char *name);
-int draw_char(void *canvas, int width, int height, char c, int x, int y);
+struct image *load_image(const char *name, const char **error);
+void free_image(struct image *img);
+
+struct font *make_font(const struct image *img, const char **error);
+void free_font(struct font *font);
+
+int draw_char(void *canvas, int width, int height,
+    const struct font *font, char c, int x, int y);
 
 struct edit *text2edit(const char *s);
 char *edit2text(const struct edit *e);
