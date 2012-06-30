@@ -181,8 +181,8 @@ struct edit *text2edit(const char *s)
 		if (s != start) {
 			add_string(&last, start, s-start);
 			have_text = 1;
-			start = s+1;
 		}
+		start = s+1;
 
 		if (*s == '\n' && !have_text)
 			continue;
@@ -195,8 +195,10 @@ struct edit *text2edit(const char *s)
 		*last = e;
 		last = &e->next;
 
-		if (*s == '\n')
+		if (*s == '\n') {
+			have_text = 0;
 			continue;
+		}
 
 		end = strchr(s, '>');
 		if (!end)
