@@ -1,0 +1,28 @@
+- 4.5 V rail was intended to provide the ADXL32x with a supply voltage
+  that's at a safe distance from its 2.4 V minimum. However, the current
+  circuit wouldn't work with the acceleration sensor operating at 4.5 V.
+  It turns out the system operates well enough with the 4.5 V rail joined
+  to the 3 V rail.
+
+- the 6 V rail drops to 5 V after relatively little use. Need to improve
+  the power supply.
+
+- connections between boards are sensitive to mechanical forces and break
+  easily in the high-g environment we have here. Should consider moving
+  to an FPC at least for the LEDs. A stiff support beam (e.g., an
+  aluminium rail) helps to reduce mechanical stress.
+
+- the vertical resolution is a bit coarse. We could improve it and make
+  the whole system simpler by adding local demultiplexing with 74HC594
+  or 75HC595. Such chips could drive the LEDs directly.
+
+- the battery pack needs room for a plug. (The original design assumed
+  the battery pack would be mounted on the stick, but this now seems
+  undesirable, due to the large weight. Current stick weight is about
+  120 g and each AA battery would add about 25 g.)
+
+- the system really ought to have a button or even a joystick for user
+  input.
+
+- once a button is added, we could have local-only operation with images
+  coming from Flash.
