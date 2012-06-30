@@ -40,7 +40,7 @@ struct image {
 };
 
 struct font {
-	const struct image *img;
+	struct image *img;
 	struct sym sym[CHARS];
 };
 
@@ -143,7 +143,7 @@ struct image *load_image(const char *name, const char **error)
 	if (err) {
 		if (error)
 			*error = err;
-		free(img);
+		free_image(img);
 		return NULL;
 	}
 	return img;
@@ -216,7 +216,7 @@ static const char *analyze_font(struct font *font)
 }
 
 
-struct font *make_font(const struct image *img, const char **error)
+struct font *make_font(struct image *img, const char **error)
 {
 	struct font *font;
 	const char *err;
@@ -229,7 +229,7 @@ struct font *make_font(const struct image *img, const char **error)
 	if (err) {
 		if (error)
 			*error = err;
-		free(font);
+		free_font(font);
 		return NULL;
 	}
 	return font;
@@ -238,6 +238,7 @@ struct font *make_font(const struct image *img, const char **error)
 
 void free_font(struct font *font)
 {
+	free_image(font->img);
 	free(font);
 }
 
@@ -300,7 +301,7 @@ int char_height(const struct font *font, char c)
 int main(int argc, char **argv)
 {
 	struct font *font;
-	const struct image *img;
+	struct image *img;
 	const char *error;
 	uint8_t canvas[W*H/8] = { 0 };
 	char *s;
