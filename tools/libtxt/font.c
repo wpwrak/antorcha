@@ -152,8 +152,10 @@ struct image *load_image(const char *name, const char **error)
 
 void free_image(struct image *img)
 {
-	free(img->data);
-	free(img);
+	if (img) {
+		free(img->data);
+		free(img);
+	}
 }
 
 
@@ -238,8 +240,10 @@ struct font *make_font(struct image *img, const char **error)
 
 void free_font(struct font *font)
 {
-	free_image(font->img);
-	free(font);
+	if (font) {
+		free_image(font->img);
+		free(font);
+	}
 }
 
 
