@@ -11,7 +11,7 @@
 #
 
 
-MAIN = libtxt.a
+LIB = libtxt.a
 
 CFLAGS = -g -Wall
 
@@ -19,13 +19,13 @@ OBJS = edit.o font.o
 
 .PHONY:		all clean spotless
 
-all:		$(MAIN)
+all:		$(LIB)
 
-$(MAIN):	$(OBJS)
-		$(CC) $(CFLAGS) -o $@ $(OBJS)
+$(LIB):		$(OBJS)
+		$(AR) cr $@ $^
 
 clean:
 		rm -f $(OBJS)
 
 spotless:	clean
-		rm -f $(MAIN)
+		rm -f $(LIB)
