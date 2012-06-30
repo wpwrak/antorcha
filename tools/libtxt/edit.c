@@ -236,6 +236,9 @@ struct edit *text2edit(const char *s)
 		s = end;
 		start = s+1;
 	}
+	if (s != start)
+		add_string(&last, start, s-start);
+	return e;
 
 fail:
 	free_edit(e);
