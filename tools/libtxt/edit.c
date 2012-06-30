@@ -168,8 +168,8 @@ static int parse_coord(struct edit *e, const char *s,
 
 struct edit *text2edit(const char *s)
 {
-	struct edit *e = NULL;
-	struct edit **last = &e;
+	struct edit *edits = NULL, *e;
+	struct edit **last = &edits;
 	const char *start;
 	int have_text = 0;
 	char *end;
@@ -187,12 +187,13 @@ struct edit *text2edit(const char *s)
 		if (*s == '\n' && !have_text)
 			continue;
 
-		*last = malloc(sizeof(struct edit));
-		if (!*last)
+		e = malloc(sizeof(struct edit));
+		if (!e)
 			abort();
-		(*last)->type = edit_nl; /* pick something without data */
-		(*last)->next = NULL;
-		last = &(*last)->next;
+		e->type = edit_nl; /* pick something without data */
+		e->next = NULL;
+		*last = e;
+		last = &e->next;
 
 		if (*s == '\n')
 			continue;
@@ -238,7 +239,7 @@ struct edit *text2edit(const char *s)
 	}
 	if (s != start)
 		add_string(&last, start, s-start);
-	return e;
+	return edits;
 
 fail:
 	free_edit(e);
