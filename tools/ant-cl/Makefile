@@ -1,5 +1,5 @@
 #
-# tools/Makefile - Build the Antorcha tool
+# tools/ant-cl/Makefile - Build the Antorcha command-line tool
 #
 # Written 2012 by Werner Almesberger
 # Copyright 2012 Werner Almesberger
@@ -11,19 +11,19 @@
 #
 
 
-MAIN = antorcha
+MAIN = ant-cl
 
-CFLAGS = -g -I../fw -I../../ben-wpan/tools/include \
-	 -I../../ben-wpan/atusb/fw/include \
+CFLAGS = -g -I../../fw -I../../../ben-wpan/tools/include \
+	 -I../../../ben-wpan/atusb/fw/include \
 	 -Wall \
 	 $(if $(NOGFX),, -DGFX $(shell sdl-config --cflags)) \
 	 $(if $(BEN), -static)
 
-LDLIBS = -L../../ben-wpan/tools/lib -latrf  \
+LDLIBS = -L../../../ben-wpan/tools/lib -latrf  \
 	 $(if $(NOGFX),, $(shell sdl-config --libs) -lSDL_gfx) \
-	 $(if $(BEN),, -usb)
+	 $(if $(BEN),, -lusb)
 
-OBJS = antorcha.o hash.o $(if $(NOGFX),, plot.o)
+OBJS = ant-cl.o hash.o $(if $(NOGFX),, plot.o)
 
 .PHONY:		all ben clean spotless update ping off
 

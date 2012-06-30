@@ -1,5 +1,5 @@
 /*
- * tools/plot.c - Sample plot
+ * tools/ant-cl/plot.c - Sample plot
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger

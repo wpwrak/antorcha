@@ -1,5 +1,5 @@
 /*
- * tools/antorcha.c - Antorcha control utility
+ * tools/ant-cl/ant-cl.c - Antorcha control utility
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger
