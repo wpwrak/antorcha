@@ -21,6 +21,7 @@ struct edit {
 	enum edit_type {
 		edit_string,
 		edit_font,
+		edit_img,
 		edit_spc,
 		edit_xoff,
 		edit_xpos,
@@ -52,6 +53,9 @@ struct edit {
 
 struct image *load_image(const char *name, const char **error);
 void free_image(struct image *img);
+
+int draw_image(void *canvas, int width, int height,
+    const struct image *img, int x, int y);
 
 struct font *make_font(struct image *img, const char **error);
 void free_font(struct font *font);

@@ -246,34 +246,50 @@ void free_font(struct font *font)
 /* ----- Drawing on a canvas ----------------------------------------------- */
 
 
+static void do_draw(uint8_t *canvas, int width, int heigth,
+    const struct image *img, int ox, int oy, int w, int h, int x, int y)
+{
+	int ix, iy, xt;
+
+	for (ix = 0; ix != w; ix++) {
+		if (x+ix >= width)
+			continue;
+		for (iy = 0; iy != h; iy++) {
+			if (y+iy >= heigth)
+				continue;
+			xt = ox+ix;
+			if (img->data[(oy+iy)*img->span+(xt >> 3)] &
+			    (1 << (xt & 7))) {
+				xt = x+ix;
+				canvas[((y+iy)*width+xt) >> 3] |= 1 << (xt & 7);
+			}
+		}
+	}
+}
+
+
+int draw_image(void *canvas, int width, int height,
+    const struct image *img, int x, int y)
+{
+	do_draw(canvas, width, height, img, 0, 0, img->w, img->h, x, y);
+	return img->w;
+}
+
+
 int draw_char(void *canvas, int width, int height,
     const struct font *font, char c, int x, int y)
 {
-	const struct image *img = font->img;
-	uint8_t *p = canvas;
 	const char *cp;
 	const struct sym *sym;
-	int ix, iy, xt;
 
 	cp = strchr(charset, c);
 	if (!cp)
 		return 0;
 	sym = font->sym+(cp-charset);
 
-	for (ix = 0; ix != sym->w; ix++) {
-		if (x+ix >= width)
-			continue;
-		for (iy = 0; iy != sym->h; iy++) {
-			if (y+iy >= height)
-				continue;
-			xt = sym->x+ix;
-			if (img->data[(sym->y+iy)*img->span+(xt >> 3)] &
-			    (1 << (xt & 7))) {
-				xt = x+ix;
-				p[((y+iy)*width+xt) >> 3] |= 1 << (xt & 7);
-			}
-		}
-	}
+	do_draw(canvas, width, height,
+	    font->img, sym->x, sym->y, sym->w, sym->h, x, y);
+
 	return sym->w;
 }
 

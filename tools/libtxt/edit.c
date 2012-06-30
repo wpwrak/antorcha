@@ -17,7 +17,7 @@
 #include "libtxt.h"
 
 
-static int *do_edit(uint8_t *canvas, int width, int height,
+static int do_edit(uint8_t *canvas, int width, int height,
     const struct edit *e, const char **error)
 {
 	struct image *img;
@@ -48,6 +48,14 @@ static int *do_edit(uint8_t *canvas, int width, int height,
 			if (!font)
 				goto fail;
 			break;
+		case edit_img:
+			img = load_image(e->u.s, error);
+			if (!img)
+				return 0;
+			xo = draw_image(canvas, width, height, img, x, y);
+			free_image(img);
+			x += xo;
+			break;
 		case edit_spc:
 			spc = e->u.n;
 			break;
@@ -73,9 +81,9 @@ static int *do_edit(uint8_t *canvas, int width, int height,
 		}
 		e = e->next;
 	}
+	return 1;
 
 fail:
-	free_image(img);
 	free_font(font);
 	return 0;
 }
