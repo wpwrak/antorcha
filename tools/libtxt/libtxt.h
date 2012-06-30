@@ -13,15 +13,20 @@
 #ifndef LIBTXT_H
 #define LIBTXT_H
 
+struct image;
+
+struct font;
 
 struct edit {
 	enum edit_type {
 		edit_string,
 		edit_font,
+		edit_spc,
 		edit_xoff,
 		edit_xpos,
 		edit_yoff,
 		edit_ypos,
+		edit_nl,
 	} type;
 	union {
 		const char *s;
@@ -35,6 +40,7 @@ struct edit {
  *
  * <FONT fontname>
  * <IMG imagefile>
+ * <SPC offset>
  * <X+offset> <X-offset> <X=pos>
  * <Y+offset> ...
  *
@@ -52,10 +58,12 @@ void free_font(struct font *font);
 
 int draw_char(void *canvas, int width, int height,
     const struct font *font, char c, int x, int y);
+int char_height(const struct font *font, char c);
 
 struct edit *text2edit(const char *s);
 char *edit2text(const struct edit *e);
 
-void *apply_edits(int width, int height, const struct edit *e);
+void *apply_edits(int width, int height, const struct edit *e,
+    const char **error);
 
 #endif /* !LIBTXT_H */

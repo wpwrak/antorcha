@@ -277,6 +277,19 @@ int draw_char(void *canvas, int width, int height,
 }
 
 
+int char_height(const struct font *font, char c)
+{
+	const char *cp;
+	const struct sym *sym;
+
+	cp = strchr(charset, c);
+	if (!cp)
+		return 0;
+	sym = font->sym+(cp-charset);
+	return sym->h;
+}
+
+
 /* ----- Testing ----------------------------------------------------------- */
 
 

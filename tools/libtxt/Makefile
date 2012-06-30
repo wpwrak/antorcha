@@ -15,7 +15,7 @@ MAIN = libtxt.a
 
 CFLAGS = -g -Wall
 
-OBJS = font.o
+OBJS = edit.o font.o
 
 .PHONY:		all clean spotless
 
