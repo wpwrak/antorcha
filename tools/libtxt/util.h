@@ -19,7 +19,25 @@
 #include <string.h>
 
 
-static const char *alloc_sprintf(const char *fmt, ...)
+static inline void *alloc_size(size_t size)
+{
+	void *tmp = malloc(size);
+
+	if (!tmp)
+		abort();
+	return tmp;
+}
+
+
+#define alloc_type(t) ((t *) alloc_size(sizeof(t)))
+
+
+/*
+ * @@@ __attribute__((used)) is an ugly wait to get rid of the "unused
+ * function" warning. (The "unused" attribute doesn't do the trick.)
+ */
+ 
+static const char * __attribute__((used)) alloc_sprintf(const char *fmt, ...)
 {
 	va_list ap;
 	char *tmp, *res;

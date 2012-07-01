@@ -16,6 +16,7 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "util.h"
 #include "libtxt.h"
 
 
@@ -116,9 +117,7 @@ static char *alloc_string_n(const char *s, size_t len)
 {
 	char *t;
 
-	t = malloc(len+1);
-	if (!t)
-		abort();
+	t = alloc_size(len+1);
 	memcpy(t, s, len);
 	t[len] = 0;
 	return t;
@@ -129,9 +128,7 @@ static void add_string(struct edit ***last, const char *start, size_t len)
 {
 	struct edit *e;
 
-	e = malloc(sizeof(struct edit));
-	if (!e)
-		abort();
+	e = alloc_type(struct edit);
 	e->type = edit_string;
 	e->u.s = alloc_string_n(start, len);
 	**last = e;
@@ -187,9 +184,7 @@ struct edit *text2edit(const char *s)
 		if (*s == '\n' && !have_text)
 			continue;
 
-		e = malloc(sizeof(struct edit));
-		if (!e)
-			abort();
+		e = alloc_type(struct edit);
 		e->type = edit_nl; /* pick something without data */
 		e->next = NULL;
 		*last = e;

@@ -112,9 +112,7 @@ struct image *load_image(const char *name, const char **error)
 		return NULL;
 	}
 
-	img = malloc(sizeof(struct image));
-	if (!img)
-		abort();
+	img = alloc_type(struct image);
 	err = read_xbm_file(file, img);
 	if (err) {
 		if (error)
