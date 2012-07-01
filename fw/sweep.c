@@ -70,9 +70,7 @@ ISR(TIMER1_OVF_vect)
 
 	/* output the next line */
 
-	PORTB = (PORTB & 0x3f) | (curr_line->cb & 0xc0);
-	PORTC = curr_line->cb;
-	PORTD = curr_line->d;
+	set_line(*curr_line);
 
 	/* move to the next line */
 

@@ -17,6 +17,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <avr/io.h>
+
+#include "image.h"
+
 
 struct sweep {
 	uint32_t start_ticks;	/* absolute start time */
@@ -28,6 +32,15 @@ struct sweep {
 
 
 extern volatile bool sweeping;
+
+
+static inline void set_line(struct line line)
+{
+	PORTB = (PORTB & 0x3f) | (line.cb & 0xc0);
+	PORTC = line.cb;
+	PORTD = line.d;
+}
+
 
 uint32_t uptime_irq(void);
 uint32_t uptime(void);
