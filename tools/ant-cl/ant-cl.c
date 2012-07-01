@@ -547,8 +547,6 @@ static void send_diag(struct atrf_dsc *dsc, uint16_t pattern,
 
 	while (1) {
 		packet_noack(dsc, DIAG, 4, 4, payload, PAYLOAD);
-		if (verbose)
-			write(2, ">", 1);
 		got = recv_ack(dsc, payload, PAYLOAD, DIAG_ACK, 4, 1000);
 		if (got >= 7)
 			break;
