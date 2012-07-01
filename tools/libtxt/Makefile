@@ -13,7 +13,8 @@
 
 LIB = libtxt.a
 
-CFLAGS = -g -Wall
+# _GNU_SOURCE for vasprintf
+CFLAGS = -g -Wall -D_GNU_SOURCE
 
 OBJS = edit.o font.o
 

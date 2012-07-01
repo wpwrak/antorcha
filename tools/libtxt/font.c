@@ -11,14 +11,12 @@
  */
 
 
-#define _GNU_SOURCE /* for vasprintf */
-#include <stdarg.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
+#include "util.h"
 #include "libtxt.h"
 
 
@@ -43,28 +41,6 @@ struct font {
 	struct image *img;
 	struct sym sym[CHARS];
 };
-
-
-/* ----- Helper functions -------------------------------------------------- */
-
-
-static const char *alloc_sprintf(const char *fmt, ...)
-{
-	va_list ap;
-	char *tmp, *res;
-	int n;
-
-	va_start(ap, fmt);
-	n = vasprintf(&tmp, fmt, ap);
-	va_end(ap);
-	if (n < 0)
-		abort();
-	res = malloc(n+1);
-	if (!res)
-		abort();
-	memcpy(res, tmp, n+1);
-	return res;
-}
 
 
 /* ----- XBM image --------------------------------------------------------- */
