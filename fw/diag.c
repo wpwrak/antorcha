@@ -35,24 +35,26 @@ static bool failed;
 
 static void do_diag(void)
 {
-	uint8_t pkg[3+4*DIAG_SAMPLES] = { DIAG_ACK, 4, 0, };
+	uint8_t pkg[3+2*DIAG_SAMPLES] = { DIAG_ACK, 4, 0, };
 	uint8_t *p = pkg+3;
 	uint16_t v;
 	uint8_t i;
 
 	cli();
 	set_line(localize_line(tmp[0], tmp[1]));
-	_delay_ms(100);
+	_delay_ms(50);
 	for (i = 0; i != DIAG_SAMPLES; i++) {
-		v = measure_ref(1);
-		*p++ = v;
-		*p++ = v >> 8;
-		v = measure_ref(0);
+		v = measure_ref();
 		*p++ = v;
 		*p++ = v >> 8;
 	}
 	set_line(localize_line(0, 0));
-	sei();
+	/*
+	 * @@@ for some reason the firmware often hangs if we enable
+	 * interrupts here
+	 *
+	 * sei();
+	 */
 	rf_send(pkg, sizeof(pkg));
 }
 

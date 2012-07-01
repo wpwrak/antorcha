@@ -21,7 +21,7 @@
 extern void (*sample)(bool x, uint16_t v);
 
 
-uint16_t measure_ref(bool gnd);
+uint16_t measure_ref(void);
 void accel_start(void);
 
 #endif /* !ACCEL_H */

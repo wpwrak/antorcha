@@ -17,6 +17,8 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#define F_CPU   8000000UL
+#include <util/delay.h>
 
 #include "io.h"
 #include "accel.h"
@@ -50,13 +52,14 @@ static inline void adcsra(bool start)
 }
 
 
-uint16_t measure_ref(bool gnd)
+uint16_t measure_ref(void)
 {
 	while (ADCSRA & (1 << ADSC));
 	adcsra(0);
 	ADMUX =
 	    1 << REFS0 |	/* Vref is AVcc */
-	    (gnd ? 15 : 14);	/* GND (0 V) or Vbg (1.1 V) */
+	    14;			/* Vbg (1.1 V) */
+	_delay_us(100);
 	adcsra(1);
 	while (ADCSRA & (1 << ADSC));
 	return ADC;

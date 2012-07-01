@@ -517,8 +517,7 @@ quit:
 /* ----- Diagnostics ------------------------------------------------------- */
 
 
-static void send_diag(struct atrf_dsc *dsc, uint16_t pattern,
-    uint16_t *gnd, uint16_t *v_bg)
+static void send_diag(struct atrf_dsc *dsc, uint16_t pattern, uint16_t *v_bg)
 {
 	uint8_t payload[PAYLOAD];
 	int got, i;
@@ -553,22 +552,20 @@ static void send_diag(struct atrf_dsc *dsc, uint16_t pattern,
 	}
 	if (verbose)
 		write(2, "\n", 1);
-	for (i = 0; i != DIAG_SAMPLES; i++) {
-		gnd[i] = payload[3+4*i] | payload[4+4*i] << 8;
-		v_bg[i] = payload[5+4*i] | payload[6+4*i] << 8;
-	}
+	for (i = 0; i != DIAG_SAMPLES; i++)
+		v_bg[i] = payload[3+2*i] | payload[4+2*i] << 8;
 }
 
 
 static void diag_1(struct atrf_dsc *dsc, uint16_t pattern)
 {
-	uint16_t gnd[DIAG_SAMPLES], v_bg[DIAG_SAMPLES];
+	uint16_t v_bg[DIAG_SAMPLES];
 	int i;
 
-	send_diag(dsc, pattern, gnd, v_bg);
+	send_diag(dsc, pattern, v_bg);
 	printf("%d", pattern);
 	for (i = 0; i != DIAG_SAMPLES; i++)
-		printf(" %f %f", 1.1*1024/gnd[i], 1.1*1024/v_bg[i]);
+		printf(" %f", 1.1*1024/v_bg[i]);
 	printf("\n");
 	fflush(stdout);
 }
