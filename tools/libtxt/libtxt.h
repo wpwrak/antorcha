@@ -13,6 +13,9 @@
 #ifndef LIBTXT_H
 #define LIBTXT_H
 
+#include <stdio.h>
+
+
 struct image;
 
 struct font;
@@ -51,6 +54,7 @@ struct edit {
  * Newline leaves one blank row between text lines.
  */
 
+struct image *load_image_file(FILE *file, const char **error);
 struct image *load_image(const char *name, const char **error);
 void free_image(struct image *img);
 

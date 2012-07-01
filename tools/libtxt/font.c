@@ -99,18 +99,10 @@ static const char *read_xbm_file(FILE *file, struct image *img)
 }
 
 
-struct image *load_image(const char *name, const char **error)
+struct image *load_image_file(FILE *file, const char **error)
 {
-	FILE *file;
 	struct image *img;
 	const char *err;
-
-	file = fopen(name, "r");
-	if (!file) {
-		if (error)
-			*error = alloc_sprintf("%s: %s", name, strerror(errno));
-		return NULL;
-	}
 
 	img = alloc_type(struct image);
 	err = read_xbm_file(file, img);
@@ -120,6 +112,23 @@ struct image *load_image(const char *name, const char **error)
 		free_image(img);
 		return NULL;
 	}
+	return img;
+}
+
+
+struct image *load_image(const char *name, const char **error)
+{
+	FILE *file;
+	struct image *img;
+
+	file = fopen(name, "r");
+	if (!file) {
+		if (error)
+			*error = alloc_sprintf("%s: %s", name, strerror(errno));
+		return NULL;
+	}
+	img = load_image_file(file, error);
+	fclose(file);
 	return img;
 }
 
