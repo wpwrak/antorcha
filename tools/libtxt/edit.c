@@ -23,6 +23,54 @@
 /* ----- Render a list of editing instructions ----------------------------- */
 
 
+struct font_dir {
+	const char *name;
+	struct font_dir *next;
+} *font_path = NULL, **last_font_dir = &font_path;
+
+
+void add_font_dir(const char *name)
+{
+	struct font_dir *dir;
+
+	dir = alloc_type(struct font_dir);
+	dir->name = strdup(name);
+	if (!dir->name)
+		abort();
+	dir->next = NULL;
+	*last_font_dir = dir;
+	last_font_dir = &dir->next;
+}
+
+
+static struct image *find_font_image(const char *name, const char **error)
+{
+	struct image *img;
+	const char *err;
+	const struct font_dir *dir;
+	FILE *file;
+	char *path;
+
+	img = load_image(name, error);
+	if (img)
+		return img;
+	if (error)
+		err = *error;
+	for (dir = font_path; dir; dir = dir->next) {
+		asprintf(&path, "%s/%s.xbm", dir->name, name);
+		file = fopen(path, "r");
+		if (!file)
+			continue;
+		img = load_image_file(file, error);
+		fclose(file);
+		return img;
+	}
+	if (error)
+		*error = err;
+	return NULL;
+}
+
+
 static int do_edit(uint8_t *canvas, int width, int height,
     const struct edit *e, const char **error)
 {
@@ -47,7 +95,7 @@ static int do_edit(uint8_t *canvas, int width, int height,
 			break;
 		case edit_font:
 			free_font(font);
-			img = load_image(e->u.s, error);
+			img = find_font_image(e->u.s, error);
 			if (!img)
 				return 0;
 			font = make_font(img, error);
