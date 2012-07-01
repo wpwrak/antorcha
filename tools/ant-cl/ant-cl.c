@@ -62,7 +62,8 @@ static void rf_send(struct atrf_dsc *dsc, void *buf, int len)
 
 	if (debug) {
 		int i;
-		fprintf(stderr, "\r%d:", len);
+
+		fprintf(stderr, "\rSEND %d:", len);
 		for (i = 0; i != len; i++)
 			fprintf(stderr, " %02x", ((uint8_t *) buf)[i]);;
 		fprintf(stderr, "\n");
@@ -70,14 +71,14 @@ static void rf_send(struct atrf_dsc *dsc, void *buf, int len)
 }
 
 
-static int rf_recv(struct atrf_dsc *dsc, void *buf, int size)
+static int rf_recv(struct atrf_dsc *dsc, void *buf, int size, int timeout_ms)
 {
 	uint8_t irq;
 	int len;
 
 	/* Wait up to 100 ms */
 	irq = wait_for_interrupt(dsc, IRQ_TRX_END,
-	    IRQ_TRX_END | IRQ_RX_START | IRQ_AMI, 100);
+	    IRQ_TRX_END | IRQ_RX_START | IRQ_AMI, timeout_ms);
 	if (!irq)
 		return 0;
 	len = atrf_buf_read(dsc, buf, size);
@@ -100,6 +101,43 @@ static void packet_noack(struct atrf_dsc *dsc,
 }
 
 
+static int recv_ack(struct atrf_dsc *dsc, uint8_t *buf, int buf_len,
+    uint8_t type, uint8_t seq, int timeout_ms)
+{
+	int got;
+
+	if (verbose)
+		write(2, ">", 1);
+	got = rf_recv(dsc, buf, buf_len, timeout_ms);
+	if (got <= 0) {
+		if (!seq && verbose)
+			write(2, "\b", 1);
+		return 0;
+	}
+
+	if (debug) {
+		int i;
+
+		fprintf(stderr, "\rRECV %d:", got);
+		for (i = 0; i != got; i++)
+			fprintf(stderr, " %02x", buf[i]);;
+		fprintf(stderr, "\n");
+	}
+
+	if (verbose)
+		write(2, "\b?", 2);
+	if (got < 3)
+		return 0;
+	if (verbose)
+		write(2, "\bA", 2);
+	if (buf[0] != type || buf[1] != seq)
+		return 0;
+	if (verbose)
+		write(2, "\b.", 2);
+	return got;
+}
+
+
 static void packet(struct atrf_dsc *dsc,
     uint8_t type, uint8_t seq, uint8_t last, const void *payload, int len)
 {
@@ -108,25 +146,9 @@ static void packet(struct atrf_dsc *dsc,
 
 	while (1) {
 		packet_noack(dsc, type, seq, last, payload, len);
-		if (verbose)
-			write(2, ">", 1);
-		got = rf_recv(dsc, rx_buf, sizeof(rx_buf));
-		if (got <= 0) {
-			if (!seq && verbose)
-				write(2, "\b", 1);
-			continue;
-		}
-		if (verbose)
-			write(2, "\b?", 2);
-		if (got < 3)
-			continue;
-		if (verbose)
-			write(2, "\bA", 2);
-		if (rx_buf[0] != type+1 || rx_buf[1] != seq)
-			continue;
-		if (verbose)
-			write(2, "\b.", 2);
-		break;
+		got = recv_ack(dsc, rx_buf, sizeof(rx_buf), type+1, seq, 100);
+		if (got)
+			break;
 	}
 }
 
@@ -141,7 +163,7 @@ static void ping(struct atrf_dsc *dsc)
 	int got, i;
 
 	rf_send(dsc, ping, sizeof(ping));
-	got = rf_recv(dsc, buf, sizeof(buf));
+	got = rf_recv(dsc, buf, sizeof(buf), 100);
 	if (!got)
 		return;
 	printf("%d: ", got);
@@ -445,7 +467,7 @@ static void samples(struct atrf_dsc *dsc, int gui)
 #endif
 		signal(SIGINT, sigint);
 	while (run) {
-		got = rf_recv(dsc, buf, sizeof(buf));
+		got = rf_recv(dsc, buf, sizeof(buf), 100);
 		if (got <= 3)
 			continue;
 		if (buf[0] != SAMPLES)
@@ -492,6 +514,80 @@ quit:
 }
 
 
+/* ----- Diagnostics ------------------------------------------------------- */
+
+
+static void send_diag(struct atrf_dsc *dsc, uint16_t pattern,
+    uint16_t *gnd, uint16_t *v_bg)
+{
+	uint8_t payload[PAYLOAD];
+	int got, i;
+
+	hash_init();
+	hash_merge(image_secret, sizeof(image_secret));
+	if (verbose)
+		write(2, "diag ", 5);
+	memset(payload, 0, PAYLOAD);
+	payload[0] = pattern;
+	payload[1] = pattern >> 8;
+	packet(dsc, DIAG, 0, 4, payload, PAYLOAD);
+	hash_merge(payload, PAYLOAD);
+
+	/* @@@ salt */
+	packet(dsc, DIAG, 1, 4, payload, PAYLOAD);
+	hash_merge(payload, PAYLOAD);
+	packet(dsc, DIAG, 2, 4, payload, PAYLOAD);
+	hash_merge(payload, PAYLOAD);
+	hash_end();
+
+	/* hash */
+	hash_cp(payload, PAYLOAD, 0);
+	packet(dsc, DIAG, 3, 4, payload, PAYLOAD);
+	hash_cp(payload, PAYLOAD, PAYLOAD);
+
+	while (1) {
+		packet_noack(dsc, DIAG, 4, 4, payload, PAYLOAD);
+		if (verbose)
+			write(2, ">", 1);
+		got = recv_ack(dsc, payload, PAYLOAD, DIAG_ACK, 4, 1000);
+		if (got >= 7)
+			break;
+	}
+	if (verbose)
+		write(2, "\n", 1);
+	for (i = 0; i != DIAG_SAMPLES; i++) {
+		gnd[i] = payload[3+4*i] | payload[4+4*i] << 8;
+		v_bg[i] = payload[5+4*i] | payload[6+4*i] << 8;
+	}
+}
+
+
+static void diag_1(struct atrf_dsc *dsc, uint16_t pattern)
+{
+	uint16_t gnd[DIAG_SAMPLES], v_bg[DIAG_SAMPLES];
+	int i;
+
+	send_diag(dsc, pattern, gnd, v_bg);
+	printf("%d", pattern);
+	for (i = 0; i != DIAG_SAMPLES; i++)
+		printf(" %f %f", 1.1*1024/gnd[i], 1.1*1024/v_bg[i]);
+	printf("\n");
+	fflush(stdout);
+}
+
+
+static void diag(struct atrf_dsc *dsc)
+{
+	int i;
+
+	diag_1(dsc, 0);
+	for (i = 0; i != 16; i++)
+		diag_1(dsc, 1 << i);
+	for (i = 0; i <= 16; i++)
+		diag_1(dsc, (1 << i)-1);
+}
+
+
 /* ----- Command-line processing ------------------------------------------- */
 
 
@@ -512,10 +608,12 @@ static void usage(const char *name)
 
 	fprintf(stderr,
 "usage: %s [-d] [param=value ...] image_file\n"
+   "%6s %s [-d] -D\n"
    "%6s %s [-d] -F firmware_file\n"
    "%6s %s [-d] -P\n"
    "%6s %s [-d] -R\n"
    "%6s %s [-d] -S [-S]\n\n"
+"  -D       run diagnostics\n"
 "  -F file  firmware upload\n"
 "  -P       ping (version query)\n"
 "  -R       reset\n"
@@ -524,7 +622,7 @@ static void usage(const char *name)
 "  -S -S    sample with graphical output. Exit with Q.\n\n"
 #endif
 "Parameters:\n"
-    , name, "", name, "", name, "", name, "", name);
+    , name, "", name, "", name, "", name, "", name, "", name);
 	for (m = map; m->name; m++)
 		fprintf(stderr, "  %s\t(default %u)\n",
 		    m->name, get_int(m->p, m->bytes));
@@ -535,14 +633,17 @@ static void usage(const char *name)
 int main(int argc, char **argv)
 {
 	const char *fw = NULL;
-	int do_ping = 0, do_reset = 0, do_sample = 0;
+	int do_ping = 0, do_reset = 0, do_sample = 0, do_diag = 0;
 	struct atrf_dsc *dsc;
 	int c;
 
-	while ((c = getopt(argc, argv, "dF:PRS")) != EOF)
+	while ((c = getopt(argc, argv, "dDF:PRS")) != EOF)
 		switch (c) {
 		case 'd':
 			debug++;
+			break;
+		case 'D':
+			do_diag = 1;
 			break;
 		case 'F':
 			fw = optarg;
@@ -560,9 +661,9 @@ int main(int argc, char **argv)
 			usage(*argv);
 		}
 
-	if (do_ping+do_reset+!!do_sample+!!fw > 1)
+	if (do_ping+do_reset+do_diag+!!do_sample+!!fw > 1)
 		usage(*argv);
-	if (do_ping || do_reset || do_sample || fw) {
+	if (do_ping || do_reset || do_diag || do_sample || fw) {
 		if (argc != optind)
 			usage(*argv);
 	} else {
@@ -581,6 +682,8 @@ int main(int argc, char **argv)
 		reset(dsc);
 	else if (do_sample)
 		samples(dsc, do_sample > 1);
+	else if (do_diag)
+		diag(dsc);
 	else if (fw)
 		firmware(dsc, fw);
 	else {
