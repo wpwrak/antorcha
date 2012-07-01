@@ -50,6 +50,19 @@ static inline void adcsra(bool start)
 }
 
 
+uint16_t measure_ref(bool gnd)
+{
+	while (ADCSRA & (1 << ADSC));
+	adcsra(0);
+	ADMUX =
+	    1 << REFS0 |	/* Vref is AVcc */
+	    (gnd ? 15 : 14);	/* GND (0 V) or Vbg (1.1 V) */
+	adcsra(1);
+	while (ADCSRA & (1 << ADSC));
+	return ADC;
+}
+
+
 ISR(ADC_vect)
 {
 	uint16_t v;
