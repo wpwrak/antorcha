@@ -25,4 +25,7 @@ struct line {
 
 extern const struct line *image;
 
+
+struct line localize_line(uint8_t p0, uint8_t p1);
+
 #endif /* !IMAGE_H */

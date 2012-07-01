@@ -42,18 +42,23 @@ const struct line *image = images[0];
     ((value) & 128 ? MASK(port, LED_##group##8) : 0))
 
 
+struct line localize_line(uint8_t p0, uint8_t p1)
+{
+	struct line res;
+
+	res.cb = MAP(B, p0, A) | MAP(B, p1, B) |
+	    MAP(C, p0, A) | MAP(C, p1, B);
+	res.d = MAP(D, p0, A) | MAP(D, p1, B);
+	return res;
+}
+
+
 static void add_payload(const uint8_t *payload)
 {
-	uint8_t i, b, c, d;
+	uint8_t i;
 
-	for (i = 0; i != PAYLOAD && p != end; i += 2) {
-		b = MAP(B, payload[i], A) | MAP(B, payload[i+1], B);
-		c = MAP(C, payload[i], A) | MAP(C, payload[i+1], B);
-		d = MAP(D, payload[i], A) | MAP(D, payload[i+1], B);
-		p->d = d;
-		p->cb = c | b;
-		p++;
-	}
+	for (i = 0; i != PAYLOAD && p != end; i += 2)
+		*p++ = localize_line(payload[i], payload[i+1]);
 }
 
 
