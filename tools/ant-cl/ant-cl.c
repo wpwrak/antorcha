@@ -524,8 +524,12 @@ static void send_diag(struct atrf_dsc *dsc, uint16_t pattern, uint16_t *v_bg)
 
 	hash_init();
 	hash_merge(image_secret, sizeof(image_secret));
-	if (verbose)
+	if (verbose) {
 		write(2, "diag ", 5);
+		for (i = 0; i != 16; i++)
+			write(2, pattern & (1 << i) ? "*" : "-", 1);
+		write(2, " ", 1);
+	}
 	memset(payload, 0, PAYLOAD);
 	payload[0] = pattern;
 	payload[1] = pattern >> 8;
