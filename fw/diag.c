@@ -16,6 +16,8 @@
 #include <string.h>
 
 #include <avr/interrupt.h>
+#define	F_CPU	8000000UL
+#include <util/delay.h>
 
 #include "hash.h"
 #include "proto.h"
@@ -33,17 +35,22 @@ static bool failed;
 
 static void do_diag(void)
 {
-	uint8_t pkg[7] = { DIAG_ACK, 0, 0, };
+	uint8_t pkg[3+4*DIAG_SAMPLES] = { DIAG_ACK, 4, 0, };
+	uint8_t *p = pkg+3;
 	uint16_t v;
+	uint8_t i;
 
 	cli();
 	set_line(localize_line(tmp[0], tmp[1]));
-	v = measure_ref(1);
-	pkg[3] = v;
-	pkg[4] = v >> 8;
-	v = measure_ref(0);
-	pkg[5] = v;
-	pkg[6] = v >> 8;
+	_delay_ms(100);
+	for (i = 0; i != DIAG_SAMPLES; i++) {
+		v = measure_ref(1);
+		*p++ = v;
+		*p++ = v >> 8;
+		v = measure_ref(0);
+		*p++ = v;
+		*p++ = v >> 8;
+	}
 	set_line(localize_line(0, 0));
 	sei();
 	rf_send(pkg, sizeof(pkg));
@@ -63,13 +70,12 @@ static bool diag_more(uint8_t seq, uint8_t limit, const uint8_t *payload)
 	case 0:
 		if (!hash_eq(payload, PAYLOAD, PAYLOAD))
 			failed = 1;
-		if (failed)
-			return 0;
-		do_diag();
-		break;
+		if (!failed)
+			do_diag();
+		/* do_diag sends the ACK, not the dispatcher */
+		return 0;
 	}
-	/* do_diag sends the ACK, not the dispatcher */
-	return 0;
+	return 1;
 }
 
 

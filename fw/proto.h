@@ -39,6 +39,8 @@ enum pck_type {
 
 #define	MAX_LINES		80
 
+#define	DIAG_SAMPLES		4
+
 #define	XA_HIGH_DEFAULT		850
 #define	XA_LOW_DEFAULT		170
 
