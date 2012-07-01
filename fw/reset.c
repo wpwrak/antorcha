@@ -20,6 +20,7 @@
 
 #include "proto.h"
 #include "dispatch.h"
+#include "secret.h"
 
 
 /*
@@ -34,14 +35,10 @@
  *   intercept the secret(s) either way.
  */
 
-static const uint8_t reset_secret[PAYLOAD] PROGMEM = {
-	#include "unlock-secret.inc"
-};
-
 
 static bool reset_first(uint8_t limit, const uint8_t *payload)
 {
-	if (memcmp_P(payload, reset_secret, PAYLOAD))
+	if (memcmp_P(payload, maint_secret, PAYLOAD))
 		return 0;
 	WDTCSR = 1 << WDE;
 	return 1;

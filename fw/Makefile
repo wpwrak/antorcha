@@ -31,7 +31,7 @@ OBJCOPY = $(AVR_PREFIX)objcopy
 SIZE = $(AVR_PREFIX)size
 
 OBJS = $(NAME).o accel.o dispatch.o hash.o image.o param.o \
-       reset.o sample.o sweep.o \
+       reset.o sample.o secret.o sweep.o \
        $(COMMON_OBJS)
 BOOT_OBJS = boot.o flash.o fw.o $(COMMON_OBJS)
 COMMON_OBJS = rf.o spi.o

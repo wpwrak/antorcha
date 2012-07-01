@@ -19,7 +19,7 @@
 
 #include "hash.h"
 #include "sweep.h"
-#include "image.h"
+#include "secret.h"
 #include "proto.h"
 #include "dispatch.h"
 

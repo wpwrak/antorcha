@@ -15,12 +15,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <avr/pgmspace.h>
-
 #include "io.h"
 #include "hash.h"
 #include "proto.h"
 #include "dispatch.h"
+#include "secret.h"
 #include "image.h"
 
 
@@ -30,11 +29,6 @@ static struct line *p, *end;
 static bool failed;
 
 const struct line *image = images[0];
-
-
-const uint8_t image_secret[2*PAYLOAD] PROGMEM = {
-	#include "image-secret.inc"
-};
 
 
 #define	MAP(port, value, group) ( \

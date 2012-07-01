@@ -1,5 +1,5 @@
 /*
- * fw/image.h - Image data (upload and conversion)
+ * fw/secret.h - Shared authentication secrets
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger
@@ -11,18 +11,17 @@
  */
 
 
-#ifndef IMAGE_H
-#define	IMAGE_H
+#ifndef SECRET_H
+#define	SECRET_H
 
 #include <stdint.h>
 
+#include <avr/pgmspace.h>
 
-struct line {
-	uint8_t d;		/* port D0-D7 */
-	uint8_t cb;		/* port C0-C5, B6-B7 */
-};
+#include "proto.h"
 
 
-extern const struct line *image;
+extern const uint8_t maint_secret[PAYLOAD] PROGMEM;
+extern const uint8_t image_secret[2*PAYLOAD] PROGMEM;
 
-#endif /* !IMAGE_H */
+#endif /* !SECRET_H */
