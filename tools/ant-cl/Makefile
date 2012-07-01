@@ -42,10 +42,10 @@ spotless:	clean
 		rm -f $(MAIN)
 
 update:
-		./antorcha -F ../fw/antorcha.bin
+		./ant-cl -F ../../fw/antorcha.bin
 
 ping:
-		./antorcha -P
+		./ant-cl -P
 
 off:
-		./antorcha /dev/null
+		./ant-cl /dev/null
