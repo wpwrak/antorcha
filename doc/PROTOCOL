@@ -37,6 +37,14 @@ Protocol
 
    13	n	0	Samples
 
+   14	0	4	Diagnostic request (64 bytes payload)
+   14	1	4	Salt A
+   14	2	4	Salt B
+   14	3	4	Hash A
+   14	4	4	Hash B
+
+   15	n	0	Diagnostic response (with payload)
+
 Unlock, firmware, image, and parameter packets all have a fixed-size
 64 bytes payload. Pings and acknowledgements have no payload. Pongs
 may have a variable-size payload.

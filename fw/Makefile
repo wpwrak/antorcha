@@ -30,7 +30,7 @@ OBJCOPY = $(AVR_PREFIX)objcopy
 #OBJDUMP = $(AVR_PREFIX)objdump
 SIZE = $(AVR_PREFIX)size
 
-OBJS = $(NAME).o accel.o dispatch.o hash.o image.o param.o \
+OBJS = $(NAME).o accel.o diag.o dispatch.o hash.o image.o param.o \
        reset.o sample.o secret.o sweep.o \
        $(COMMON_OBJS)
 BOOT_OBJS = boot.o flash.o fw.o $(COMMON_OBJS)

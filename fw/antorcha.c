@@ -113,6 +113,7 @@ static const struct handler *protos[] = {
 	&reset_handler,
 	&sample_handler,
 	&param_handler,
+	&diag_handler,
 	NULL
 };
 

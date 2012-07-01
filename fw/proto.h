@@ -31,6 +31,9 @@ enum pck_type {
 	SAMPLE		= 10,	/* start/stop sampling */
 	SAMPLE_ACK	= 11,	/* start/stop sampling acknowledgement */
 	SAMPLES		= 13,	/* samples */
+	DIAG		= 14,	/* diagnostic request */
+	DIAG_ACK	= 15,	/* diagnostic response */
+	
 };
 
 
