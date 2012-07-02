@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <assert.h>
+#include <sys/types.h>
 
 #include <libtxt/libtxt.h>
 
@@ -24,9 +25,50 @@
 #define	H	16
 
 
+static void dump_binary(const uint8_t *canvas)
+{
+	int x, y, i;
+	uint8_t v;
+	ssize_t wrote;
+
+	for (x = 0; x != W; x++) {
+		for (y = 0; y != H; y += 8) {
+			v = 0;
+			for (i = 0; i != 8; i++)
+				if  (canvas[((y+i)*W+x) >> 3] & (1 << (x & 7)))
+					v |= 1 << i;
+			wrote = write(1, &v, 1);
+			if (wrote < 0) {
+				perror("fwrite");
+				exit(1);
+			}
+			if (!wrote) {
+				fprintf(stderr, "short write\n");
+				exit(1);
+			}
+		}
+	}
+}
+
+
+static void dump_text(const uint8_t *canvas)
+{
+	int x, y;
+
+	for (y = 0; y != H; y++) {
+		for (x = 0; x != W; x++)
+			if (canvas[(y*W+x) >> 3] & (1 << (x & 7)))
+				putchar('#');
+			else
+				putchar('.');
+		putchar('\n');
+	}
+}
+
+
 static void usage(const char *name)
 {
-	fprintf(stderr, "usage: %s [-F font_dir ...] [text]\n", name);
+	fprintf(stderr, "usage: %s [-b] [-F font_dir ...] [text]\n", name);
 	exit(1);
 }
 
@@ -36,11 +78,14 @@ int main(int argc, char **argv)
 	struct edit *edits = NULL, **last = &edits;
 	uint8_t *canvas;
 	const char *err;
-	int i, x, y;
-	int c;
+	int binary = 0;
+	int i, c;
 
-	while ((c = getopt(argc, argv, "F:")) != EOF)
+	while ((c = getopt(argc, argv, "bF:")) != EOF)
 		switch (c) {
+		case 'b':
+			binary = 1;
+			break;
 		case 'F':
 			add_font_dir(optarg);
 			break;
@@ -69,13 +114,9 @@ int main(int argc, char **argv)
 		fprintf(stderr, "%s\n", err);
 		return 1;
 	}
-	for (y = 0; y != H; y++) {
-		for (x = 0; x != W; x++)
-			if (canvas[(y*W+x) >> 3] & (1 << (x & 7)))
-				putchar('#');
-			else
-				putchar('.');
-		putchar('\n');
-	}
+	if (binary)
+		dump_binary(canvas);
+	else
+		dump_text(canvas);
 	return 0;
 }
