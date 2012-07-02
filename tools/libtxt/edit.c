@@ -71,6 +71,17 @@ static struct image *find_font_image(const char *name, const char **error)
 }
 
 
+static struct font *load_font(const char *name, const char **error)
+{
+	struct image *img;
+
+	img = find_font_image(name, error);
+	if (!img)
+		return NULL;
+	return make_font(img, error);
+}
+
+
 static int do_edit(uint8_t *canvas, int width, int height,
     const struct edit *e, const char **error)
 {
@@ -95,10 +106,7 @@ static int do_edit(uint8_t *canvas, int width, int height,
 			break;
 		case edit_font:
 			free_font(font);
-			img = find_font_image(e->u.s, error);
-			if (!img)
-				return 0;
-			font = make_font(img, error);
+			font = load_font(e->u.s, error);
 			if (!font)
 				goto fail;
 			break;
