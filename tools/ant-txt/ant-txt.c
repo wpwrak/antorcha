@@ -57,10 +57,9 @@ int main(int argc, char **argv)
 			(*last)->type = edit_nl;
 			last = &(*last)->next;
 		}
-		*last = text2edit(argv[i]);
+		*last = text2edit(argv[i], &err);
 		if (!*last) {
-			fprintf(stderr, "\"%s\": compilation failed\n",
-			    argv[i]);
+			fprintf(stderr, "\"%s\": %s\n", argv[i], err);
 			return 1;
 		}
 	}

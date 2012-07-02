@@ -68,7 +68,7 @@ int draw_char(void *canvas, int width, int height,
     const struct font *font, char c, int x, int y);
 int char_height(const struct font *font, char c);
 
-struct edit *text2edit(const char *s);
+struct edit *text2edit(const char *s, const char **error);
 char *edit2text(const struct edit *e);
 void free_edit(struct edit *e);
 

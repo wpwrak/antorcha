@@ -200,17 +200,17 @@ static void add_string(struct edit ***last, const char *start, size_t len)
 }
 
 
-static int parse_coord(struct edit *e, const char *s,
+static const char *parse_coord(struct edit *e, const char *s,
     enum edit_type off, enum edit_type pos)
 {
 	char *end;
 
-	if (!*s)
-		return 0;
-	e->u.n = strtoul(s+1, &end, 0);
+	if (!s[2])
+		return alloc_sprintf("incomplete %c tag", s[1]);
+	e->u.n = strtoul(s+3, &end, 0);
 	if (*end != '>')
-		return 0;
-	switch (*s) {
+		return alloc_sprintf("invalid number in %c tag", s[1]);
+	switch (s[2]) {
 	case '-':
 		e->u.n = -e->u.n;
 		/* fall through */
@@ -221,17 +221,17 @@ static int parse_coord(struct edit *e, const char *s,
 		e->type = pos;
 		break;
 	default:
-		return 0;
+		return
+		    alloc_sprintf("unrecognized positioning %c%c", s[1], s[2]);
 	}
-	return 1;
+	return NULL;
 }
 
 
-struct edit *text2edit(const char *s)
+static const char *parse_edit(struct edit **edits, const char *s)
 {
-	struct edit *edits = NULL, *e;
-	struct edit **last = &edits;
-	const char *start;
+	struct edit *e;
+	const char *start, *err;
 	int have_text = 0;
 	char *end;
 
@@ -240,7 +240,7 @@ struct edit *text2edit(const char *s)
 		if (*s != '<' && *s != '\n')
 			continue;
 		if (s != start) {
-			add_string(&last, start, s-start);
+			add_string(&edits, start, s-start);
 			have_text = 1;
 		}
 		start = s+1;
@@ -251,8 +251,8 @@ struct edit *text2edit(const char *s)
 		e = alloc_type(struct edit);
 		e->type = edit_nl; /* pick something without data */
 		e->next = NULL;
-		*last = e;
-		last = &e->next;
+		*edits = e;
+		edits = &e->next;
 
 		if (*s == '\n') {
 			have_text = 0;
@@ -261,49 +261,66 @@ struct edit *text2edit(const char *s)
 
 		end = strchr(s, '>');
 		if (!end)
-			goto fail;
+			return alloc_sprintf("< without >");
 
 		switch (s[1]) {
 		case 'F':
 			if (strncmp(s, "<FONT ", 6))
-				goto fail;
+				goto fail_tag;
 			e->type = edit_font;
 			e->u.s = alloc_string_n(s+6, end-s-6);
 			break;
 		case 'I':
 			if (strncmp(s, "<IMG ", 5))
-				goto fail;
+				goto fail_tag;
 			e->type = edit_img;
 			e->u.s = alloc_string_n(s+5, end-s-5);
 			break;
 		case 'S':
 			if (strncmp(s, "<SPC ", 5))
-				goto fail;
+				goto fail_tag;
 			e->type = edit_spc;
 			e->u.n = strtoul(s+5, &end, 0);
 			if (*end != '>')
-				goto fail;
+				return
+				    alloc_sprintf("invalid number in SPC tag");
 			break;
 		case 'X':
-			if (!parse_coord(e, s+2, edit_xoff, edit_xpos))
-				goto fail;
+			err = parse_coord(e, s, edit_xoff, edit_xpos);
+			if (err)
+				return err;
 			break;
 		case 'Y':
-			if (!parse_coord(e, s+2, edit_yoff, edit_ypos))
-				goto fail;
+			err = parse_coord(e, s, edit_yoff, edit_ypos);
+			if (err)
+				return err;
 			break;
 		default:
-			goto fail;
+			goto fail_tag;
 		}
 		s = end;
 		start = s+1;
 	}
 	if (s != start)
-		add_string(&last, start, s-start);
-	return edits;
+		add_string(&edits, start, s-start);
+	return NULL;
 
-fail:
-	free_edit(e);
+fail_tag:
+	return alloc_sprintf("unrecognized tag in %.*s", end-s+1, s);
+}
+
+
+struct edit *text2edit(const char *s, const char **error)
+{
+	struct edit *edits = NULL;
+	const char *err;
+
+	err = parse_edit(&edits, s);
+	if (!err)
+		return edits;
+	if (error)
+		*error = err;
+	free_edit(edits);
 	return NULL;
 }
 
