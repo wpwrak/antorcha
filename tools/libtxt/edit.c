@@ -20,6 +20,9 @@
 #include "libtxt.h"
 
 
+#define	DEFAULT_FONT	"5x7"
+
+
 /* ----- Render a list of editing instructions ----------------------------- */
 
 
@@ -95,6 +98,11 @@ static int do_edit(uint8_t *canvas, int width, int height,
 	while (e) {
 		switch (e->type) {
 		case edit_string:
+			if (!font) {
+				font = load_font(DEFAULT_FONT, error);
+				if (!font)
+					goto fail;
+			}
 			for (s = e->u.s; *s; s++) {
 				xo = draw_char(canvas, width, height,
 				    font, *s, x, y);
