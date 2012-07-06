@@ -19,4 +19,4 @@ gnuplot -p \
     -e 'set style data lines' \
     -e 'unset key' \
     -e "plot '$1' using 0:2, '$1' using 0:3, '$1' using 0:4, '$1' using 0:5,
-   '$1' using 0:2 with impulses lt 7'"
+   '$1' using 0:2 with impulses lt 7"
