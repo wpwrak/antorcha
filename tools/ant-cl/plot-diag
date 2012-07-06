@@ -18,5 +18,8 @@ fi
 gnuplot -p \
     -e 'set style data lines' \
     -e 'unset key' \
+    -e "set title '$1 (`stat -c '%y' \"$1\" | sed 's/\..*//'`)'" \
+    -e 'set xlabel "Pattern"' \
+    -e 'set ylabel "AVcc (V)"' \
     -e "plot '$1' using 0:2, '$1' using 0:3, '$1' using 0:4, '$1' using 0:5,
    '$1' using 0:2 with impulses lt 7"
