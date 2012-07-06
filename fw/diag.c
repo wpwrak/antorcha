@@ -50,8 +50,8 @@ static void do_diag(void)
 	}
 	set_line(localize_line(0, 0));
 	/*
-	 * @@@ for some reason the firmware often hangs if we enable
-	 * interrupts here
+	 * @@@ for some reason we get a difference of 100 mV between passes
+	 * if we enable interrupts here
 	 *
 	 * sei();
 	 */
