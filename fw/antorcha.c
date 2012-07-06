@@ -122,6 +122,7 @@ int main(void)
 {
 	uint8_t buf[PAYLOAD+5]; /* 3 bytes header, 2 bytes CRC */
 	uint8_t got;
+	uint32_t idle = 0;
 
 	/*
 	 * The boot loader has already initialized PORTx,  DDRx, and MCUCR.PUD.
@@ -135,14 +136,21 @@ int main(void)
 
 	while (1) {
 		got = rf_recv(buf, sizeof(buf));
-		if (got > 2)
+		if (got > 2) {
 			dispatch(buf, got-2, protos);
+			idle = 0;
+		}
 		if (wake && !sweeping) {
 			wake = 0;
 			if (state == LEFT)
 				submit_fwd_sweep();
 			else if (state == RIGHT)
 				submit_bwd_sweep();
+		}
+		/* about 1 Hz */
+		if (++idle == 100000) {
+			rf_init();
+			idle = 0;
 		}
 	}
 }
