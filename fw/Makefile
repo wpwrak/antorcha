@@ -159,7 +159,7 @@ MKDEP =									\
 # ----- Programming and device control ----------------------------------------
 
 upload:		$(NAME).bin boot.hex
-		scp $(NAME).bin boot.hex $(HOST):
+		scp $(NAME).bin boot.hex avrdude-antorcha.conf $(HOST):
 
 # lfuse: external clock, slow start-up
 # hfuse: 4 kB boot loader, reset into boot loader
@@ -168,12 +168,14 @@ upload:		$(NAME).bin boot.hex
 #	      verification. So we just program 0x2f.
 
 prog-app:
-		ssh $(HOST) avrdude -F -p $(CHIP) -c nanonote_antorcha -e \
+		ssh $(HOST) avrdude -F -p $(CHIP) \
+		  -L avrdude-antorcha.conf -c nanonote_antorcha -e \
 		  -U flash:w:antorcha.bin:r
 #		  -U lfuse:w:0x60:m
 
 prog:
-		ssh $(HOST) avrdude -F -p $(CHIP) -c nanonote_antorcha -e \
+		ssh $(HOST) avrdude -F -p $(CHIP) \
+		  -L avrdude-antorcha.conf -c nanonote_antorcha -e \
 		  -U flash:w:boot.hex:i \
 		  -U efuse:w:0x00:m \
 		  -U lfuse:w:0xe2:m

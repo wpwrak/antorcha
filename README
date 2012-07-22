@@ -15,22 +15,14 @@ be in the same directory as the top-level directory of Antorcha. E.g.,
 /home/qi/antorcha/
 
 
-/etc/avrdude.conf entry
------------------------
+Avrdude configuration
+---------------------
 
 Antorcha uses the atusb programming adapter from the ben-wpan project.
 Since the pin positions of MISO and MOSI are swapped between ATmega32U2
-and the ATmega168, the following entry is needed in avrdude.conf (which
-is the same as the entry for nanonote_atusb except that the pin numbers
-for mosi and miso are swapped):
+and the ATmega168, we use a modified configuration entry.
 
-programmer
-  id	= "nanonote_antorcha";
-  desc	= "NanoNote 8:10 card adapter for ATUSB";
-  type	= nanonote;
-  reset	= 1;
-  sck	= 8;
-  mosi	= 6;
-  miso	= 7;
-  pgmled = 2;
-;
+It is passed to avrdude via the new -L option, available with the
+Nanonote patches at
+
+http://projects.qi-hardware.com/index.php/p/ben-blinkenlights/source/tree/master/avrdude
