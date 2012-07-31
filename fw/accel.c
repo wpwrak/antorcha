@@ -48,7 +48,7 @@ static inline void adcsra(bool start)
 	    1 << ADEN |		/* enable ADC */
 	    (start ? 1 << ADSC : 0) |
 	    1 << ADIE |		/* enable ADC interrupts */
-	    6;			/* clkADC = clk/64 -> 126 kHz */
+	    6;			/* clkADC = clk/64 -> 125 kHz */
 }
 
 
