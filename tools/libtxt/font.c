@@ -40,6 +40,7 @@ struct image {
 struct font {
 	struct image *img;
 	struct sym sym[CHARS];
+	int max_width;
 };
 
 
@@ -148,9 +149,13 @@ void free_image(struct image *img)
 static void set_block(struct font *font, int *n,
     int xlast, int x, int y0, int y1)
 {
+	int width = x-xlast-1;
+
+	if (width > font->max_width)
+		font->max_width = width;
 	font->sym[*n].x = xlast+1;
 	font->sym[*n].y = y0;
-	font->sym[*n].w = x-xlast-1;
+	font->sym[*n].w = width;
 	font->sym[*n].h = y1-y0+1;
 	(*n)++;
 }
@@ -269,6 +274,8 @@ int draw_char(void *canvas, int width, int height,
 	const char *cp;
 	const struct sym *sym;
 
+	if (c == ' ')
+		return font->max_width;
 	cp = strchr(charset, c);
 	if (!cp)
 		return 0;
