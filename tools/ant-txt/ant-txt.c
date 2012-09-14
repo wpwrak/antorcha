@@ -51,6 +51,32 @@ static void dump_binary(const uint8_t *canvas)
 }
 
 
+static void dump_xbm(const uint8_t *canvas)
+{
+	int x, y, i, n;
+	uint8_t v = 0;
+
+	printf("#define foo_width %d\n", W);
+	printf("#define foo_height %d\n", H);
+	printf("static unsigned char foo_bits[] = {\n");
+	n = 0;
+	for (y = 0; y != H; y++) {
+		for (x = 0; x < W; x += 8) {
+			if (n)
+				printf("%s 0x%02x",
+				    (n-1) % 12 ? "," :
+				    n == 1 ? "  " : ",\n  ", v);
+			v = 0;
+			for (i = x; i != W && i != x+8; i++)
+				if (canvas[(y*W+i) >> 3] & (1 << (i & 7)))
+					v |= 1 << (i-x);
+			n++;
+		}
+	}
+	printf("%s 0x%02x};\n", (n-1) % 12 ? "," : ",\n  ", v);
+}
+
+
 static void dump_text(const uint8_t *canvas)
 {
 	int x, y;
@@ -68,7 +94,7 @@ static void dump_text(const uint8_t *canvas)
 
 static void usage(const char *name)
 {
-	fprintf(stderr, "usage: %s [-b] [-F font_dir ...] [text]\n", name);
+	fprintf(stderr, "usage: %s [-b|-x] [-F font_dir ...] [text]\n", name);
 	exit(1);
 }
 
@@ -78,13 +104,16 @@ int main(int argc, char **argv)
 	struct edit *edits = NULL, **last = &edits;
 	uint8_t *canvas;
 	const char *err;
-	int binary = 0;
+	int binary = 0, xbm = 0;
 	int i, c;
 
-	while ((c = getopt(argc, argv, "bF:")) != EOF)
+	while ((c = getopt(argc, argv, "bF:x")) != EOF)
 		switch (c) {
 		case 'b':
 			binary = 1;
+			break;
+		case 'x':
+			xbm = 1;
 			break;
 		case 'F':
 			add_font_dir(optarg);
@@ -92,6 +121,8 @@ int main(int argc, char **argv)
 		default:
 			usage(*argv);
 		}
+	if (binary && xbm)
+		usage(*argv);
 	for (i = optind; i != argc; i++) {
 		while (*last)
 			last = &(*last)->next;
@@ -116,6 +147,8 @@ int main(int argc, char **argv)
 	}
 	if (binary)
 		dump_binary(canvas);
+	else if (xbm)
+		dump_xbm(canvas);
 	else
 		dump_text(canvas);
 	return 0;
