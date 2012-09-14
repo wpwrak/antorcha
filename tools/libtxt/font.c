@@ -20,7 +20,7 @@
 #include "libtxt.h"
 
 
-static const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?$%+-*/=@";
+static const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?$%+-*/=@.";
 
 
 #define	CHARS	(sizeof(charset)-1)
