@@ -18,9 +18,12 @@ CFLAGS = -g -Wall -D_GNU_SOURCE
 
 OBJS = edit.o font.o
 
-.PHONY:		all clean spotless
+.PHONY:		all ben clean spotless
 
 all:		$(LIB)
+
+ben:
+		$(MAKE) CC=mipsel-openwrt-linux-gcc
 
 $(LIB):		$(OBJS)
 		$(AR) cr $@ $^
