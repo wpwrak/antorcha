@@ -286,17 +286,22 @@ static void image(struct atrf_dsc *dsc, const char *name)
 	uint8_t img[200] = { 0 };
 	ssize_t len;
 
-	file = fopen(name, "r");
-	if (!file) {
-		perror(name);
-		exit(1);
+	if (!strcmp(name, "-")) {
+		file = stdin;
+	} else {
+		file = fopen(name, "r");
+		if (!file) {
+			perror(name);
+			exit(1);
+		}
 	}
 	len = fread(img, 1, sizeof(img), file);
 	if (len < 0) {
 		perror(name);
 		exit(1);
 	}
-	fclose(file);
+	if (file != stdin)
+		fclose(file);
 
 	send_image(dsc, img, len);
 }
