@@ -40,6 +40,27 @@
 #define	FG_ACT_RGBA	0xff2020ff
 
 
+static void upload(const uint8_t *img)
+{
+	FILE *file;
+
+	file = popen("ant-cl -", "w");
+	if (!file) {
+		perror("ant-cl");
+		exit(1);
+	}
+	if (dump_binary(file, img, W, H) < 0) {
+		perror("ant-cl");
+		fclose(file);
+		exit(1);
+	}
+	if (fclose(file) < 0) {
+		perror("ant-cl");
+		exit(1);
+	}
+}
+
+
 static void render(SDL_Surface *s, const uint8_t *img, int x, int y,
     int sel, int act)
 {
@@ -62,7 +83,7 @@ static void gui(uint8_t *const *imgs, int n)
 	SDL_Surface *surf;
 	SDL_Event event;
 	int x = 0, y = 0, y_top = 0;
-	int dx, dy, upload;
+	int dx, dy, do_upload;
 	int ix, iy, i;
 	int active = -1;
 
@@ -79,7 +100,7 @@ static void gui(uint8_t *const *imgs, int n)
 	}
 
 	while (1) {
-		dx = dy = upload = 0;
+		dx = dy = do_upload = 0;
 		SDL_WaitEvent(&event);
 		switch (event.type) {
 		case SDL_KEYDOWN:
@@ -99,7 +120,7 @@ static void gui(uint8_t *const *imgs, int n)
 				dx = -1;
 				break;
 			case SDLK_RETURN:
-				upload = 1;
+				do_upload = 1;
 				break;
 			case SDLK_q:
 				return;
@@ -122,8 +143,9 @@ static void gui(uint8_t *const *imgs, int n)
 		if (y >= y_top+NY)
 			y_top = y-NY+1;
 
-		if (upload) {
+		if (do_upload) {
 			i = y*NX+x;
+			upload(imgs[i]);
 			active = i;
 		}
 
