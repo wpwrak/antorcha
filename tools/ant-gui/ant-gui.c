@@ -177,6 +177,8 @@ static void generate(uint8_t ***imgs, int *n, const char *path)
 		exit(1);
 	}
 	while (fgets(buf, sizeof(buf), file)) {
+		if (buf[0] == '#')
+			continue;
 		nl = strchr(buf, '\n');
 		if (nl)
 			*nl = 0;
