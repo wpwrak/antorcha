@@ -27,9 +27,10 @@
 
 #define	W	80	/* image width */
 #define	H	16	/* image height */
+#define	GAP	6
 
-#define	NX	(XRES/W)
-#define	NY	(YRES/H)
+#define	NX	((XRES+GAP)/(W+GAP))
+#define	NY	((YRES+GAP)/(H+GAP))
 
 
 #define	FG_SEL_RGBA	0x000000ff
@@ -133,7 +134,8 @@ static void gui(uint8_t *const *imgs, int n)
 				i = iy*NX+ix;
 				if (i >= n)
 					break;
-				render(surf, imgs[i], ix*W, (iy-y_top)*H,
+				render(surf, imgs[i],
+				    ix*(W+GAP), (iy-y_top)*(H+GAP),
 				    ix == x && iy == y, i == active);
 			}
 		SDL_UnlockSurface(surf);
