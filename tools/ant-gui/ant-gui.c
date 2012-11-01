@@ -38,13 +38,7 @@
 #define	FG_ACT_RGBA	0xff2020ff
 
 
-struct img {
-	uint8_t *canvas;
-	const char *path;
-};
-
-
-static void render(SDL_Surface *s, struct img *img, int x, int y,
+static void render(SDL_Surface *s, const uint8_t *img, int x, int y,
     int sel, int act)
 {
 	int ix, iy;
@@ -54,14 +48,14 @@ static void render(SDL_Surface *s, struct img *img, int x, int y,
 
 	for (iy = 0; iy != H; iy++)
 		for (ix = 0; ix != W; ix++)
-			if (img->canvas[(iy*W+ix) >> 3] & (1 << (ix & 7)))
+			if (img[(iy*W+ix) >> 3] & (1 << (ix & 7)))
 				pixelColor(s, x+ix, y+iy, fg);
 			else
 				pixelColor(s, x+ix, y+iy, bg);
 }
 
 
-static void gui(struct img *img, int n)
+static void gui(uint8_t *const *imgs, int n)
 {
 	SDL_Surface *surf;
 	SDL_Event event;
@@ -138,7 +132,7 @@ static void gui(struct img *img, int n)
 				i = iy*NX+ix;
 				if (i >= n)
 					break;
-				render(surf, img+i, ix*W, (iy-y_top)*H,
+				render(surf, imgs[i], ix*W, (iy-y_top)*H,
 				    ix == x && iy == y, i == active);
 			}
 		SDL_UnlockSurface(surf);
@@ -147,14 +141,34 @@ static void gui(struct img *img, int n)
 }
 
 
-static void *generate(const char *path)
+static void flush_edits(uint8_t ***imgs, int *n, struct edit *edits)
+{
+	const char *err;
+
+	if (!edits)
+		return;
+	*imgs = realloc(*imgs, sizeof(uint8_t **)*(*n+1));
+	if (!*imgs) {
+		perror("realloc");
+		exit(1);
+	}
+	(*imgs)[*n] = apply_edits(W, H, edits, &err);
+	if (!(*imgs)[*n]) {
+		fprintf(stderr, "%s\n", err);
+		exit(1);
+	}
+	(*n)++;
+	free_edits(edits);
+}
+
+
+static void generate(uint8_t ***imgs, int *n, const char *path)
 {
 	FILE *file;
 	char buf[100];
 	struct edit *edits = NULL, **last = &edits;
 	const char *err;
 	char *nl;
-	void *res;
 
 	file = fopen(path, "r");
 	if (!file) {
@@ -165,6 +179,12 @@ static void *generate(const char *path)
 		nl = strchr(buf, '\n');
 		if (nl)
 			*nl = 0;
+		if (!buf[0]) {
+			flush_edits(imgs, n, edits);
+			edits = NULL;
+			last = &edits;
+			continue;
+		}
 		if (edits) {
 			*last = malloc(sizeof(struct edit));
 			if (!*last)
@@ -181,26 +201,18 @@ static void *generate(const char *path)
 			last = &(*last)->next;
 	}
 	fclose(file);
-	res = apply_edits(W, H, edits, &err);
-	if (!res) {
-		fprintf(stderr, "%s\n", err);
-		exit(1);
-	}
-	free_edits(edits);
-	return res;
+	flush_edits(imgs, n, edits);
 }
 
 
 int main(int argc, char **argv)
 {
-	int n = argc-1;
-	struct img img[n];
+	uint8_t **imgs = NULL;
+	int n = 0;
 	int i;
 
-	for (i = 0; i != n; i++) {
-		img[i].canvas = generate(argv[i+1]);
-		img[i].path = argv[i+1];
-	}
-	gui(img, n);
+	for (i = 1; i != argc; i++)
+		generate(&imgs, &n, argv[i]);
+	gui(imgs, n);
 	exit(1);
 }
