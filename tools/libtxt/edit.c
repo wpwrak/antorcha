@@ -195,6 +195,7 @@ static void add_string(struct edit ***last, const char *start, size_t len)
 	e = alloc_type(struct edit);
 	e->type = edit_string;
 	e->u.s = alloc_string_n(start, len);
+	e->next = NULL;
 	**last = e;
 	*last = &e->next;
 }
