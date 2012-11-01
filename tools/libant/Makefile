@@ -1,5 +1,5 @@
 #
-# tools/libtxt/Makefile - Build the Antorcha tool
+# tools/libant/Makefile - Build the Antorcha library
 #
 # Written 2012 by Werner Almesberger
 # Copyright 2012 Werner Almesberger
@@ -11,7 +11,7 @@
 #
 
 
-LIB = libtxt.a
+LIB = libant.a
 
 # _GNU_SOURCE for vasprintf
 CFLAGS = -g -Wall -D_GNU_SOURCE

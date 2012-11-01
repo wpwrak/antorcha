@@ -1,5 +1,5 @@
 /*
- * tools/libtxt/util.h - Utility functions
+ * tools/libant/util.h - Utility functions
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger

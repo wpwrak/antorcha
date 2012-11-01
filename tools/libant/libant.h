@@ -1,5 +1,5 @@
 /*
- * tools/libtxt/libtxt.h - Text processing functions
+ * tools/libant/libant.h - Text processing functions
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger
@@ -10,8 +10,8 @@
  * (at your option) any later version.
  */
 
-#ifndef LIBTXT_H
-#define LIBTXT_H
+#ifndef LIBANT_H
+#define LIBANT_H
 
 #include <stdio.h>
 
@@ -77,4 +77,4 @@ void add_font_dir(const char *name);
 void *apply_edits(int width, int height, const struct edit *e,
     const char **error);
 
-#endif /* !LIBTXT_H */
+#endif /* !LIBANT_H */

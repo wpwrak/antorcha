@@ -1,5 +1,5 @@
 /*
- * tools/libtxt/edit.c - Editing and rendering
+ * tools/libant/edit.c - Editing and rendering
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger
@@ -17,7 +17,7 @@
 #include <sys/types.h>
 
 #include "util.h"
-#include "libtxt.h"
+#include "libant.h"
 
 
 #define	DEFAULT_FONT	"5x7"

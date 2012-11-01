@@ -1,5 +1,5 @@
 /*
- * tools/libtxt/font.c - Font operations
+ * tools/libant/font.c - Font operations
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger
@@ -17,7 +17,7 @@
 #include <errno.h>
 
 #include "util.h"
-#include "libtxt.h"
+#include "libant.h"
 
 
 static const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?$%+-*/=@.";

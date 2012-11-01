@@ -16,7 +16,7 @@ MAIN = ant-txt
 CFLAGS = -g -Wall -I.. \
 	 $(if $(BEN), -static)
 
-LDLIBS = -L../libtxt -ltxt
+LDLIBS = -L../libant -lant
 
 OBJS = ant-txt.o
 

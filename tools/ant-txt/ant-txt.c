@@ -18,7 +18,7 @@
 #include <assert.h>
 #include <sys/types.h>
 
-#include <libtxt/libtxt.h>
+#include <libant/libant.h>
 
 
 #define	W	80
