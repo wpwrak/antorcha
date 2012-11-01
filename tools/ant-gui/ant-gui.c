@@ -186,7 +186,7 @@ static void *generate(const char *path)
 		fprintf(stderr, "%s\n", err);
 		exit(1);
 	}
-	free_edit(edits);
+	free_edits(edits);
 	return res;
 }
 

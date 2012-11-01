@@ -321,7 +321,7 @@ struct edit *text2edit(const char *s, const char **error)
 		return edits;
 	if (error)
 		*error = err;
-	free_edit(edits);
+	free_edits(edits);
 	return NULL;
 }
 
@@ -329,7 +329,7 @@ struct edit *text2edit(const char *s, const char **error)
 /* ----- Free edit list ---------------------------------------------------- */
 
 
-void free_edit(struct edit *e)
+void free_edits(struct edit *e)
 {
 	struct edit *next;
 

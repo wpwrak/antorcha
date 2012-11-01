@@ -70,7 +70,7 @@ int char_height(const struct font *font, char c);
 
 struct edit *text2edit(const char *s, const char **error);
 char *edit2text(const struct edit *e);
-void free_edit(struct edit *e);
+void free_edits(struct edit *e);
 
 void add_font_dir(const char *name);
 
