@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "SDL.h"
 #include "SDL_gfxPrimitives.h"
@@ -205,13 +206,32 @@ static void generate(uint8_t ***imgs, int *n, const char *path)
 }
 
 
+static void usage(const char *name)
+{
+	fprintf(stderr, "usage: %s [-F font_dir ...] file ...\n", name);
+	exit(1);
+}
+
+
 int main(int argc, char **argv)
 {
 	uint8_t **imgs = NULL;
 	int n = 0;
-	int i;
+	int i, c;
 
-	for (i = 1; i != argc; i++)
+	while ((c = getopt(argc, argv, "F:")) != EOF)
+		switch (c) {
+		case 'F':
+			add_font_dir(optarg);
+			break;
+		default:
+			usage(*argv);
+		}
+
+	if (optind == argc)
+		usage(*argv);
+
+	for (i = optind; i != argc; i++)
 		generate(&imgs, &n, argv[i]);
 	gui(imgs, n);
 	exit(1);
