@@ -77,4 +77,8 @@ void add_font_dir(const char *name);
 void *apply_edits(int width, int height, const struct edit *e,
     const char **error);
 
+int dump_binary(FILE *file, const void *canvas, int width, int height);
+int dump_xbm(FILE *file, const void *canvas, int width, int height);
+int dump_ascii(FILE *file, const void *canvas, int width, int height);
+
 #endif /* !LIBANT_H */

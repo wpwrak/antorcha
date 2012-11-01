@@ -16,7 +16,7 @@ LIB = libant.a
 # _GNU_SOURCE for vasprintf
 CFLAGS = -g -Wall -D_GNU_SOURCE
 
-OBJS = edit.o font.o
+OBJS = edit.o font.o dump.o
 
 .PHONY:		all ben clean spotless
 

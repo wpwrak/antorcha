@@ -25,73 +25,6 @@
 #define	H	16
 
 
-static void dump_binary(const uint8_t *canvas)
-{
-	int x, y, i;
-	uint8_t v;
-	ssize_t wrote;
-
-	for (x = 0; x != W; x++) {
-		for (y = 0; y != H; y += 8) {
-			v = 0;
-			for (i = 0; i != 8; i++)
-				if  (canvas[((y+i)*W+x) >> 3] & (1 << (x & 7)))
-					v |= 1 << i;
-			wrote = write(1, &v, 1);
-			if (wrote < 0) {
-				perror("fwrite");
-				exit(1);
-			}
-			if (!wrote) {
-				fprintf(stderr, "short write\n");
-				exit(1);
-			}
-		}
-	}
-}
-
-
-static void dump_xbm(const uint8_t *canvas)
-{
-	int x, y, i, n;
-	uint8_t v = 0;
-
-	printf("#define foo_width %d\n", W);
-	printf("#define foo_height %d\n", H);
-	printf("static unsigned char foo_bits[] = {\n");
-	n = 0;
-	for (y = 0; y != H; y++) {
-		for (x = 0; x < W; x += 8) {
-			if (n)
-				printf("%s 0x%02x",
-				    (n-1) % 12 ? "," :
-				    n == 1 ? "  " : ",\n  ", v);
-			v = 0;
-			for (i = x; i != W && i != x+8; i++)
-				if (canvas[(y*W+i) >> 3] & (1 << (i & 7)))
-					v |= 1 << (i-x);
-			n++;
-		}
-	}
-	printf("%s 0x%02x};\n", (n-1) % 12 ? "," : ",\n  ", v);
-}
-
-
-static void dump_text(const uint8_t *canvas)
-{
-	int x, y;
-
-	for (y = 0; y != H; y++) {
-		for (x = 0; x != W; x++)
-			if (canvas[(y*W+x) >> 3] & (1 << (x & 7)))
-				putchar('#');
-			else
-				putchar('.');
-		putchar('\n');
-	}
-}
-
-
 static void usage(const char *name)
 {
 	fprintf(stderr, "usage: %s [-b|-x] [-F font_dir ...] [text]\n", name);
@@ -105,7 +38,7 @@ int main(int argc, char **argv)
 	uint8_t *canvas;
 	const char *err;
 	int binary = 0, xbm = 0;
-	int i, c;
+	int i, c, res;
 
 	while ((c = getopt(argc, argv, "bF:x")) != EOF)
 		switch (c) {
@@ -146,10 +79,18 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	if (binary)
-		dump_binary(canvas);
+		res = dump_binary(stdout, canvas, W, H);
 	else if (xbm)
-		dump_xbm(canvas);
+		res = dump_xbm(stdout, canvas, W, H);
 	else
-		dump_text(canvas);
+		res = dump_ascii(stdout, canvas, W, H);
+	if (res < 0) {
+		perror("write");
+		exit(1);
+	}
+	if (fflush(stdout) == EOF) {
+		perror("fflush");
+		exit(1);
+	}
 	return 0;
 }
