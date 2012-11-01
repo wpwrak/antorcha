@@ -131,12 +131,12 @@ static void gui(uint8_t *const *imgs, int n)
 	        SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0, 0, 0));
 		for (iy = 0; iy != NY; iy++)
 			for (ix = 0; ix != NX; ix++) {
-				i = iy*NX+ix;
+				i = (y_top+iy)*NX+ix;
 				if (i >= n)
 					break;
 				render(surf, imgs[i],
-				    ix*(W+GAP), (iy-y_top)*(H+GAP),
-				    ix == x && iy == y, i == active);
+				    ix*(W+GAP), iy*(H+GAP),
+				    ix == x && y_top+iy == y, i == active);
 			}
 		SDL_UnlockSurface(surf);
 		SDL_UpdateRect(surf, 0, 0, 0, 0);
