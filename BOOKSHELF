@@ -29,3 +29,27 @@ D: http://www.memoryprotectiondevices.com/datasheets/BK-92-datasheet.pdf
 N: MMST3904
 A: npn
 D: http://61.222.192.61/mccsemi/up_pdf/MMST3904(SOT-323).PDF
+
+# 8-bit serial-in, serial/parallel-out shift register with output latches;
+# 3-state
+N: MC74HC595ADTR2G
+A: 74HC595
+A: 74595
+A: shift
+D: http://www.nxp.com/documents/data_sheet/74HC_HCT595.pdf
+#D: http://www.onsemi.com/pub_link/Collateral/MC74HC595A-D.PDF
+
+# DMG1012T N-Channel MOSFET, SOT-523
+
+N: DMG1012T
+A: nfet
+A: fet
+D: http://www.diodes.com/datasheets/ds31783.pdf
+
+N: LPC1112FHN33/202
+A: nxp
+D: http://www.nxp.com/documents/data_sheet/LPC111X.pdf
+
+N: LPC111xUM
+A: um
+D: http://www.nxp.com/documents/user_manual/UM10398.pdf
