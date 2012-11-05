@@ -53,3 +53,17 @@ D: http://www.nxp.com/documents/data_sheet/LPC111X.pdf
 N: LPC111xUM
 A: um
 D: http://www.nxp.com/documents/user_manual/UM10398.pdf
+
+#N: LP2951
+#A: ldo
+#D: http://www.ti.com/lit/ds/symlink/lp2950-n.pdf
+
+# Amphenol 101-00303 non-push SMT uSD card connector
+N: 101-00303
+A: card
+D: http://media.digikey.com/pdf/Data%20Sheets/Amphenol%20PDFs/101-00303-xx.pdf
+
+# Panasonic
+N: EVQQ7
+A: sw
+D: http://industrial.panasonic.com/www-data/pdf/ATR0000/ATR0000CE9.pdf

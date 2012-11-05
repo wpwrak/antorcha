@@ -1,0 +1,108 @@
+Cmp-Mod V01 Created by CvPcb (2012-04-11 BZR 3505)-testing date = Mon Nov  5 18:17:11 2012
+
+BeginCmp
+TimeStamp = /509808CE;
+Reference = C1;
+ValeurCmp = 100n;
+IdModule  = 0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50980865;
+Reference = C2;
+ValeurCmp = 100n;
+IdModule  = 0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50980874;
+Reference = C3;
+ValeurCmp = 1u;
+IdModule  = 0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /509808A1;
+Reference = C4;
+ValeurCmp = 100n;
+IdModule  = 0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50980FF7;
+Reference = C5;
+ValeurCmp = 1u;
+IdModule  = 0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /509808B0;
+Reference = C6;
+ValeurCmp = 100n;
+IdModule  = 0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /509808BF;
+Reference = C7;
+ValeurCmp = 100n;
+IdModule  = 0402;
+EndCmp
+
+BeginCmp
+TimeStamp = /50980883;
+Reference = CON1;
+ValeurCmp = CONN_4;
+IdModule  = PAD_120x60_4x100mil;
+EndCmp
+
+BeginCmp
+TimeStamp = /5098082E;
+Reference = CON2;
+ValeurCmp = CONN_6;
+IdModule  = PAD_2mm_6x50mil;
+EndCmp
+
+BeginCmp
+TimeStamp = /50980CAB;
+Reference = CON3;
+ValeurCmp = CONN_6;
+IdModule  = PAD_80x80_6x100mil;
+EndCmp
+
+BeginCmp
+TimeStamp = /50980818;
+Reference = CON4;
+ValeurCmp = MEMCARD8;
+IdModule  = 8:10-SOCKET-RA;
+EndCmp
+
+BeginCmp
+TimeStamp = /50980809;
+Reference = I1;
+ValeurCmp = ATMEGA8;
+IdModule  = QFP32;
+EndCmp
+
+BeginCmp
+TimeStamp = /509808F1;
+Reference = Q1;
+ValeurCmp = PMOSFET-GSD;
+IdModule  = SOT-323;
+EndCmp
+
+BeginCmp
+TimeStamp = /50982700;
+Reference = SW1;
+ValeurCmp = EVQQ7;
+IdModule  = EVQQ7;
+EndCmp
+
+BeginCmp
+TimeStamp = /50980892;
+Reference = U1;
+ValeurCmp = ADXL32X;
+IdModule  = QFN16-LFCSP_LQ;
+EndCmp
+
+EndListe
