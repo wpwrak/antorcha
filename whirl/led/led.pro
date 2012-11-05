@@ -2,7 +2,7 @@ update=Sat Nov  3 01:38:12 2012
 last_client=pcbnew
 [eeschema]
 version=1
-LibDir=../../kicad-libs/components;../components
+LibDir=../../../kicad-libs/components;../../components
 NetFmtName=
 HPGLSpd=20
 HPGLDm=15
@@ -27,7 +27,7 @@ NetIExt=net
 EquName1=devcms
 [pcbnew]
 version=1
-LastNetListRead=whirl.net
+LastNetListRead=led.net
 PadDrlX=320
 PadDimH=600
 PadDimV=600
@@ -43,7 +43,7 @@ EdgeLar=150
 TxtLar=120
 MSegLar=150
 [pcbnew/libraries]
-LibDir=../../kicad-libs/modules;../../ben-wpan/modules
+LibDir=../../../kicad-libs/modules;../../../ben-wpan/modules
 LibName1=stdpass
 LibName2=pads-array
 LibName3=sot
