@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Mon Nov  5 18:50:49 2012
+EESchema Schematic File Version 2  date Tue Nov  6 14:48:14 2012
 LIBS:c
 LIBS:r
 LIBS:Atmega8
@@ -17,7 +17,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "5 nov 2012"
+Date "6 nov 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -50,7 +50,7 @@ P 1200 2750
 F 0 "CON2" H 1200 3100 60  0000 C CNN
 F 1 "CONN_6" H 1200 2400 60  0000 C CNN
 	1    1200 2750
-	-1   0    0    -1  
+	-1   0    0    1   
 $EndComp
 $Comp
 L C C2
@@ -242,7 +242,7 @@ CTRL_3V
 NoConn ~ 6200 3300
 Text Label 8400 1050 0    60   ~ 0
 VLED
-Text Label 2000 3000 0    60   ~ 0
+Text Label 2000 2500 0    60   ~ 0
 VLED
 $Comp
 L GND #PWR010
@@ -253,13 +253,13 @@ F 1 "GND" H 1800 3130 30  0001 C CNN
 	1    1800 3200
 	1    0    0    -1  
 $EndComp
-Text Label 2000 2800 0    60   ~ 0
-CTRL_3V
-Text Label 2000 2500 0    60   ~ 0
-SCLK
 Text Label 2000 2700 0    60   ~ 0
+CTRL_3V
+Text Label 2000 3000 0    60   ~ 0
+SCLK
+Text Label 2000 2800 0    60   ~ 0
 DS
-Text Label 2000 2600 0    60   ~ 0
+Text Label 2000 2900 0    60   ~ 0
 LCLK
 Text Label 9300 2900 0    60   ~ 0
 SCLK_DAT1
@@ -354,7 +354,6 @@ F 1 "EVQQ7" H 5140 6120 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 NoConn ~ 6200 4100
-NoConn ~ 3800 2800
 NoConn ~ 3800 2900
 NoConn ~ 3800 3100
 NoConn ~ 3800 3200
@@ -525,25 +524,13 @@ Wire Wire Line
 Wire Wire Line
 	7400 5000 8900 5000
 Wire Wire Line
-	3400 2500 1600 2500
-Wire Wire Line
-	1600 2700 3800 2700
-Wire Wire Line
-	2500 3000 1600 3000
+	2500 2500 1600 2500
 Wire Wire Line
 	8300 1050 8900 1050
 Wire Wire Line
-	1600 2900 1800 2900
+	1800 2600 1800 3200
 Wire Wire Line
-	1800 2900 1800 3200
-Wire Wire Line
-	1600 2800 2500 2800
-Wire Wire Line
-	3400 2500 3400 3000
-Wire Wire Line
-	3400 3000 3800 3000
-Wire Wire Line
-	1600 2600 3800 2600
+	1600 2700 2500 2700
 Wire Wire Line
 	2900 6100 2900 6300
 Wire Wire Line
@@ -636,4 +623,20 @@ Wire Wire Line
 	7800 6100 7800 2600
 Wire Wire Line
 	7800 2600 6200 2600
+Wire Wire Line
+	1600 2600 1800 2600
+Wire Wire Line
+	3800 2700 2900 2700
+Wire Wire Line
+	2900 2700 2900 2800
+Wire Wire Line
+	2900 2800 1600 2800
+Wire Wire Line
+	3800 2800 3000 2800
+Wire Wire Line
+	3000 2800 3000 2900
+Wire Wire Line
+	3000 2900 1600 2900
+Wire Wire Line
+	3800 3000 1600 3000
 $EndSCHEMATC
