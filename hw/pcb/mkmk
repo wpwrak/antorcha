@@ -1,0 +1,118 @@
+#!/bin/sh
+PATH=$PATH:/home/qi/cae-tools/cameo
+PATH=$PATH:/home/qi/cae-tools/gp2rml
+
+#
+# Parameters:
+#
+# NAME		KiCad project name, required
+# X0, Y0	lower left corner of raw board, default: 0mm 0mm
+# X, Y		position in array, default: 0 0
+# XN, YN	number of boards in X/Y direction, default: 1 1
+# ROT		board rotation, default: 0 degrees
+# DRILL		drill diameter range, default: 13mil,14mil
+# MILL_IN	diameter of mill for work inside the board, default: 35mil
+# MILL_OUT	diameter of mill for board edge, default: 35mil
+# BOARD_Z	board tickness, default: 0.8 mm
+# ANY		set to "any" to use all remaining paths for milling,
+#		irrespective of tool size. Default: unset / empty string.
+# CLEARANCE	tool clearance above PCB surface, default: 2mm
+#
+
+while [ "$1" ]; do
+    eval "$1"
+    shift
+done
+
+if ! [ "$NAME" ]; then
+    echo "NAME is required" 1>&2
+    exit 1
+fi
+: ${X0:=0} ${Y0:=0}
+: ${X:=0} ${Y:=0}
+: ${XN:=1} ${YN:=1}
+: ${DRILL:="13mil 14mil"}
+: ${MILL_IN:=35mil}
+: ${MILL_OUT:=35mil}
+: ${BOARD_Z:=0.8mm}
+: ${CLEARANCE:=2mm}
+
+rot=
+if [ "$ROT" ]; then
+    rot="rotate $ROT"
+fi
+
+write=write
+yi=0
+while [ $yi -lt $YN ]; do
+    xi=0
+    while [ $xi -lt $XN ]; do
+
+	cameo <<EOF || exit
+mm
+
+gerber 35mil ../$NAME-PCB_Edges.gbr
+$rot
+align 1 $X0 $Y0		# align relative to board corner
+translate 4mm 4mm	# move to PCB zone assigned to project
+array +3mm +3mm `expr $X + $xi` `expr $Y + $yi`
+z 0 -58.9mm		# board surface (tool fully retracted)
+z 1.5mm			# slack for extending the tool
+z -$BOARD_Z		# board thickness
+z -0.5mm		# tool extra depth
+clear
+
+excellon ../$NAME.drl
+drill $DRILL
+optimize
+$write drill.gp
+
+remainder
+mill $ANY $MILL_IN 0.01mm
+$write mill.gp
+
+remainder
+empty
+
+gerber $MILL_OUT ../$NAME-PCB_Edges.gbr
+outside
+offset
+append mill.gp
+EOF
+
+	write=append
+	xi=`expr $xi + 1`
+    done
+    yi=`expr $yi + 1`
+done
+
+gp2rml $CLEARANCE 0.5 0.5 mill.gp >mill.rml || exit
+gp2rml $CLEARANCE 0.1 0.5 drill.gp >drill.rml || exit
+
+
+cat <<EOF >Makefile.mkmk
+SPOOL=/home/moko/svn.openmoko.org/developers/werner/cncmap/spool/spool
+CNGT=/home/qi/cae-tools/cngt/cngt
+
+.PHONY:		mill drill cng plot dplot
+
+mill:
+		PORT=/dev/ttyUSB0 \$(SPOOL) mill.rml
+
+drill:
+		PORT=/dev/ttyUSB0 \$(SPOOL) drill.rml
+
+cng:
+		\$(CNGT) -57.4 20 mill.gp
+
+plot:
+		echo 'plot "drill.gp" with points, "mill.gp" with lines' | \\
+		  gnuplot -persist
+
+dplot:
+		echo 'plot "< sed /^\$\$/d drill.gp" with linespoints' | \\
+		  gnuplot -persist
+
+clean::
+		rm -f mill.gp mill.rml drill.gp drill.rml
+EOF
