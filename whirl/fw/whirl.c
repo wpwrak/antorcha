@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdint.h>
 
 #define F_CPU   8000000UL
@@ -45,8 +46,41 @@ static void send(uint16_t pattern)
 }
 
 
+static inline void admux(bool x)
+{
+	ADMUX =
+	    1 << REFS0 |	/* Vref is AVcc */
+	    (x ? ADC_X : ADC_Y);
+}
+
+
+static inline void adcsra(bool start)
+{
+	/*
+	 * The ADC needs to run at clkADC <= 200 kHz for full resolution.
+	 * At clkADC = 125 kHz, a conversion takes about 110 us.
+	 */
+	ADCSRA =
+	    1 << ADEN |		/* enable ADC */
+	    (start ? 1 << ADSC : 0) |
+	    1 << ADIE |         /* enable ADC interrupts */
+	    6;                  /* clkADC = clk/64 -> 125 kHz */
+}
+
+
+static uint16_t adc(bool x)
+{
+	adcsra(0);
+	admux(x);
+	adcsra(1);
+	while (ADCSRA & (1 << ADSC));
+	return ADC;
+}
+
+
 int main(void)
 {
+	uint8_t mode = 0;
 	uint16_t n = 0;
 
 	PORTB = HIGH(B);
@@ -68,8 +102,23 @@ int main(void)
 
 	while (1) {
 		while (!PIN(SW_SW));
-		send(n);
-		n++;
+		if (!PIN(SW_N))
+			mode = 0;
+		if (!PIN(SW_E))
+			mode = 1;
+		if (!PIN(SW_S))
+			mode = 2;
+		switch (mode) {
+		case 1:
+			send(adc(0));
+			break;
+		case 2:
+			send(adc(1));
+			break;
+		default:
+			send(n);
+			n++;
+		}
 //		_delay_ms(100);
 	}
 }
