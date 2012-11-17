@@ -159,7 +159,8 @@ MKDEP =									\
 # ----- Programming and device control ----------------------------------------
 
 upload:		$(NAME).bin boot.hex
-		scp $(NAME).bin boot.hex avrdude-antorcha.conf $(HOST):
+		scp $(NAME).bin boot.hex ../common/avrdude-antorcha.conf \
+		  $(HOST):
 
 # lfuse: external clock, slow start-up
 # hfuse: 4 kB boot loader, reset into boot loader
