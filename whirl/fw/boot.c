@@ -24,7 +24,7 @@
 #define	SCLK	CARD_DAT1
 #define	LCLK	CARD_DAT0
 #define	DS	CARD_CLK
-
+#define	VDD	CARD_CMD
 
 static void send(uint16_t pattern)
 {
@@ -47,6 +47,8 @@ static void send(uint16_t pattern)
 int main(void)
 {
 	uint16_t n = 0;
+	uint8_t last = 0xff;
+	uint8_t sw = 0xff;
 
 	PORTB = HIGH(B);
 	PORTC = HIGH(C);
@@ -68,15 +70,51 @@ int main(void)
 	OUT(LCLK);
 	OUT(DS);
 
+	SET(VDD);
+	OUT(VDD);
+
 #if 0
 	while (1) {
-		SET(DS);
-		CLR(DS);
+		SET(SCLK);
+		CLR(SCLK);
 	}
 #endif
+
+#if 0
+	while (1) {
+		uint8_t v = 0;
+
+		v = PIN(SW_N) | PIN(SW_E) << 1 | PIN(SW_S) << 2 |
+		    PIN(SW_W) << 3 | PIN(SW_SW) << 4;
+		if (v != sw) {
+			sw = v;
+			n = 0;
+			continue;
+		}
+		n++;
+		if (n < 10)
+			continue;
+		if (!(sw & 1))
+			SET(DS);
+		if (!(sw & 4))
+			CLR(DS);
+		if (!(sw & 2))
+			SET(SCLK);
+		if (!(sw & 8))
+			CLR(SCLK);
+		if (sw & 16)
+			CLR(LCLK);
+		else
+			SET(LCLK);
+		last = sw;
+	}
+#endif
+
+#if 1
 	while (1) {
 		send(n);
 		n++;
-		_delay_ms(100);
+//		_delay_ms(100);
+#endif
 	}
 }
