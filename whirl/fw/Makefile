@@ -136,8 +136,9 @@ upload:		$(NAME).bin boot.hex
 prog-app:
 		ssh $(HOST) avrdude -F -p $(CHIP) \
 		  -L avrdude-antorcha.conf -c nanonote_antorcha -e \
-		  -U flash:w:antorcha.bin:r
-#		  -U lfuse:w:0x60:m
+		  -U flash:w:$(NAME).bin:r \
+		  -U efuse:w:0x01:m \
+		  -U lfuse:w:0xe2:m
 
 prog:
 		ssh $(HOST) avrdude -F -p $(CHIP) \
