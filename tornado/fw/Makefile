@@ -1,5 +1,5 @@
 #
-# Makefile - Makefile of the Whirl firmware 
+# Makefile - Makefile of the Tornado firmware 
 #
 # Written 2012 by Werner Almesberger
 # Copyright 2012 by Werner Almesberger
@@ -12,7 +12,7 @@
 
 SHELL = /bin/bash
 
-NAME = whirl
+NAME = tornado
 
 CFLAGS = -g -mmcu=$(CHIP) \
 	 -DBOOT_ADDR=$(BOOT_ADDR) \

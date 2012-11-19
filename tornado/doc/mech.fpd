@@ -31,7 +31,7 @@ frame cpu {
 	rect __0 . w
 }
 
-package "whirl"
+package "tornado"
 unit mm
 
 table
