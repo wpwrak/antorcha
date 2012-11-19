@@ -1,0 +1,79 @@
+/* MACHINE-GENERATED ! */
+
+frame bar {
+	__0: vec @(bar_w/2, top)
+	__1: vec @(-bar_w/2, -bot)
+	rect . __0 w
+}
+
+frame led {
+	__0: vec @(led_w, led_h)
+	rect @ . w
+}
+
+frame leds {
+	loop i = 0, 3
+
+	__0: vec @(-led_con, 0mm)
+	__1: vec .(0mm, i*led_p*n_leds)
+	frame led .
+	__2: vec @(0mm, n_leds*led_p)
+	__3: vec @(0mm, 2*n_leds*led_p)
+	__4: vec @(0mm, 3*n_leds*led_p)
+	__5: vec @(led_w/2-led_con, 0mm)
+	frame bar .
+	__6: vec @(0mm, top)
+}
+
+frame cpu {
+	__0: vec @(-cpu_con, 0mm)
+	__1: vec .(cpu_w, -cpu_h)
+	rect __0 . w
+}
+
+package "whirl"
+unit mm
+
+table
+    { led_h, led_w, led_0, led_con, led_p, n_leds }
+    { 79.2mm, 15.6mm, 2.2mm, 2.8mm, 5mm, 16 }
+
+table
+    { cpu_h, cpu_w, cpu_con, cpu_gap }
+    { 43.75mm, 25.25mm, 7.25mm, 20mm }
+
+table
+    { bar_w, bar_bot, bar_top }
+    { 10mm, 50mm, 15mm }
+
+set top = 3*n_leds*led_p+led_h+bar_top
+
+set bot = cpu_gap+cpu_h+bar_bot
+
+set w = 1mm
+
+set s = 20mm
+
+set z = led_con-cpu_con+cpu_w
+
+__0: vec @(0mm, -cpu_gap/2)
+frame cpu .
+__1: vec @(0mm, cpu_gap/2)
+frame leds .
+measy cpu.__0 >> leds.__0 s
+measy cpu.__1 >> cpu.__0 cpu_w+s
+measx cpu.__0 >> cpu.__1 -cpu_h+s
+measy led.__0 -> leds.__1 led_w+s
+measy leds.__0 -> led.__0 s
+measy cpu.__1 >> led.__0 cpu_w+3*s
+measy leds.__0 >> led.__0 2*s
+measx leds.__0 -> led.__0 s
+measy cpu.__1 >> __1 -3*s
+measy leds.__0 >> leds.__2 -z-s
+measy leds.__0 >> leds.__3 -z-2*s
+measy leds.__0 >> leds.__4 -z-3*s
+measx bar.__1 >> bar.__0 s
+measy bar.__1 >> bar.__0 5*s
+measy bar.__1 >> cpu.__1 -4*s+2mm
+measy bar.__0 << led.__0 led_w+s
+measy leds.__4 >> leds.__6 -z-3*s+led_con
