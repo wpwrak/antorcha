@@ -5,6 +5,7 @@
 #include <util/delay.h>
 
 #include "io.h"
+#include "led.h"
 
 
 #define	HIGH(port) \
@@ -36,9 +37,6 @@
 #define	DS	LED_DS
 
 #endif
-
-
-#define	N_LEDS	64
 
 
 static void send(uint8_t pattern[N_LEDS/8])
@@ -96,7 +94,7 @@ static uint16_t adc(bool x)
 
 int main(void)
 {
-	static uint8_t p[N_LEDS/8];
+	static uint8_t p[LED_BYTES];
 	uint8_t mode = 0;
 	uint16_t n = 0, v;
 
@@ -119,6 +117,7 @@ int main(void)
 	OUT(VDD);
 #endif
 
+	led_init();
 
 	while (1) {
 		while (!PIN(SW_SW));
@@ -149,9 +148,9 @@ int main(void)
 				p[(v >> 3) & 7] &= ~(1 << (v & 7));
 			else
 				p[(v >> 3) & 7] |= 1 << (v & 7);
-			send(p);
+			led_show(p);
 			n++;
 		}
-		_delay_ms(1);
+		_delay_ms(100);
 	}
 }
