@@ -1,0 +1,6 @@
+Tornado - A LED-based signal device
+===================================
+
+Tornado displays text or images with a line of 64 individually
+controllable LEDs. To produce 2D images, the line is manually
+rotated.
