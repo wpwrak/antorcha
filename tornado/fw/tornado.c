@@ -17,6 +17,8 @@
 	MASK(port, LED_DS) | MASK(port, LED_LCLK) | MASK(port, LED_SCLK))
 
 
+#if 0
+
 /*
  * @@@ For testing, connect the LED bar via the 8:10 card slot, so that it
  * can be disconnected without soldering.
@@ -27,19 +29,33 @@
 #define	DS	CARD_CLK
 #define	VDD	CARD_CMD
 
+#else
 
-static void send(uint16_t pattern)
+#define	SCLK	LED_SCLK
+#define	LCLK	LED_LCLK
+#define	DS	LED_DS
+
+#endif
+
+
+#define	N_LEDS	64
+
+
+static void send(uint8_t pattern[N_LEDS/8])
 {
-	uint8_t i;
+	uint8_t i, j, mask;
 
-	for (i = 0; i != 16; i++) {
-		if (pattern & 0x8000)
-			SET(DS);
-		else
-			CLR(DS);
-		SET(SCLK);
-		CLR(SCLK);
-		pattern <<= 1;
+	for (i = 0; i != N_LEDS/8; i++) {
+		mask = 1;
+		for (j = 0; j != 8; j++) {
+			if (pattern[i] & mask)
+				SET(DS);
+			else
+				CLR(DS);
+			SET(SCLK);
+			CLR(SCLK);
+			mask <<= 1;
+		}
 	}
 	SET(LCLK);
 	CLR(LCLK);
@@ -80,8 +96,9 @@ static uint16_t adc(bool x)
 
 int main(void)
 {
+	static uint8_t p[N_LEDS/8];
 	uint8_t mode = 0;
-	uint16_t n = 0;
+	uint16_t n = 0, v;
 
 	PORTB = HIGH(B);
 	PORTC = HIGH(C);
@@ -97,8 +114,11 @@ int main(void)
 	OUT(LCLK);
 	OUT(DS);
 
+#ifdef VDD
 	SET(VDD);
 	OUT(VDD);
+#endif
+
 
 	while (1) {
 		while (!PIN(SW_SW));
@@ -110,15 +130,28 @@ int main(void)
 			mode = 2;
 		switch (mode) {
 		case 1:
-			send(adc(0));
+			n = adc(0);
+			p[0] = n;
+			p[1] = n >> 8;
+			p[2] = p[3] = p[4] = p[5] = p[6] = p[7] = 0;
+			send(p);
 			break;
 		case 2:
-			send(adc(1));
+			n = adc(1);
+			p[0] = n;
+			p[1] = n >> 8;
+			p[2] = p[3] = p[4] = p[5] = p[6] = p[7] = 0;
+			send(p);
 			break;
 		default:
-			send(n);
+			v = 63-n;
+			if (n & 64)
+				p[(v >> 3) & 7] &= ~(1 << (v & 7));
+			else
+				p[(v >> 3) & 7] |= 1 << (v & 7);
+			send(p);
 			n++;
 		}
-//		_delay_ms(100);
+		_delay_ms(1);
 	}
 }
