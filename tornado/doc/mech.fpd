@@ -44,7 +44,7 @@ table
 
 table
     { bar_w, bar_bot, bar_top }
-    { 10mm, 50mm, 15mm }
+    { 10mm, 120mm, 18mm }
 
 set top = 3*n_leds*led_p+led_h+bar_top
 
