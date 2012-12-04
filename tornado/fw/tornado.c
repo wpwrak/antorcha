@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #define F_CPU   8000000UL
 #include <util/delay.h>
 
@@ -100,6 +101,11 @@ static uint16_t adc(bool x)
 #define	HYSTERESIS	14
 
 
+static const uint8_t img[] PROGMEM = {
+	#include "img.inc"
+};
+
+
 static void zxing(uint16_t x, uint16_t y)
 {
 	static uint8_t one[LED_BYTES] =
@@ -109,23 +115,29 @@ static void zxing(uint16_t x, uint16_t y)
 	int16_t d;
 	static bool up = 0;
 	static bool on = 0;
+	static const prog_uint8_t *p;
+	static uint16_t cols = 0;
 
 	e = y+(e-(e >> E_SHIFT));
 	m = y+(m-(m >> M_SHIFT));
 	d = (e >> E_SHIFT)-(m >> M_SHIFT);
-	if (on) {
-		on = 0;
-		led_off();
-	}
 	if (up) {
 		if (d < -HYSTERESIS)
 			up = 0;
 	} else {
 		if (d > HYSTERESIS) {
 			up = 1;
-			led_show(one);
+			p = img;
+			cols = sizeof(img)/LED_BYTES;
 			on = 1;
 		}
+	}
+	if (cols) {
+		led_show_pgm(p);
+		p += 8;
+		cols--;
+	} else {
+		led_off();
 	}
 }
 

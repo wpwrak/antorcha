@@ -78,6 +78,11 @@ boot.elf:	$(BOOT_OBJS)
 		$(BUILD) $(OBJCOPY) -j .text -j .data -O ihex $< $@
 		$(SIZE) $@
 
+tornado.o:	img.inc
+
+img.inc:	txt/t
+		(cd txt; ./t) >$@ || { rm -f $@; exit 1; }
+
 # ----- Cleanup ---------------------------------------------------------------
 
 clean:
@@ -86,6 +91,7 @@ clean:
 		rm -f boot.hex boot.elf
 		rm -f $(BOOT_OBJS) $(BOOT_OBJS:.o=.d)
 		rm -f version.c version.d version.o
+		rm -f img.inc
 
 # ----- Build version ---------------------------------------------------------
 
