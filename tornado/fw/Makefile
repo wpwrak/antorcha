@@ -31,7 +31,7 @@ OBJCOPY = $(AVR_PREFIX)objcopy
 #OBJDUMP = $(AVR_PREFIX)objdump
 SIZE = $(AVR_PREFIX)size
 
-OBJS = $(NAME).o led.o $(COMMON_OBJS)
+OBJS = $(NAME).o accel.o led.o $(COMMON_OBJS)
 BOOT_OBJS = boot.o $(COMMON_OBJS)
 COMMON_OBJS =
 
