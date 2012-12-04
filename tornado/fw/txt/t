@@ -1,0 +1,2 @@
+#!/bin/sh
+./txt2xbm TEST | ./stretch 6 | ./xbm2gp "$@" | ./plot

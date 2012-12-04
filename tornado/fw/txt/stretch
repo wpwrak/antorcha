@@ -1,0 +1,78 @@
+#!/usr/bin/perl
+
+$L = 15;	# bytes per line
+
+
+sub pick
+{
+	local ($x, $y) = @_;
+
+	my $i = $x+$y*$X;
+	return ((hex $p[$i >> 3]) >> ($i & 7)) & 1;
+}
+
+
+$f = 0.001*shift @ARGV;
+
+while (<>) {
+	if (/#define\s+(\S+)_width\s+(\d+)/) {
+		print;
+		$N = $1;
+		$X = $2;
+		next;
+	}
+	if (/#define\s+\S+_height\s+(\d+)/) {
+		print;
+		$Y = $1;
+		next;
+	}
+	chop;
+	next unless /\s*0x/;
+	s/^\s*//;
+	s/(,|};)$//;
+	push(@p, split /,/);
+}
+
+FIRST: for ($x0 = 0; $x0 != $X; $x0++) {
+	for ($y = 0; $y != $Y; $y++) {
+		last FIRST if &pick($x0, $y);
+	}
+}
+
+for ($x = $x0; $x != $X; $x++) {
+	for ($y = 0; $y != $Y; $y++) {
+		$x1 = $x if &pick($x, $y);
+	}
+}
+
+$w = ($x1-$x0)+1;
+$off = int(($X-$x1+$x0)/2);
+#print STDERR "$X $x0 $x1 $w $off\n";
+
+# x' = x*(1+y*f)
+# x'/(1+y*f) = x
+# x'
+for ($y = 0; $y != $Y; $y++) {
+	for ($x = 0; $x != $X; $x += 8) {
+		$v = 0;
+		for ($i = 0; $i != 8; $i++) {
+			$t = $x+$i-$X/2;
+			$t = int($t*(1-$y*$f)-$off+$X/2);
+			next if $t < 0 || $t >= $X;
+			$v |= 1 << $i if &pick($t, $y);
+		}
+		push(@r, sprintf("0x%02x", $v));
+	}
+}
+
+print "static char ${N}_bits[] = {\n";
+$i = 0;
+for (@r) {
+	print " " if !($i % $L);
+	print $_;
+	last if $i == $#r;
+	$i++;
+	print ",";
+	print "\n" if !($i % $L);
+}
+print "};\n";

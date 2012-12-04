@@ -1,0 +1,9 @@
+#!/bin/sh
+gs -sDEVICE=pbmraw -sOutputFile=- -g256x64 -q - <<EOF | pbmtoxbm
+/Helvetica-Bold findfont
+80 scalefont
+setfont
+0 4 moveto
+($1) show
+showpage
+EOF

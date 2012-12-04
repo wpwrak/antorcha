@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+$I = 50;	# inner radius (50 cm)
+$O = 80;	# outer radius (80 cm)
+#$Y = 64;	# image heights (pixels)
+#$X = 256;	# image width (pixels)
+
+
+sub ang
+{
+	local ($r) = @_;
+
+# (O-I)/Y = r*arc(a)
+# arc 
+	return ($O-$I)/$Y/$r;
+}
+
+
+if ($ARGV[0] eq "-r") {
+	shift @ARGV;
+	$rect = 1;
+}
+
+while (<>) {
+	chop;
+	if (/#define\s+\S+_width\s+(\d+)/) {
+		$X = $1;
+		next;
+	}
+	if (/#define\s+\S+_height\s+(\d+)/) {
+		$Y = $1;
+		next;
+	}
+	next unless /\s*0x/;
+	s/^\s*//;
+	s/(,|};)$//;
+	push(@p, split /,/);
+}
+
+for ($x = 0; $x != $X; $x++) {
+	for ($y = 0; $y != $Y; $y++) {
+		$i = $x+$y*$X;
+		$p = ((hex $p[$i >> 3]) >> ($i & 7)) & 1;
+		next unless $p;
+		if ($rect) {
+			print "$x ", $Y-$y-1, "\n";
+		} else {
+			$r = ($Y-$y-1)/$Y*($O-$I)+$I;
+			$a = &ang($O)*($x-$X/2);
+			print $r*sin($a), " ", $r*cos($a), "\n";
+		}
+	}
+}

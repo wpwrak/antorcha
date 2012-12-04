@@ -1,0 +1,10 @@
+#!/bin/sh
+(
+	cat <<EOF
+#set xrange [0:255]
+#set yrange [0:63]
+set size ratio -1
+plot "-" with points pt 7 notitle
+EOF
+	cat
+) | gnuplot -persist
