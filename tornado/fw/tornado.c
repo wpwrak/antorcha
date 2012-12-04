@@ -1,11 +1,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <avr/interrupt.h>
 #define F_CPU   8000000UL
 #include <util/delay.h>
 
 #include "io.h"
 #include "led.h"
+#include "accel.h"
 
 
 #define	HIGH(port) \
@@ -92,12 +94,44 @@ static uint16_t adc(bool x)
 }
 
 
+#define	E_SHIFT	3	/* ~ 0.1 */
+#define	M_SHIFT	11	/* ~ 1/sample_rate */
+
+#define	HYSTERESIS	14
+
+
+static void zxing(uint16_t x, uint16_t y)
+{
+	static uint8_t one[LED_BYTES] =
+	    { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+	static uint16_t e = 512 << E_SHIFT;
+	static uint32_t m = 512 << M_SHIFT;
+	int16_t d;
+	static bool up = 0;
+	static bool on = 0;
+
+	e = y+(e-(e >> E_SHIFT));
+	m = y+(m-(m >> M_SHIFT));
+	d = (e >> E_SHIFT)-(m >> M_SHIFT);
+	if (on) {
+		on = 0;
+		led_off();
+	}
+	if (up) {
+		if (d < -HYSTERESIS)
+			up = 0;
+	} else {
+		if (d > HYSTERESIS) {
+			up = 1;
+			led_show(one);
+			on = 1;
+		}
+	}
+}
+
+
 int main(void)
 {
-	static uint8_t p[LED_BYTES];
-	uint8_t mode = 0;
-	uint16_t n = 0, v;
-
 	PORTB = HIGH(B);
 	PORTC = HIGH(C);
 	PORTD = HIGH(D);
@@ -118,6 +152,15 @@ int main(void)
 #endif
 
 	led_init();
+#if 1
+	sample = zxing;
+	accel_start();
+	sei();
+	while (1);
+#else
+	static uint8_t p[LED_BYTES];
+	uint8_t mode = 0;
+	uint16_t n = 0, v;
 
 	while (1) {
 		while (!PIN(SW_SW));
@@ -153,4 +196,5 @@ int main(void)
 		}
 		_delay_ms(100);
 	}
+#endif
 }
