@@ -13,43 +13,98 @@
 
 #include <stdint.h>
 
+#define F_CPU   8000000UL
+#include <util/delay.h>
+
 #include "io.h"
 #include "mmc-hw.h"
 
 
+/*
+ * Pin assignment from
+ * http://alumni.cs.ucr.edu/~amitra/sdcard/ProdManualSDCardv1.9.pdf
+ *
+ * Pin	SD mode	SPI mode
+ * 1	DAT3	Chip Select (active low)
+ * 2	CMD	MOSI
+ * 3	VSS	VSS
+ * 4	VDD	VDD
+ * 5	CLK	Clock
+ * 6	VSS	VSS
+ * 7	DAT0	MISO
+ */
+
+
+#define	MMC_nCS		CARD_DAT3
+#define	MMC_MOSI	CARD_CMD
+#define	MMC_CLK		CARD_CLK
+#define	MMC_MISO	CARD_DAT0
+
+
 void mmc_select(void)
 {
-//	CS = 0;
+	CLR(MMC_nCS);
 }
 
 void mmc_deselect(void)
 {
-//	CS = 1;
+	SET(MMC_nCS);
 }
 
 
 uint8_t mmc_recv(void)
 {
-//	MSB first
-	return 0;
+	uint8_t i, v = 0;
+
+	for (i = 0; i != 8; i++) {
+		SET(MMC_CLK);
+		v = (v << 1) | PIN(MMC_MISO);
+		CLR(MMC_CLK);
+	}
+	return v;
 }
 
 
 void mmc_send(uint8_t v)
 {
-//	MSB first
+	uint8_t i;
+
+	for (i = 0; i != 8; i++) {
+		if (v & 0x80)
+			SET(MMC_MOSI);
+		else
+			CLR(MMC_MOSI);
+		SET(MMC_CLK);
+		CLR(MMC_CLK);
+		v <<= 1;
+	}
 }
 
 
 void mmc_activate(void)
 {
-//	set pull-ups
-//	VDD = 1;
+	SET(MMC_nCS);
+	CLR(MMC_CLK);
+	OUT(MMC_nCS);
+	OUT(MMC_MOSI);
+	OUT(MMC_CLK);
+	IN(MMC_MISO);
+
+	CLR(CARD_nPWR);
+
+	_delay_ms(10);
 }
 
 
 void mmc_deactivate(void)
 {
-//	set directions
-//	VDD = 0;
+	CLR(MMC_CLK);
+	CLR(MMC_nCS);
+	CLR(MMC_MOSI);
+	CLR(MMC_MISO);
+
+	SET(CARD_nPWR);
+	_delay_ms(10);
+
+	OUT(MMC_MISO);
 }
