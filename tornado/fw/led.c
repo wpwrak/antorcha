@@ -15,6 +15,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #define F_CPU	8000000UL
 #include <util/delay.h>
 
@@ -26,7 +27,7 @@ void led_show(const uint8_t p[LED_BYTES])
 {
 	uint8_t i;
 
-	for (i = 0; i != 8; i++) {
+	for (i = 0; i != LED_BYTES; i++) {
 		while (!(UCSR0A & (1 << UDRE0)));
 		UDR0 = p[i];
 	}
@@ -52,11 +53,26 @@ void led_show(const uint8_t p[LED_BYTES])
 }
 
 
+void led_show_pgm(const prog_uint8_t p[LED_BYTES])
+{
+	uint8_t i;
+
+	for (i = 0; i != LED_BYTES; i++) {
+		while (!(UCSR0A & (1 << UDRE0)));
+		UDR0 = pgm_read_byte(p+i);
+	}
+
+	_delay_us(4);	/* 16 bits at 4 MHz */
+	SET(LED_LCLK);
+	CLR(LED_LCLK);
+}
+
+
 void led_off(void)
 {
-	static uint8_t zero[LED_BYTES];
+	static uint8_t zero[LED_BYTES] PROGMEM = { 0, };
 
-	led_show(zero);    
+	led_show_pgm(zero);    
 }
 
 
