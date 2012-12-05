@@ -74,6 +74,7 @@ uint8_t mmc_recv(void)
 {
 	uint8_t i, v = 0;
 
+	SET(MMC_MOSI);
 	for (i = 0; i != 8; i++) {
 		SET(MMC_CLK);
 		v = (v << 1) | PIN(MMC_MISO);
