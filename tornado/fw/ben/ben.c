@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 
@@ -51,16 +52,10 @@ static void io_setup(void)
 }
 
 
-int main(void)
+static void read_block(void)
 {
 	int i;
 
-	io_setup();
-
-	if (!mmc_init()) {
-		fprintf(stderr, "mmc_init failed\n");
-		exit(1);
-	}
 	if (!mmc_begin_read(0)) {
 		fprintf(stderr, "mmc_begin_read failed\n");
 		exit(1);
@@ -68,6 +63,47 @@ int main(void)
 	for (i = 0; i != MMC_BLOCK; i++)
 		printf("%02x%c", mmc_read(), (i & 15) == 15 ? '\n' : ' ');
 	mmc_end_read();
+}
 
+
+static void write_block(void)
+{
+	int i;
+
+	if (!mmc_begin_write(0)) {
+		fprintf(stderr, "mmc_begin_write failed\n");
+		exit(1);
+	}
+	for (i = 0; i != MMC_BLOCK; i++)
+		mmc_write(i);
+	if (!mmc_end_write()) {
+		fprintf(stderr, "mmc_end_write failed\n");
+		exit(1);
+	}
+}
+
+
+static void usage(const char *name)
+{
+	fprintf(stderr, "usage: %s [-w]\n", name);
+	exit(1);
+}
+
+
+int main(int argc, char **argv)
+{
+	io_setup();
+
+	if (!mmc_init()) {
+		fprintf(stderr, "mmc_init failed\n");
+		exit(1);
+	}
+
+	if (argc == 1)
+		read_block();
+	else if (!strcmp(argv[1], "-w"))
+		write_block();
+	else
+		usage(*argv);
 	return 0;
 }
