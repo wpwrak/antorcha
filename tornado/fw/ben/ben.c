@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 
@@ -92,6 +93,9 @@ static void usage(const char *name)
 
 int main(int argc, char **argv)
 {
+	int do_read = 1;
+	int c;
+
 	io_setup();
 
 	if (!mmc_init()) {
@@ -99,11 +103,21 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	if (argc == 1)
-		read_block();
-	else if (!strcmp(argv[1], "-w"))
-		write_block();
-	else
+	while ((c = getopt(argc, argv, "w")) != EOF)
+		switch (c) {
+		case 'w':
+			do_read = 0;
+			break;
+		default:
+			usage(*argv);
+		}
+	if (optind != argc)
 		usage(*argv);
+
+	if (do_read)
+		read_block();
+	else
+		write_block();
+
 	return 0;
 }
