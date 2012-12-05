@@ -53,11 +53,11 @@ static void io_setup(void)
 }
 
 
-static void read_block(void)
+static void read_block(int addr)
 {
 	int i;
 
-	if (!mmc_begin_read(0)) {
+	if (!mmc_begin_read(addr)) {
 		fprintf(stderr, "mmc_begin_read failed\n");
 		exit(1);
 	}
@@ -67,11 +67,11 @@ static void read_block(void)
 }
 
 
-static void write_block(void)
+static void write_block(int addr)
 {
 	int i;
 
-	if (!mmc_begin_write(0)) {
+	if (!mmc_begin_write(addr)) {
 		fprintf(stderr, "mmc_begin_write failed\n");
 		exit(1);
 	}
@@ -86,7 +86,7 @@ static void write_block(void)
 
 static void usage(const char *name)
 {
-	fprintf(stderr, "usage: %s [-w]\n", name);
+	fprintf(stderr, "usage: %s [-w] [byte_addr]\n", name);
 	exit(1);
 }
 
@@ -94,7 +94,9 @@ static void usage(const char *name)
 int main(int argc, char **argv)
 {
 	int do_read = 1;
+	int addr;
 	int c;
+	char *end;
 
 	io_setup();
 
@@ -111,13 +113,24 @@ int main(int argc, char **argv)
 		default:
 			usage(*argv);
 		}
-	if (optind != argc)
+
+	switch (argc-optind) {
+	case 0:
+		addr = 0;
+		break;
+	case 1:
+		addr = strtoul(argv[optind], &end, 0);
+		if (*end)
+			usage(*argv);
+		break;
+	default:
 		usage(*argv);
+	}
 
 	if (do_read)
-		read_block();
+		read_block(addr);
 	else
-		write_block();
+		write_block(addr);
 
 	return 0;
 }
