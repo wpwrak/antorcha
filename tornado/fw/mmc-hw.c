@@ -104,9 +104,13 @@ void mmc_activate(void)
 	SET(MMC_nCS);
 	CLR(MMC_CLK);
 	OUT(MMC_nCS);
+	SET(MMC_MOSI);
+	SET(MMC_CLK);	/* for pre-charging */
 	OUT(MMC_MOSI);
 	OUT(MMC_CLK);
 	IN(MMC_MISO);
+
+	_delay_ms(100);	/* allow card to pre-charge, to limit inrush current */
 
 	CLR(CARD_nPWR);
 
