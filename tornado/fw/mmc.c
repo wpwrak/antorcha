@@ -70,7 +70,7 @@ static uint8_t mmc_r1(void)
 {
 	uint8_t v, tries = 0xff;
 
-	do v = mmc_read(); 
+	do v = mmc_recv(); 
 	while ((v & 0x80) && --tries);
 	return v;
 }
@@ -81,7 +81,7 @@ static void mmc_wait(void)
 	uint8_t v, tries = 0xff;
 
 	do {
-		v = mmc_read(); 
+		v = mmc_recv(); 
 		if (v == MMC_START_SINGLE_BLOCK)
 			return;
 	}
