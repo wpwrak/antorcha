@@ -15,26 +15,15 @@
 
 #ifdef AVR
 
-#define F_CPU   8000000UL
-#include <util/delay.h>
-
 #include "io.h"
 
 #else /* AVR */
 
-#include <unistd.h>
-
 #include "ben-io.h"
-
-
-static inline void _delay_ms(int ms)
-{
-        usleep(1000*ms);
-}
-
 
 #endif /* !AVR */
 
+#include "delay.h"
 #include "mmc-hw.h"
 
 

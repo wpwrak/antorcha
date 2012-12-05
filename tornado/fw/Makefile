@@ -17,7 +17,8 @@ NAME = tornado
 CFLAGS = -g -mmcu=$(CHIP) \
 	 -DBOOT_ADDR=$(BOOT_ADDR) \
 	 -Wall -Wextra -Wshadow -Wno-unused-parameter \
-	 -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes
+	 -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes \
+	 -Iavr
 #	 -Wall -Wextra -Wshadow -Werror -Wno-unused-parameter \
 
 CHIP = atmega168
