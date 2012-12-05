@@ -76,16 +76,17 @@ static uint8_t mmc_r1(void)
 }
 
 
-static void mmc_wait(void)
+static bool mmc_wait(void)
 {
 	uint8_t v, tries = 0xff;
 
 	do {
 		v = mmc_recv(); 
 		if (v == MMC_START_SINGLE_BLOCK)
-			return;
+			return 1;
 	}
 	while (--tries);
+	return 0;
 }
 
 
@@ -97,8 +98,7 @@ bool mmc_begin_read(uint32_t sector)
 		mmc_end();
 		return 0;
 	} else {
-		mmc_wait();
-		return 1;
+		return mmc_wait();
 	}
 }
 
