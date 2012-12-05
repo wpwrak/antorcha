@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "delay.h"
 #include "mmc-hw.h"
 #include "mmc.h"
 
@@ -84,6 +85,7 @@ static bool mmc_wait(void)
 		v = mmc_recv(); 
 		if (v == MMC_START_SINGLE_BLOCK)
 			return 1;
+		_delay_ms(1);
 	}
 	while (--tries);
 	return 0;
