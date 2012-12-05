@@ -21,11 +21,11 @@
 #define	MMC_BLOCK	512
 
 
-bool mmc_begin_read(uint32_t sector);
+bool mmc_begin_read(uint32_t addr);
 uint8_t mmc_read(void);
 bool mmc_end_read(void);
 
-bool mmc_begin_write(uint32_t sector);
+bool mmc_begin_write(uint32_t addr);
 void mmc_write(uint8_t data);
 bool mmc_end_write(void);
 

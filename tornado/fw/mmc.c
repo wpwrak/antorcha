@@ -105,12 +105,12 @@ static bool mmc_wait(void)
 }
 
 
-bool mmc_begin_read(uint32_t sector)
+bool mmc_begin_read(uint32_t addr)
 {
 	uint8_t res;
 
 	mmc_begin();
-	mmc_command(MMC_READ_SINGLE_BLOCK, sector);
+	mmc_command(MMC_READ_SINGLE_BLOCK, addr);
 	res = mmc_r1();
 	DEBUG("mmc_begin_read: r1 = 0x%02x", res);
 	if (res) {
@@ -135,12 +135,12 @@ bool mmc_end_read(void)
 }
 
 
-bool mmc_begin_write(uint32_t sector)
+bool mmc_begin_write(uint32_t addr)
 {
 	uint8_t res;
 
 	mmc_begin();
-	mmc_command(MMC_WRITE_BLOCK, sector);
+	mmc_command(MMC_WRITE_BLOCK, addr);
 	res = mmc_r1();
 	DEBUG("mmc_begin_write: r1 = 0x%02x", res);
 	if (res) {
