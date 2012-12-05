@@ -16,7 +16,7 @@
 #include <sys/mman.h>
 
 #include "../mmc.h"
-#include "ben-io.h"
+#include "io.h"
 
 
 #define SOC_BASE	0x10000000

@@ -13,16 +13,7 @@
 
 #include <stdint.h>
 
-#ifdef AVR
-
 #include "io.h"
-
-#else /* AVR */
-
-#include "ben-io.h"
-
-#endif /* !AVR */
-
 #include "delay.h"
 #include "mmc-hw.h"
 

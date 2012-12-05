@@ -1,5 +1,5 @@
 /*
- * ben/ben-io.h - I/O helper macros (for cross-platform testing on the Ben)
+ * ben/io.h - I/O helper macros (for cross-platform testing on the Ben)
  *
  * Written 2012 by Werner Almesberger
  * Copyright 2012 Werner Almesberger
