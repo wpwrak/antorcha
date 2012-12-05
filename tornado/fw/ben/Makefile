@@ -1,8 +1,9 @@
 CC = mipsel-openwrt-linux-gcc
 CFLAGS = -g -Wall -I.. -I.
+LDFLAGS = -static
 OBJS = ben.o mmc.o mmc-hw.o
 
-.PHONY:		all ben clean spotless
+.PHONY:		all clean spotless
 
 vpath %.c ..
 
