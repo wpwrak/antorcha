@@ -24,6 +24,19 @@
 #include "mmc.h"
 
 
+#ifdef AVR
+
+#define	DEBUG(fmt, ...)
+
+#else /* AVR */
+
+#include <stdio.h>
+
+#define	DEBUG(fmt, ...)	fprintf(stderr, fmt "\n", __VA_ARGS__)
+
+#endif /* !AVR */
+
+
 /* Command indices */
 
 enum {
@@ -94,9 +107,13 @@ static bool mmc_wait(void)
 
 bool mmc_begin_read(uint32_t sector)
 {
+	uint8_t res;
+
 	mmc_begin();
 	mmc_command(MMC_READ_SINGLE_BLOCK, sector);
-	if (mmc_r1()) {
+	res = mmc_r1();
+	DEBUG("mmc_begin_read: r1 = 0x%02x", res);
+	if (res) {
 		mmc_end();
 		return 0;
 	} else {
@@ -120,9 +137,13 @@ bool mmc_end_read(void)
 
 bool mmc_begin_write(uint32_t sector)
 {
+	uint8_t res;
+
 	mmc_begin();
 	mmc_command(MMC_WRITE_BLOCK, sector);
-	if (mmc_r1()) {
+	res = mmc_r1();
+	DEBUG("mmc_begin_write: r1 = 0x%02x", res);
+	if (res) {
 		mmc_end();
 		return 0;
 	} else {
