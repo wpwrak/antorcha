@@ -8,6 +8,7 @@
 
 #include "io.h"
 #include "led.h"
+#include "mmc.h"
 #include "accel.h"
 
 
@@ -106,10 +107,14 @@ static const uint8_t img[] PROGMEM = {
 };
 
 
+static uint8_t one[LED_BYTES] =
+    { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+
+static volatile uint16_t sample_t = 0, sample_v;
+
+
 static void zxing(uint16_t x, uint16_t y)
 {
-	static uint8_t one[LED_BYTES] =
-	    { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 	static uint16_t e = 512 << E_SHIFT;
 	static uint32_t m = 512 << M_SHIFT;
 	int16_t d;
@@ -117,6 +122,10 @@ static void zxing(uint16_t x, uint16_t y)
 	static bool on = 0;
 	static const prog_uint8_t *p;
 	static uint16_t cols = 0;
+
+	sample_t++;
+	sample_v = x;
+return;
 
 	e = y+(e-(e >> E_SHIFT));
 	m = y+(m-(m >> M_SHIFT));
@@ -138,6 +147,18 @@ static void zxing(uint16_t x, uint16_t y)
 		cols--;
 	} else {
 		led_off();
+	}
+}
+
+
+static void panic(void)
+{
+	cli();
+	while (1) {
+		led_show(one);
+		_delay_ms(100);
+		led_off();
+		_delay_ms(100);
 	}
 }
 
@@ -164,12 +185,85 @@ int main(void)
 #endif
 
 	led_init();
+
+#if 0
+	led_show(one);
+
+	if (!mmc_init())
+		panic();
+	if (!mmc_begin_write(0))
+		panic();
+
+	uint16_t n = 0;
+
+	for (n = 0; n != 512; n += 2) {
+		mmc_write(n);
+		mmc_write(n >> 8);
+	}
+
+	if (!mmc_end_write())
+		panic();
+
+	if (!mmc_begin_write(n))
+		panic();
+
+	for (; n != 1024; n += 2) {
+		mmc_write(n);
+		mmc_write(n >> 8);
+	}
+
+	if (!mmc_end_write())
+		panic();
+
+	_delay_ms(1000);
+
+	led_off();
+
+	while (1);
+#endif
+
 #if 1
+	uint16_t last_t = 0;
+	uint32_t n = 0;
+
 	sample = zxing;
+	if (!mmc_init())
+		panic();
 	accel_start();
 	sei();
-	while (1);
+	while (1) {
+		uint16_t t, v;
+
+		if (!(n & 511)) {
+			if (n && !mmc_end_write())
+				panic();
+			if (!mmc_begin_write(n))
+				panic();
+		}
+
+#if 0
+	t = n;
+	v = 0;
 #else
+		do {
+			cli();
+			t = sample_t;
+			v = sample_v;
+			sei();
+		}
+		while (t == last_t);
+#endif
+
+		last_t = t;
+		mmc_write(t);
+		mmc_write(t >> 8);
+		mmc_write(v);
+		mmc_write(v >> 8);
+		n += 4;
+	}
+#endif
+
+#if 0
 	static uint8_t p[LED_BYTES];
 	uint8_t mode = 0;
 	uint16_t n = 0, v;
