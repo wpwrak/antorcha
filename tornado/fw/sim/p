@@ -1,7 +1,10 @@
 #!/bin/sh
-./alg >_out
+./alg "$@" >_out
 gnuplot -persist <<EOF
 set style data lines
-plot "_out" using 1, "_out" using 2, "_out" using 3, "_out" using 4, \
-  "_out" using (100*\$5)
+plot "_out" using 1 title "input", \
+  "_out" using 2 title "denoise", \
+  "_out" using 3 title "common", \
+  "_out" using 4 title "diff", \
+  "_out" using (50*\$5-200) lt 7 title "up"
 EOF
