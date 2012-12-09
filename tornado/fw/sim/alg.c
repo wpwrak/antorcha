@@ -67,11 +67,25 @@ static void process(unsigned v)
 }
 
 
-int main(void)
+static void usage(const char *name)
 {
+	fprintf(stderr, "usage: %s [seconds]\n", name);
+	exit(1);
+}
+
+
+int main(int argc, char **argv)
+{
+	double t;
+	char *end;
 	int i;
 
-	for (i = 0; i != 10*S; i++) {
+	if (argc != 2)
+		usage(*argv);
+	t = strtod(argv[1], &end);
+	if (*end)
+		usage(*argv);
+	for (i = 0; i != t*S; i++) {
 		unsigned v = sample((double) i/S);
 
 		process(v);
