@@ -44,28 +44,37 @@ static uint16_t sample(double t)
 #define	E_SHIFT	3	/* ~ 0.1 */
 #define	M_SHIFT	10	/* ~ 1/S */
 
-int main(void)
+
+static void process(unsigned v)
 {
 	uint16_t e = MID << E_SHIFT;
 	uint32_t m = MID << M_SHIFT;
 	int d;
-	int i;
 	bool up = 0;
+
+	e = v+(e-(e >> E_SHIFT));
+	m = v+(m-(m >> M_SHIFT));
+	d = (e >> E_SHIFT)-(m >> M_SHIFT); 
+	if (up) {
+		if (d < -H)
+			up = 0;
+	} else {
+		if (d > H)
+			up = 1;
+	}
+	printf("%d %d %d %d %d\n",
+	    v, e >> E_SHIFT, m >> M_SHIFT, d, up);
+}
+
+
+int main(void)
+{
+	int i;
 
 	for (i = 0; i != 10*S; i++) {
 		unsigned v = sample((double) i/S);
-		e = v+(e-(e >> E_SHIFT));
-		m = v+(m-(m >> M_SHIFT));
-		d = (e >> E_SHIFT)-(m >> M_SHIFT); 
-		if (up) {
-			if (d < -H)
-				up = 0;
-		} else {
-			if (d > H)
-				up = 1;
-		}
-		printf("%d %d %d %d %d\n",
-		    v, e >> E_SHIFT, m >> M_SHIFT, d, up);
+
+		process(v);
 	}
 	return 0;
 }
