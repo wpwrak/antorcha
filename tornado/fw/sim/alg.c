@@ -8,7 +8,7 @@
 #define	G	28	/* 1 Earth gravity in accelerometer units */
 #define	MID	512	/* accelerometer middle value */
 
-#define	S	1000	/* sample rate (samples/s) */
+#define	S	2000	/* sample rate (samples/s) */
 #define	F	2	/* rotational speed in Hz */
 #define	R	0.46	/* radius of accelerometer orbit */
 
@@ -41,8 +41,8 @@ static uint16_t sample(double t)
 }
 
 
-#define	E_SHIFT	3	/* ~ 0.1 */
-#define	M_SHIFT	10	/* ~ 1/S */
+#define	E_SHIFT	6	/* ~ 0.06 */
+#define	M_SHIFT	10	/* ~ 2/S */
 
 
 static void process(unsigned v)
