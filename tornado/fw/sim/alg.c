@@ -47,10 +47,10 @@ static uint16_t sample(double t)
 
 static void process(unsigned v)
 {
-	uint16_t e = MID << E_SHIFT;
-	uint32_t m = MID << M_SHIFT;
+	static uint16_t e = MID << E_SHIFT;
+	static uint32_t m = MID << M_SHIFT;
+	static bool up = 0;
 	int d;
-	bool up = 0;
 
 	e = v+(e-(e >> E_SHIFT));
 	m = v+(m-(m >> M_SHIFT));
@@ -79,16 +79,25 @@ int main(int argc, char **argv)
 	double t;
 	char *end;
 	int i;
+	unsigned v;
 
-	if (argc != 2)
+	switch (argc) {
+	case 1:
+		while (scanf("%u", &v) == 1)
+			process(v);
+		break;
+	case 2:
+		t = strtod(argv[1], &end);
+		if (*end)
+			usage(*argv);
+		for (i = 0; i != t*S; i++) {
+			v = sample((double) i/S);
+			process(v);
+		}
+		break;
+	default:
 		usage(*argv);
-	t = strtod(argv[1], &end);
-	if (*end)
-		usage(*argv);
-	for (i = 0; i != t*S; i++) {
-		unsigned v = sample((double) i/S);
-
-		process(v);
 	}
+
 	return 0;
 }
