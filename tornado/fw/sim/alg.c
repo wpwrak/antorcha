@@ -12,7 +12,7 @@
 #define	F	2	/* rotational speed in Hz */
 #define	R	0.46	/* radius of accelerometer orbit */
 
-#define	H	(G/2)	/* hysteresis, in accelerometer units */
+#define	H	(G/3)	/* hysteresis, in accelerometer units */
 
 
 /* noise pattern: frequency, amplitude pairs */
@@ -41,13 +41,13 @@ static uint16_t sample(double t)
 }
 
 
-#define	E_SHIFT	6	/* ~ 0.06 */
-#define	M_SHIFT	10	/* ~ 2/S */
+#define	E_SHIFT	8	/* ~ 0.06 */
+#define	M_SHIFT	11	/* ~ 2/S */
 
 
 static void process(unsigned v)
 {
-	static uint16_t e = MID << E_SHIFT;
+	static uint32_t e = MID << E_SHIFT;
 	static uint32_t m = MID << M_SHIFT;
 	static bool up = 0;
 	int d;
