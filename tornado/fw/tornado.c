@@ -96,10 +96,10 @@ static uint16_t adc(bool x)
 }
 
 
-#define	E_SHIFT	3	/* ~ 0.1 */
-#define	M_SHIFT	11	/* ~ 1/sample_rate */
+#define	E_SHIFT	8	/* ~ 0.06 */
+#define	M_SHIFT	11	/* ~ 2/sample_rate */
 
-#define	HYSTERESIS	14
+#define	HYSTERESIS	9	/* 1 g / 3 */
 
 
 static const uint8_t img[] PROGMEM = {
@@ -115,8 +115,8 @@ static volatile uint16_t sample_t = 0, sample_v;
 
 static void zxing(uint16_t x, uint16_t y)
 {
-	static uint16_t e = 512 << E_SHIFT;
-	static uint32_t m = 512 << M_SHIFT;
+	static uint32_t e = (uint32_t) 512 << E_SHIFT;
+	static uint32_t m = (uint32_t) 512 << M_SHIFT;
 	int16_t d;
 	static bool up = 0;
 	static bool on = 0;
@@ -125,10 +125,9 @@ static void zxing(uint16_t x, uint16_t y)
 
 	sample_t++;
 	sample_v = x;
-return;
 
-	e = y+(e-(e >> E_SHIFT));
-	m = y+(m-(m >> M_SHIFT));
+	e = x+(e-(e >> E_SHIFT));
+	m = x+(m-(m >> M_SHIFT));
 	d = (e >> E_SHIFT)-(m >> M_SHIFT);
 	if (up) {
 		if (d < -HYSTERESIS)
@@ -227,10 +226,15 @@ int main(void)
 	uint32_t n = 0;
 
 	sample = zxing;
+	/* MMC doesn't work when running from battery, probably because we
+	   have no regulation. Just disable it for now. */
+#if 0
 	if (!mmc_init())
 		panic();
+#endif
 	accel_start();
 	sei();
+while (1);
 	while (1) {
 		uint16_t t, v;
 
