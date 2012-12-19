@@ -54,3 +54,13 @@ test firmware. CH2 (blue) is signal entering the first LED module,
 CH1 (yellow) is the signal exiting the last module. The absence of
 degradation in a 250 ns pulse suggests that we can go as fast as the
 MCU is able to.
+
+
+Image size
+----------
+
+With a radius of 80 cm the circumference is roughly 5000 mm.
+In order to obtain square pixels at the outer radius, we therefore
+need 1000 lines per rotation, irrespective of speed. Each line
+consists of 64 pixels or 8 bytes of data. Therefore, the full disc
+needs roughly 8 kB of data while a quarter disc needs 2 kB.
