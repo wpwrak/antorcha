@@ -8,7 +8,7 @@ A: led
 D: http://www.kingbrightusa.com/images/catalog/SPEC/APTD1608SEC-J3.pdf
 
 N: adxl321
-A: accel
+A: accel-old
 D: http://www.analog.com/static/imported-files/data_sheets/ADXL321.pdf
 
 N: atmega168
@@ -63,7 +63,27 @@ N: 101-00303
 A: card
 D: http://media.digikey.com/pdf/Data%20Sheets/Amphenol%20PDFs/101-00303-xx.pdf
 
-# Panasonic
+# Panasonic "joystick" switch
 N: EVQQ7
 A: sw
 D: http://industrial.panasonic.com/www-data/pdf/ATR0000/ATR0000CE9.pdf
+
+# STM LIS3DH 3D accelerometer
+N: LIS3DH
+A: accel
+D: http://www.st.com/internet/com/TECHNICAL_RESOURCES/TECHNICAL_LITERATURE/DATASHEET/CD00274221.pdf
+
+# TI TPS6216x 1A step-down converters
+N: TPS6216x
+A: reg
+D: http://www.ti.com/lit/ds/symlink/tps62160.pdf
+
+# Taiyo Yuden 2,2 uH 3x3 mm inductor
+N: NR3015T2R2M
+A: inductor
+D: http://www.yuden.co.jp/ut/product/category/inductor/NR3015T2R2M.pdf
+
+N: inductor-footprint
+A: indfp
+#D: http://www.tdk.co.jp/tefe02/e531_vls.pdf
+D: http://www.bourns.com/data/global/pdfs/SRN3015.pdf
