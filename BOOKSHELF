@@ -60,7 +60,7 @@ D: http://www.nxp.com/documents/user_manual/UM10398.pdf
 
 # Amphenol 101-00303 non-push SMT uSD card connector
 N: 101-00303
-A: card
+A: card-old
 D: http://media.digikey.com/pdf/Data%20Sheets/Amphenol%20PDFs/101-00303-xx.pdf
 
 # Panasonic "joystick" switch
@@ -72,6 +72,11 @@ D: http://industrial.panasonic.com/www-data/pdf/ATR0000/ATR0000CE9.pdf
 N: LIS3DH
 A: accel
 D: http://www.st.com/internet/com/TECHNICAL_RESOURCES/TECHNICAL_LITERATURE/DATASHEET/CD00274221.pdf
+
+# AN3308: LIS3DH: MEMS digital output motion sensor [...]
+N: AN3308
+A: accelan
+D: http://www.st.com/internet/com/TECHNICAL_RESOURCES/TECHNICAL_LITERATURE/APPLICATION_NOTE/CD00290365.pdf
 
 # TI TPS6216x 1A step-down converters
 N: TPS6216x
@@ -87,3 +92,8 @@ N: inductor-footprint
 A: indfp
 #D: http://www.tdk.co.jp/tefe02/e531_vls.pdf
 D: http://www.bourns.com/data/global/pdfs/SRN3015.pdf
+
+# Amphenol 114-00841-68 push-pull SMT uSD card connector
+N: 114-00841-68
+A: card
+D: http://media.digikey.com/pdf/Data%20Sheets/Amphenol%20PDFs/114-00841-68.pdf
