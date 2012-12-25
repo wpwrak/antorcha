@@ -1,66 +1,66 @@
-Cmp-Mod V01 Created by CvPcb (2012-04-11 BZR 3505)-testing date = Mon Nov  5 18:17:11 2012
+Cmp-Mod V01 Created by CvPcb (2012-04-11 BZR 3505)-testing date = Tue Dec 25 19:43:58 2012
 
 BeginCmp
-TimeStamp = /509808CE;
+TimeStamp = /50D66BAE;
 Reference = C1;
+ValeurCmp = 10u/16V;
+IdModule  = 0805;
+EndCmp
+
+BeginCmp
+TimeStamp = /50D66B9F;
+Reference = C2;
+ValeurCmp = 22u/6.3V;
+IdModule  = 0805;
+EndCmp
+
+BeginCmp
+TimeStamp = /50980874;
+Reference = C3;
 ValeurCmp = 100n;
 IdModule  = 0402;
 EndCmp
 
 BeginCmp
 TimeStamp = /50980865;
-Reference = C2;
-ValeurCmp = 100n;
-IdModule  = 0402;
-EndCmp
-
-BeginCmp
-TimeStamp = /50980874;
-Reference = C3;
-ValeurCmp = 1u;
-IdModule  = 0603;
-EndCmp
-
-BeginCmp
-TimeStamp = /509808A1;
 Reference = C4;
 ValeurCmp = 100n;
 IdModule  = 0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /50980FF7;
+TimeStamp = /50D66BCC;
 Reference = C5;
-ValeurCmp = 1u;
+ValeurCmp = 10u;
 IdModule  = 0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /509808B0;
+TimeStamp = /50D66CA6;
 Reference = C6;
 ValeurCmp = 100n;
 IdModule  = 0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /509808BF;
+TimeStamp = /50980FF7;
 Reference = C7;
-ValeurCmp = 100n;
+ValeurCmp = 1u;
 IdModule  = 0402;
 EndCmp
 
 BeginCmp
-TimeStamp = /50980883;
+TimeStamp = /50D66C70;
 Reference = CON1;
-ValeurCmp = CONN_4;
-IdModule  = PAD_120x60_4x100mil;
+ValeurCmp = CONN_1;
+IdModule  = PAD_R_120x60;
 EndCmp
 
 BeginCmp
-TimeStamp = /5098082E;
+TimeStamp = /50D66C61;
 Reference = CON2;
-ValeurCmp = CONN_6;
-IdModule  = PAD_2mm_6x50mil;
+ValeurCmp = CONN_1;
+IdModule  = PAD_R_120x60;
 EndCmp
 
 BeginCmp
@@ -71,24 +71,45 @@ IdModule  = PAD_80x80_6x100mil;
 EndCmp
 
 BeginCmp
-TimeStamp = /50980818;
+TimeStamp = /50D8BF2A;
 Reference = CON4;
-ValeurCmp = MEMCARD8;
-IdModule  = 8:10-SOCKET-RA;
+ValeurCmp = CONN_8;
+IdModule  = PAD_2mm_8x50mil;
 EndCmp
 
 BeginCmp
-TimeStamp = /50980809;
-Reference = I1;
-ValeurCmp = ATMEGA8;
-IdModule  = QFP32;
+TimeStamp = /50D66B90;
+Reference = CON5;
+ValeurCmp = MEMCARD8-SHIELD4-SW;
+IdModule  = 8:10-SOCKET-RA-PUSH-PULL;
+EndCmp
+
+BeginCmp
+TimeStamp = /50D66AC2;
+Reference = D1;
+ValeurCmp = ORANGE;
+IdModule  = 0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /50D66BBD;
+Reference = L1;
+ValeurCmp = 2.2uH/1.5A;
+IdModule  = INDUCTOR-2P-3mmx3mm;
 EndCmp
 
 BeginCmp
 TimeStamp = /509808F1;
 Reference = Q1;
 ValeurCmp = PMOSFET-GSD;
-IdModule  = SOT-323;
+IdModule  = SOT-523;
+EndCmp
+
+BeginCmp
+TimeStamp = /50D9A150;
+Reference = R1;
+ValeurCmp = 100;
+IdModule  = 0402;
 EndCmp
 
 BeginCmp
@@ -99,10 +120,24 @@ IdModule  = EVQQ7;
 EndCmp
 
 BeginCmp
-TimeStamp = /50980892;
+TimeStamp = /50D9AEC8;
 Reference = U1;
-ValeurCmp = ADXL32X;
-IdModule  = QFN16-LFCSP_LQ;
+ValeurCmp = TPS6216X;
+IdModule  = DFN-8;
+EndCmp
+
+BeginCmp
+TimeStamp = /50D66A9A;
+Reference = U2;
+ValeurCmp = LPC1112FHN33/202;
+IdModule  = QFN32-HVQFN;
+EndCmp
+
+BeginCmp
+TimeStamp = /50D66AB3;
+Reference = U3;
+ValeurCmp = LIS3DH;
+IdModule  = LGA-16-3x3;
 EndCmp
 
 EndListe
