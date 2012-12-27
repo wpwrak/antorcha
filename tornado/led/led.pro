@@ -20,6 +20,8 @@ LibName5=pwr
 LibName6=74x595
 LibName7=gencon
 LibName8=powered
+LibName9=tps6216x
+LibName10=inductor
 [cvpcb]
 version=1
 NetIExt=net
@@ -48,3 +50,4 @@ LibName1=stdpass
 LibName2=pads-array
 LibName3=sot
 LibName4=ssop
+LibName5=inductor-2p
