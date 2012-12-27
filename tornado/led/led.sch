@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Wed Dec 26 22:53:13 2012
+EESchema Schematic File Version 2  date Thu Dec 27 13:29:58 2012
 LIBS:c
 LIBS:r
 LIBS:led
@@ -349,9 +349,9 @@ F 1 "POWERED" H 7200 1550 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Text Label 2300 4400 0    60   ~ 0
-DS
+DIN
 Text Label 9100 4400 0    60   ~ 0
-DS
+DOUT
 $Comp
 L CONN_8 CON1
 U 1 1 50DBACA7
