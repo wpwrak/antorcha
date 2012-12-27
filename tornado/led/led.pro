@@ -51,3 +51,4 @@ LibName2=pads-array
 LibName3=sot
 LibName4=ssop
 LibName5=inductor-2p
+LibName6=dfn
