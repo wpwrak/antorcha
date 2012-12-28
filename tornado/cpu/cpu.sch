@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Wed Dec 26 21:47:08 2012
+EESchema Schematic File Version 2  date Fri Dec 28 18:42:58 2012
 LIBS:c
 LIBS:r
 LIBS:inductor
@@ -20,7 +20,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 2
 Title ""
-Date "27 dec 2012"
+Date "28 dec 2012"
 Rev ""
 Comp ""
 Comment1 ""
@@ -189,9 +189,9 @@ Text Label 2000 3150 0    60   ~ 0
 RXD
 Text Label 2000 3250 0    60   ~ 0
 TXD
-Text Label 2000 3350 0    60   ~ 0
-nISP
 Text Label 2000 3450 0    60   ~ 0
+nISP
+Text Label 2000 3350 0    60   ~ 0
 nRESET
 Text Label 2000 3550 0    60   ~ 0
 3V3
